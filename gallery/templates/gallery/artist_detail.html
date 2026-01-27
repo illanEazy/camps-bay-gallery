@@ -1,0 +1,150 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}{{ artist.name }} | Camps Bay Art Gallery{% endblock %}
+
+{% block extra_css %}
+<style>
+    .artist-detail-section {
+        padding: var(--space-xl) 0;
+    }
+    
+    .artist-header {
+        margin-bottom: var(--space-xl);
+    }
+    
+    /* Circular border for artist image */
+    .artist-image-large img {
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--color-white);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    /* Bio section */
+    .artist-bio {
+        max-width: 800px;
+        margin: 0 auto var(--space-xl);
+    }
+    
+    /* Featured Works section - aligned with bio */
+    .artist-artworks {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Horizontal scrollable container */
+    .artworks-scroll {
+        overflow-x: auto;
+        padding-bottom: var(--space-md);
+        margin-top: var(--space-lg);
+    }
+    
+    .artworks-scroll::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .artworks-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .artworks-scroll::-webkit-scrollbar-thumb {
+        background: var(--color-secondary);
+        border-radius: 4px;
+    }
+    
+    /* Horizontal flex layout - reusing artwork-card from components.css */
+    .artworks-horizontal {
+        display: flex;
+        gap: var(--space-lg);
+    }
+    
+    .artworks-horizontal .artwork-card {
+        flex: 0 0 240px;
+        min-width: 240px;
+    }
+    
+    /* Artwork counter */
+    .artwork-counter {
+        text-align: center;
+        margin-top: var(--space-md);
+        font-size: 14px;
+        color: var(--color-gray);
+    }
+    
+    @media (max-width: 768px) {
+        .artist-bio,
+        .artist-artworks {
+            max-width: 100%;
+            padding: 0 var(--space-md);
+        }
+        
+        .artworks-horizontal .artwork-card {
+            flex: 0 0 200px;
+            min-width: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Artist Detail Page -->
+<section class="artist-detail-section section-light">
+    <div class="container">
+        <!-- Artist Header -->
+        <div class="artist-header text-center">
+            <div class="artist-image-large mb-lg">
+                <img src="{{ artist.image }}" alt="{{ artist.name }}">
+            </div>
+            <h1 class="h1 mb-sm">{{ artist.name }}</h1>
+            <div class="artist-location text-large text-gray">
+                <i class="fas fa-map-marker-alt mr-xs"></i> {{ artist.location }}
+            </div>
+        </div>
+        
+        <!-- Bio Section -->
+        <div class="artist-bio">
+            <h2 class="h3 mb-md">Bio</h2>
+            <p class="text-regular mb-md">{{ artist.bio }}</p>
+        </div>
+        
+        <!-- Featured Works Section - Aligned with Bio -->
+        <div class="artist-artworks">
+            <h2 class="h3 mb-md">Featured Works</h2>
+            
+            {% if artist.artworks %}
+                <!-- Horizontal Scrollable Artwork Container -->
+                <div class="artworks-scroll">
+                    <div class="artworks-horizontal">
+                        {% for artwork in artist.artworks %}
+                        <!-- Reusing artwork-card from components.css -->
+                        <div class="artwork-card">
+                            <div class="artwork-image">
+                                <img src="{{ artwork.image }}" alt="{{ artwork.title }}">
+                            </div>
+                            <div class="artwork-info">
+                                <div class="artwork-title h5 mt-xs">{{ artwork.title }}</div>
+                                <div class="artwork-medium text-small text-gray">{{ artwork.medium }}, {{ artwork.year }}</div>
+                                <div class="artwork-actions flex mt-md">
+                                    <button class="inquire-btn btn btn-secondary">INQUIRE</button>
+                                    <button class="view-btn btn btn-primary ml-sm">VIEW</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Artwork Counter -->
+                <div class="artwork-counter">
+                    Showing {{ artist.artworks|length }} artwork{{ artist.artworks|length|pluralize }}
+                </div>
+            {% else %}
+                <p class="text-regular text-gray">No artworks available at the moment.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

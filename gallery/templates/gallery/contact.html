@@ -1,0 +1,18 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Contact Us - Camps Bay Art Gallery{% endblock %}
+
+{% block content %}
+    <!-- Contact Hero Section -->
+    {% include 'gallery/includes/_contact_hero.html' %}
+
+    <!-- Contact Form Section -->
+    <section class="contact-form-section section-light">
+        {% include 'gallery/includes/_contact_form.html' %}
+    </section>
+
+    <!-- Visit Us Section -->
+    <section class="contact-visit-section section">
+        {% include 'gallery/includes/_contact_visit.html' %}
+    </section>
+{% endblock %}

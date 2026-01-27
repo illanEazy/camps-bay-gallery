@@ -1,0 +1,82 @@
+<!-- ==========================================================================
+   ARTISTS SECTION - HOME PAGE CAROUSEL
+   ========================================================================== -->
+
+   <div class="artists-header">
+    <h2>Artists We Work With</h2>
+</div>
+<div class="artists-carousel-container">
+    <div class="artists-carousel">
+        <div class="artists-track" id="artistsTrack">
+            <!-- Exactly 6 cards for the carousel -->
+            <!-- Amara Thompson -->
+            <div class="artist-card">
+                <a href="{% url 'artist_detail' artist_id=1 %}" class="artist-card-link">
+                    <div class="artist-image">
+                        <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&h=800&fit=crop" alt="Amara Thompson">
+                    </div>
+                    <div class="artist-name">Amara Thompson</div>
+                </a>
+            </div>
+            
+            <!-- Marcus Chen -->
+            <div class="artist-card">
+                <a href="{% url 'artist_detail' artist_id=2 %}" class="artist-card-link">
+                    <div class="artist-image">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop" alt="Marcus Chen">
+                    </div>
+                    <div class="artist-name">Marcus Chen</div>
+                </a>
+            </div>
+            
+            <!-- Sofia Rodriguez -->
+            <div class="artist-card">
+                <a href="{% url 'artist_detail' artist_id=3 %}" class="artist-card-link">
+                    <div class="artist-image">
+                        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=800&fit=crop" alt="Sofia Rodriguez">
+                    </div>
+                    <div class="artist-name">Sofia Rodriguez</div>
+                </a>
+            </div>
+            
+            <!-- James Williams -->
+            <div class="artist-card">
+                <a href="{% url 'artist_detail' artist_id=4 %}" class="artist-card-link">
+                    <div class="artist-image">
+                        <img src="https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?w=800&h=800&fit=crop" alt="James Williams">
+                    </div>
+                    <div class="artist-name">James Williams</div>
+                </a>
+            </div>
+            
+            <!-- Zara Okafor -->
+            <div class="artist-card">
+                <a href="{% url 'artist_detail' artist_id=5 %}" class="artist-card-link">
+                    <div class="artist-image">
+                        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=800&fit=crop" alt="Zara Okafor">
+                    </div>
+                    <div class="artist-name">Zara Okafor</div>
+                </a>
+            </div>
+            
+            <!-- Kai Nakamura -->
+            <div class="artist-card">
+                <a href="{% url 'artist_detail' artist_id=6 %}" class="artist-card-link">
+                    <div class="artist-image">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop" alt="Kai Nakamura">
+                    </div>
+                    <div class="artist-name">Kai Nakamura</div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="carousel-arrows">
+        <!-- CHANGED BACK: Arrow buttons for carousel navigation -->
+        <button class="arrow-btn" id="prevBtn">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="arrow-btn" id="nextBtn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>

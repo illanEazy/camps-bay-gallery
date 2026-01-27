@@ -1,0 +1,40 @@
+altgraph @ file:///AppleInternal/Library/BuildRoots/4~CAP1ugDqYZ2ZVF_54thwSWnK-8L4LO5_Zcx-VcI/Library/Caches/com.apple.xbs/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
+asgiref==3.10.0
+attrs==20.3.0
+certifi==2025.1.31
+cffi==2.0.0
+charset-normalizer==3.4.1
+crispy-bootstrap4==2025.6
+cryptography==46.0.3
+Django==4.2.25
+django-allauth==65.12.0
+django-crispy-forms==2.5
+django-sslserver==0.22
+future @ file:///AppleInternal/Library/BuildRoots/4~CAP1ugDqYZ2ZVF_54thwSWnK-8L4LO5_Zcx-VcI/Library/Caches/com.apple.xbs/Sources/python3/future-0.18.2-py3-none-any.whl
+idna==3.10
+jellyfish==0.11.2
+lib50==3.0.12
+macholib @ file:///AppleInternal/Library/BuildRoots/4~CAP1ugDqYZ2ZVF_54thwSWnK-8L4LO5_Zcx-VcI/Library/Caches/com.apple.xbs/Sources/python3/macholib-1.15.2-py2.py3-none-any.whl
+markdown2==2.5.3
+MarkupSafe==3.0.3
+numpy==2.0.2
+packaging==24.2
+pandas==2.3.3
+pexpect==4.9.0
+pillow==11.2.1
+ptyprocess==0.7.0
+pycparser==2.22
+PyJWT==2.10.1
+python-dateutil==2.9.0.post0
+pytz==2025.1
+PyYAML==6.0.2
+qrcode==8.2
+requests==2.32.3
+scipy==1.13.1
+six @ file:///AppleInternal/Library/BuildRoots/4~CAP1ugDqYZ2ZVF_54thwSWnK-8L4LO5_Zcx-VcI/Library/Caches/com.apple.xbs/Sources/python3/six-1.15.0-py2.py3-none-any.whl
+sqlparse==0.4.4
+submit50==3.2.0
+termcolor==1.1.0
+typing_extensions==4.15.0
+tzdata==2023.3
+urllib3==2.3.0

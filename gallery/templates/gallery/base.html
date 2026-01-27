@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Camps Bay Art Gallery{% endblock %}</title>
+    
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <!-- Theme Variables Definition -->
+    <style>
+        :root {
+            /* COLOR PALETTE - EXACT MATCH TO ORIGINAL */
+            --color-primary: #2c3e50;       /* Dark blue-gray - Main text, buttons */
+            --color-secondary: #3498db;     /* Blue - Accents, hover states */
+            --color-accent: #000000;        /* Black - Headers, backgrounds */
+            --color-light: #f8f8f8;         /* Light gray - Backgrounds */
+            --color-white: #ffffff;         /* White - Backgrounds, text on dark */
+            --color-gray: #888888;          /* Medium gray - Secondary text */
+            --color-light-gray: #bbbbbb;    /* Light gray - Tertiary text */
+            --color-dark-gray: #555555;     /* Dark gray - Paragraphs */
+            
+            /* TYPOGRAPHY - EXACT MATCH */
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-weight-light: 300;
+            --font-weight-regular: 400;
+            --font-weight-medium: 500;
+            --font-weight-bold: 600;
+            --font-weight-heavy: 700;
+            
+            /* SPACING - CONSISTENT ACROSS SITE */
+            --space-xs: 5px;
+            --space-sm: 10px;
+            --space-md: 20px;
+            --space-lg: 40px;
+            --space-xl: 60px;
+            --space-xxl: 80px;
+            
+            /* TRANSITIONS - SMOOTH ANIMATIONS */
+            --transition-fast: 0.3s ease;
+            --transition-medium: 0.6s ease;
+            --transition-slow: 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* SHADOWS - CONSISTENT DEPTH */
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 8px 16px rgba(0,0,0,0.1);
+            --shadow-heavy: 0 0 30px rgba(0,0,0,0.15);
+            
+            /* Z-INDEX LAYERS */
+            --z-dropdown: 1000;
+            --z-modal: 2000;
+            --z-tooltip: 3000;
+        }
+        
+        /* Ensure proper spacing for fixed header */
+        main {
+            padding-top: 110px; /* Match carousel-section margin-top */
+        }
+    </style>
+    
+    <!-- Base CSS (Utility classes only) -->
+    <link rel="stylesheet" href="{% static 'gallery/css/base.css' %}">
+    
+    <!-- Header CSS (Navigation only) -->
+    <link rel="stylesheet" href="{% static 'gallery/css/header.css' %}">
+    
+    <!-- Component CSS (ALL other styles from original index.html) -->
+    <link rel="stylesheet" href="{% static 'gallery/css/components.css' %}">
+    
+    <!-- Page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header/Navigation -->
+    {% include 'gallery/includes/_header.html' %}
+    
+    <!-- Main Content -->
+    <main>
+        <!-- Messages Display -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="message message-{{ message.tags }}">
+                {{ message }}
+                <button class="message-close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}
+        <!-- Page content goes here -->
+        {% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% include 'gallery/includes/_footer.html' %}
+    
+    <!-- Artwork Modal -->
+    {% include 'gallery/includes/_modal.html' %}
+    
+    <!-- Base JavaScript -->
+    <script src="{% static 'gallery/js/main.js' %}"></script>
+    
+    <!-- Page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

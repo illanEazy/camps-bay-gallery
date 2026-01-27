@@ -1,0 +1,546 @@
+{% extends 'gallery/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Camps Bay Art Gallery{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Header */
+    .dashboard-header {
+        padding-top: 180px;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        letter-spacing: 3px;
+        color: var(--color-primary);
+        margin-bottom: 1rem;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1rem;
+        color: var(--color-gray);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Dashboard Container */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem 4rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    /* Dashboard Cards */
+    .dashboard-card {
+        background: linear-gradient(135deg, #f8f9fc 0%, #eef1f7 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+    }
+
+    /* Card Header */
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-header i {
+        font-size: 2rem;
+        color: var(--color-secondary);
+    }
+
+    .card-header h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--color-primary);
+        margin: 0;
+    }
+
+    .card-description {
+        font-size: 0.95rem;
+        color: var(--color-gray);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    /* Card Actions */
+    .card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .dashboard-btn {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background: var(--color-white);
+        border: 2px solid var(--color-border);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--color-primary);
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-btn:hover {
+        background: linear-gradient(45deg, var(--color-secondary), #00bcd4);
+        color: var(--color-white);
+        border-color: transparent;
+        transform: translateX(5px);
+    }
+
+    .dashboard-btn i {
+        font-size: 1.2rem;
+        width: 24px;
+    }
+
+    /* NEW: Vertical Rectangular Modal Styling */
+    .vertical-modal .modal-content {
+        max-width: 500px;
+        width: 90%;
+        padding: 2.5rem;
+    }
+
+    .vertical-modal .modal-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .vertical-modal .modal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .vertical-btn {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem 2rem;
+        background: linear-gradient(135deg, #f8f9fc 0%, #eef1f7 100%);
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--color-primary);
+        transition: all 0.3s ease;
+        width: 100%;
+        text-align: left;
+    }
+
+    .vertical-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Add button styling */
+    .vertical-btn.add-btn:hover {
+        background: linear-gradient(135deg, var(--color-success), var(--color-secondary));
+        color: var(--color-white);
+        border-color: transparent;
+    }
+
+    .vertical-btn.add-btn:hover i {
+        color: var(--color-white);
+    }
+
+    /* Edit button styling */
+    .vertical-btn.edit-btn:hover {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: var(--color-white);
+        border-color: transparent;
+    }
+
+    .vertical-btn.edit-btn:hover i {
+        color: var(--color-white);
+    }
+
+    .vertical-btn i {
+        font-size: 1.8rem;
+        color: var(--color-secondary);
+        transition: color 0.3s ease;
+        min-width: 30px;
+    }
+
+    .vertical-btn .btn-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        flex: 1;
+    }
+
+    .vertical-btn .btn-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--color-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .vertical-btn .btn-subtitle {
+        font-size: 0.9rem;
+        color: var(--color-gray);
+        line-height: 1.4;
+    }
+
+    .vertical-btn:hover .btn-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .dashboard-container {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header {
+            padding-top: 200px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding-top: 180px;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 0.9rem;
+        }
+
+        .dashboard-container {
+            padding: 0 1rem 2rem;
+        }
+
+        .dashboard-card {
+            padding: 1.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .dashboard-btn {
+            font-size: 0.9rem;
+        }
+
+        .vertical-modal .modal-content {
+            padding: 2rem 1.5rem;
+        }
+
+        .vertical-btn {
+            padding: 1.25rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1>ADMIN DASHBOARD</h1>
+        <p class="dashboard-subtitle">Welcome to the admin dashboard where you can manage your gallery, artists, and view analytics</p>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-container">
+        <!-- Content Management Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <i class="fas fa-palette"></i>
+                <h2>Gallery Content</h2>
+            </div>
+            <p class="card-description">Manage artists, artworks, and gallery content</p>
+
+            <div class="card-actions">
+                <a href="#" class="dashboard-btn" id="manageArtists">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Artist Management</span>
+                </a>
+                <a href="#" class="dashboard-btn" id="manageArtworks">
+                    <i class="fas fa-images"></i>
+                    <span>Artwork Management</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Data Analytics Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i>
+                <h2>Data Analytics</h2>
+            </div>
+            <p class="card-description">View detailed insights about gallery visits and customer behavior</p>
+            
+            <div class="card-actions">
+                <a href="#" class="dashboard-btn" id="viewAnalytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>View Analytics Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================================
+         ARTISTS MANAGEMENT MODAL - VERTICAL RECTANGULAR BUTTONS
+         ============================================================================
+    -->
+    <div id="artistsModal" class="modal-overlay vertical-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeArtistsModal">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Modal Header Only - No Description -->
+            <div class="modal-header">
+                <i class="fas fa-user-circle"></i>
+                <h2>Artist Management</h2>
+            </div>
+            
+            <!-- Vertical Stacked Rectangular Buttons -->
+            <div class="modal-actions">
+                <!-- Add Artist Button -->
+                <a href="{% url 'add_artist' %}" class="vertical-btn add-btn">
+                    <i class="fas fa-user-plus"></i>
+                    <div class="btn-text">
+                        <span class="btn-title">Add New Artist</span>
+                        <span class="btn-subtitle">Add a new artist to your gallery collection</span>
+                    </div>
+                </a>
+                
+                <!-- View & Edit Artists Button -->
+                <a href="{% url 'view_artists' %}" class="vertical-btn edit-btn">
+                    <i class="fas fa-edit"></i>
+                    <div class="btn-text">
+                        <span class="btn-title">View & Edit Artists</span>
+                        <span class="btn-subtitle">View, edit, or remove existing artists from your gallery</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================================
+         ARTWORKS MANAGEMENT MODAL
+         ============================================================================
+    -->
+    <div id="artworksModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="closeArtworksModal">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <i class="fas fa-images"></i>
+                <h2>Artwork Management</h2>
+            </div>
+            
+            <p class="modal-description">Choose an action to manage artworks in your collection</p>
+            
+            <div class="modal-actions grid-2">
+                <a href="#" class="modal-btn add-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    <div class="btn-text">
+                        <span class="btn-title">Add New Artwork</span>
+                        <span class="btn-subtitle">Add a new artwork to your collection</span>
+                    </div>
+                </a>
+                
+                <a href="#" class="modal-btn remove-btn">
+                    <i class="fas fa-edit"></i>
+                    <div class="btn-text">
+                        <span class="btn-title">View & Edit Artworks</span>
+                        <span class="btn-subtitle">View, edit, or remove existing artworks</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================================
+         ANALYTICS MODAL
+         ============================================================================
+    -->
+    <div id="analyticsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="closeAnalyticsModal">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <i class="fas fa-chart-line"></i>
+                <h2>Analytics Dashboard</h2>
+            </div>
+            
+            <p class="modal-description">Choose what analytics you want to view</p>
+            
+            <div class="modal-actions">
+                <a href="#" class="modal-btn">
+                    <i class="fas fa-chart-bar"></i>
+                    <div class="btn-text">
+                        <span class="btn-title">Sales Analytics</span>
+                        <span class="btn-subtitle">View sales reports and revenue data</span>
+                    </div>
+                </a>
+                
+                <a href="#" class="modal-btn">
+                    <i class="fas fa-users"></i>
+                    <div class="btn-text">
+                        <span class="btn-title">Customer Analytics</span>
+                        <span class="btn-subtitle">View customer behavior and demographics</span>
+                    </div>
+                </a>
+                
+                <a href="#" class="modal-btn">
+                    <i class="fas fa-eye"></i>
+                    <div class="btn-text">
+                        <span class="btn-title">Viewership Analytics</span>
+                        <span class="btn-subtitle">View page views and engagement metrics</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ============================================================================
+        // MODAL FUNCTIONALITY
+        // ============================================================================
+        
+        function initModal(openBtnId, modalId, closeBtnId) {
+            const modal = document.getElementById(modalId);
+            const openBtn = document.getElementById(openBtnId);
+            const closeBtn = document.getElementById(closeBtnId);
+            
+            if (!modal || !openBtn) return;
+            
+            // Open modal
+            openBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close modal with close button
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            }
+            
+            // Close modal when clicking outside content
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+        
+        // Initialize modals
+        initModal('manageArtists', 'artistsModal', 'closeArtistsModal');
+        initModal('manageArtworks', 'artworksModal', 'closeArtworksModal');
+        initModal('viewAnalytics', 'analyticsModal', 'closeAnalyticsModal');
+        
+        // Prevent modal content clicks from closing modal
+        document.querySelectorAll('.modal-content').forEach(function(content) {
+            content.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+        
+        // ============================================================================
+        // PLACEHOLDER FUNCTIONS FOR FUTURE FEATURES
+        // ============================================================================
+        
+        // Artworks placeholder
+        const artworksModal = document.getElementById('artworksModal');
+        if (artworksModal) {
+            artworksModal.querySelectorAll('.modal-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    if (this.getAttribute('href') === '#') {
+                        e.preventDefault();
+                        alert('Manage Artworks feature - Coming soon!\n\nThis feature will allow you to:\n• Add new artworks to the collection\n• Edit artwork details and pricing\n• Remove artworks from the gallery');
+                    }
+                });
+            });
+        }
+        
+        // Analytics placeholder
+        const analyticsModal = document.getElementById('analyticsModal');
+        if (analyticsModal) {
+            analyticsModal.querySelectorAll('.modal-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    if (this.getAttribute('href') === '#') {
+                        e.preventDefault();
+                        alert('Analytics Dashboard - Coming soon!\n\nThis feature will provide:\n• Geographic purchase data visualization\n• Customer behavior insights\n• Sales metrics and trends\n• Revenue analytics');
+                    }
+                });
+            });
+        }
+        
+        // ============================================================================
+        // DASHBOARD BUTTON HOVER EFFECTS
+        // ============================================================================
+        
+        document.querySelectorAll('.dashboard-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+        
+        // ============================================================================
+        // VERTICAL BUTTON HOVER EFFECTS
+        // ============================================================================
+        
+        document.querySelectorAll('.vertical-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+{% endblock %}

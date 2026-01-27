@@ -1,0 +1,314 @@
+from django import forms
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
+from .models import User, UserProfile, OTP, Artist
+from django.utils import timezone
+from datetime import timedelta
+import re
+
+# Custom Login Form - FIXED TO ACCEPT REQUEST
+class CustomLoginForm(forms.Form):
+    """Custom login form that doesn't inherit from AuthenticationForm"""
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your email',
+            'id': 'email'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your password',
+            'id': 'password'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+    
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+        
+        if email and password:
+            if not self.request:
+                raise forms.ValidationError("Request context is missing.")
+            
+            # Authenticate using email
+            user = authenticate(self.request, email=email, password=password)
+            if user is None:
+                raise forms.ValidationError(
+                    "Invalid email or password. Please try again.",
+                    code='invalid_login',
+                )
+            elif not user.is_email_verified:
+                raise forms.ValidationError(
+                    "Please verify your email address before logging in.",
+                    code='email_not_verified',
+                )
+            else:
+                self.user_cache = user
+        
+        return self.cleaned_data
+
+# Custom Signup Form
+class CustomSignupForm(UserCreationForm):
+    first_name = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your first name',
+            'id': 'firstName'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your last name',
+            'id': 'lastName'
+        })
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your email',
+            'id': 'email'
+        })
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Create a password',
+            'id': 'password'
+        })
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Confirm your password',
+            'id': 'confirmPassword'
+        })
+    )
+    role = forms.ChoiceField(
+        choices=[('customer', 'Customer')],
+        initial='customer',
+        widget=forms.HiddenInput()
+    )
+    
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'password1', 'password2')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Don't pop username - it doesn't exist in our form
+        
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("An account with this email already exists.")
+        return email
+    
+    def clean_password1(self):
+        password1 = self.cleaned_data.get('password1')
+        
+        # Password validation rules
+        if len(password1) < 8:
+            raise ValidationError("Password must be at least 8 characters long.")
+        if not re.search(r'[A-Z]', password1):
+            raise ValidationError("Password must contain at least one uppercase letter.")
+        if not re.search(r'[a-z]', password1):
+            raise ValidationError("Password must contain at least one lowercase letter.")
+        if not re.search(r'[0-9]', password1):
+            raise ValidationError("Password must contain at least one number.")
+        
+        return password1
+
+# OTP Verification Form
+class OTPVerificationForm(forms.Form):
+    otp_code = forms.CharField(
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter 6-digit OTP',
+            'id': 'otpCode'
+        })
+    )
+    
+    def __init__(self, user=None, otp_type=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.otp_type = otp_type
+    
+    def clean_otp_code(self):
+        otp_code = self.cleaned_data.get('otp_code')
+        
+        if self.user and self.otp_type:
+            try:
+                otp = OTP.objects.get(
+                    user=self.user,
+                    otp_code=otp_code,
+                    otp_type=self.otp_type,
+                    is_used=False
+                )
+                
+                if not otp.is_valid():
+                    raise ValidationError("OTP has expired. Please request a new one.")
+                
+                self.otp_instance = otp
+            except OTP.DoesNotExist:
+                raise ValidationError("Invalid OTP code. Please check and try again.")
+        
+        return otp_code
+
+# Forgot Password Form
+class CustomForgotPasswordForm(PasswordResetForm):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your email address',
+            'id': 'email'
+        })
+    )
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        try:
+            user = User.objects.get(email=email)
+            if not user.is_email_verified:
+                raise ValidationError("Please verify your email address first.")
+            self.user = user
+        except User.DoesNotExist:
+            raise ValidationError("No account found with this email address.")
+        return email
+
+# Reset Password Form
+class CustomResetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'New password',
+            'id': 'newPassword1'
+        })
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Confirm new password',
+            'id': 'newPassword2'
+        })
+    )
+
+# User Profile Form
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['profile_picture', 'bio', 'address', 'city', 'country', 'newsletter_subscription']
+        widgets = {
+            'bio': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'rows': 4,
+                'placeholder': 'Tell us about yourself...'
+            }),
+            'address': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'rows': 3,
+                'placeholder': 'Your address...'
+            }),
+            'city': forms.TextInput(attrs={'class': 'form-input'}),
+            'country': forms.TextInput(attrs={'class': 'form-input'}),
+        }
+
+# FILE: gallery/forms.py - Add these forms at the bottom
+
+# Artist Form
+class ArtistForm(forms.ModelForm):
+    class Meta:
+        model = Artist
+        fields = [
+            'first_name', 'last_name', 'email', 'location', 
+            'specialty', 'bio', 'profile_picture', 'image_url', 'is_active'
+        ]
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Enter first name',
+                'id': 'first_name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Enter last name (optional)',
+                'id': 'last_name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Enter email address (optional)',
+                'id': 'email'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Enter location (optional)',
+                'id': 'location'
+            }),
+            'specialty': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Enter specialty/art style (optional)',
+                'id': 'specialty'
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'placeholder': 'Enter artist biography (optional)',
+                'id': 'bio',
+                'rows': 6
+            }),
+            'image_url': forms.URLInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Enter image URL (optional)',
+                'id': 'image_url'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make all fields except first_name optional
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = False
+        self.fields['email'].required = False
+        self.fields['location'].required = False
+        self.fields['specialty'].required = False
+        self.fields['bio'].required = False
+        self.fields['profile_picture'].required = False
+        self.fields['image_url'].required = False
+        self.fields['is_active'].required = False
+        self.fields['is_active'].initial = True
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            # Check if email is already used by another artist
+            if self.instance.pk:  # Editing existing artist
+                if Artist.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+                    raise ValidationError("This email is already associated with another artist.")
+            else:  # Adding new artist
+                if Artist.objects.filter(email=email).exists():
+                    raise ValidationError("This email is already associated with another artist.")
+        return email
+    
+    def clean_image_url(self):
+        image_url = self.cleaned_data.get('image_url')
+        if image_url:
+            # Basic URL validation
+            from django.core.validators import URLValidator
+            from django.core.exceptions import ValidationError as DjangoValidationError
+            
+            val = URLValidator()
+            try:
+                val(image_url)
+            except DjangoValidationError:
+                raise ValidationError("Please enter a valid URL (include http:// or https://)")
+        return image_url

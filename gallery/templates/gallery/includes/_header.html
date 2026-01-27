@@ -1,0 +1,60 @@
+<!-- ==========================================================================
+   HEADER COMPONENT - REUSABLE NAVIGATION (Matches Original Index.html)
+   ========================================================================== -->
+
+   <nav>
+    <div class="nav-top">
+        <div class="logo">Camps Bay Art Gallery</div>
+        <ul class="menu-items">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#visit">Visit</a></li>
+            <li class="dropdown">
+                <a href="{% url 'artists' %}">Artists</a>
+                <div class="dropdown-content">
+                    <!-- Dynamic artist links -->
+                    <a href="{% url 'artist_detail' artist_id=1 %}">Amara Thompson</a>
+                    <a href="{% url 'artist_detail' artist_id=2 %}">Marcus Chen</a>
+                    <a href="{% url 'artist_detail' artist_id=3 %}">Sofia Rodriguez</a>
+                    <a href="{% url 'artist_detail' artist_id=4 %}">James Williams</a>
+                    <a href="{% url 'artist_detail' artist_id=5 %}">Zara Okafor</a>
+                    <a href="{% url 'artist_detail' artist_id=6 %}">Kai Nakamura</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'artists' %}">View All Artists</a>
+                </div>
+            </li>
+            <li><a href="{% url 'artworks' %}">Artworks</a></li>
+            <li><a href="{% url 'contact' %}">Contact Us</a></li>
+            
+            <!-- ADMIN DASHBOARD LINK (Visible only to owners) -->
+            {% if user.is_authenticated and user.is_owner %}
+            <li><a href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="nav-bottom">
+        <div class="nav-icons">
+            <a href="#" class="nav-icon-link">
+                <i class="fas fa-search"></i>
+            </a>
+            <a href="#" class="nav-icon-link">
+                <i class="fas fa-shopping-cart"></i>
+            </a>
+            <!-- USER ICON - Links to profile for customers, admin dashboard for owners -->
+            {% if user.is_authenticated %}
+                {% if user.is_owner %}
+                <a href="{% url 'admin_dashboard' %}" class="nav-icon-link" title="Admin Dashboard">
+                    <i class="fas fa-user-shield"></i>
+                </a>
+                {% else %}
+                <a href="{% url 'profile' %}" class="nav-icon-link" title="My Profile">
+                    <i class="fas fa-user"></i>
+                </a>
+                {% endif %}
+            {% else %}
+            <a href="{% url 'login' %}" class="nav-icon-link">
+                <i class="fas fa-user"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,35 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Home | Camps Bay Art Gallery{% endblock %}
+
+{% block content %}
+    <!-- Carousel Section -->
+    <section class="carousel-section">
+        {% include 'gallery/includes/_carousel.html' %}
+    </section>
+
+    <!-- Event Banner -->
+    <section class="event-banner">
+        {% include 'gallery/includes/_event_banner.html' %}
+    </section>
+
+    <!-- Space Section -->
+    <section class="space-section section-light">
+        {% include 'gallery/includes/_space_section.html' %}
+    </section>
+
+    <!-- Story Section -->
+    <section class="story-section section-dark">
+        {% include 'gallery/includes/_story_section.html' %}
+    </section>
+
+    <!-- Artists Section -->
+    <section class="artists-section section">
+        {% include 'gallery/includes/_artists_section.html' %}
+    </section>
+
+    <!-- Artwork Section -->
+    <section class="artwork-section section-light">
+        {% include 'gallery/includes/_artwork_section.html' %}
+    </section>
+{% endblock %}

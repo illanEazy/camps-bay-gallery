@@ -1,0 +1,18 @@
+<!-- ==========================================================================
+   AUTHENTICATION FORM COMPONENT - REUSABLE FOR LOGIN/SIGNUP/FORGOT PASSWORD
+   ========================================================================== -->
+
+   <div class="auth-container">
+    <div class="auth-header">
+        <h1 class="h1 mb-sm">{{ auth_title|default:"Authentication" }}</h1>
+        <p class="text-large text-gray">{{ auth_subtitle|default:"Welcome to our gallery" }}</p>
+    </div>
+    
+    {% block auth_form %}
+    <!-- Form content will be inserted here by child templates -->
+    {% endblock %}
+    
+    {% block auth_extra %}
+    <!-- Extra links or content (login link, signup link, etc.) -->
+    {% endblock %}
+</div>

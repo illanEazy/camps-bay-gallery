@@ -1,0 +1,138 @@
+/* ==========================================================================
+   BASE STYLES & RESET - REUSABLE ACROSS ENTIRE SITE
+   ========================================================================== */
+
+   * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    overflow-x: hidden;
+    color: var(--color-primary);
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY UTILITY CLASSES - REUSABLE
+   ========================================================================== */
+
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-weight: var(--font-weight-light);
+    letter-spacing: 2px;
+    color: var(--color-primary);
+}
+
+.h1 { font-size: 42px; }
+.h2 { font-size: 36px; }
+.h3 { font-size: 24px; }
+.h4 { font-size: 18px; }
+.h5 { font-size: 16px; }
+.h6 { font-size: 14px; }
+
+.text-large { font-size: 18px; }
+.text-regular { font-size: 16px; }
+.text-small { font-size: 14px; }
+.text-xsmall { font-size: 13px; }
+.text-xxsmall { font-size: 11px; }
+
+.text-light { color: var(--color-light-gray); }
+.text-gray { color: var(--color-gray); }
+.text-dark { color: var(--color-dark-gray); }
+.text-white { color: var(--color-white); }
+
+.text-uppercase { text-transform: uppercase; }
+.text-center { text-align: center; }
+
+/* ==========================================================================
+   SPACING UTILITIES - REUSABLE
+   ========================================================================== */
+
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+
+.ml-sm { margin-left: var(--space-sm); }
+.ml-md { margin-left: var(--space-md); }
+.ml-lg { margin-left: var(--space-lg); }
+
+.mr-sm { margin-right: var(--space-sm); }
+.mr-md { margin-right: var(--space-md); }
+.mr-lg { margin-right: var(--space-lg); }
+
+/* ==========================================================================
+   FLEX UTILITIES - REUSABLE
+   ========================================================================== */
+
+.flex {
+    display: flex;
+}
+
+.flex-between {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-center {
+    justify-content: center;
+    align-items: center;
+}
+
+/* ==========================================================================
+   RESPONSIVE UTILITIES - REUSABLE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .h1 { font-size: 32px; }
+    .h2 { font-size: 28px; }
+    .h3 { font-size: 20px; }
+}
+
+:root {
+    --color-primary: #2c3e50;
+    --color-secondary: #3498db;
+    --color-accent: #000;
+    --color-white: #ffffff;
+    --color-light: #f8f8f8;
+    --color-gray: #666;
+    --color-dark-gray: #555;
+    --color-light-gray: #bbb;
+    --color-border: #e0e0e0;
+    --color-success: #28a745;
+    --color-error: #dc3545;
+    --color-warning: #ffc107;
+    
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+    --font-weight-heavy: 700;
+    
+    --transition-fast: 0.3s ease;
+    --transition-medium: 0.5s ease;
+    --transition-slow: 0.8s ease;
+    
+    --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-heavy: 0 10px 40px rgba(0,0,0,0.2);
+    
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2rem;
+    --space-xl: 3rem;
+    
+    --z-dropdown: 1000;
+    --z-modal: 9999;
+}

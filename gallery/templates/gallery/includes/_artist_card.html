@@ -1,0 +1,17 @@
+<!-- ==========================================================================
+   ARTIST CARD COMPONENT - REUSABLE FOR GRIDS AND CAROUSELS
+   ========================================================================== -->
+
+   <div class="artist-card">
+    <a href="{% url 'artist_detail' artist_id=artist.id %}" class="artist-card-link">
+        <div class="artist-image">
+            <img src="{{ artist.image }}" alt="{{ artist.name }}">
+        </div>
+        <div class="artist-info">
+            <div class="artist-name">{{ artist.name }}</div>
+            <div class="artist-specialty text-small text-gray">{{ artist.specialty }}</div>
+        </div>
+    </a>
+</div>
+
+<!-- Note: This component requires artist object with id, image, name, and specialty properties -->

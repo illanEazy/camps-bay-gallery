@@ -1,0 +1,99 @@
+/* ==========================================================================
+   BASE STYLES & RESET - REUSABLE ACROSS ENTIRE SITE
+   ========================================================================== */
+
+   * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    overflow-x: hidden;
+    color: var(--color-primary);
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY UTILITY CLASSES - REUSABLE
+   ========================================================================== */
+
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-weight: var(--font-weight-light);
+    letter-spacing: 2px;
+    color: var(--color-primary);
+}
+
+.h1 { font-size: 42px; }
+.h2 { font-size: 36px; }
+.h3 { font-size: 24px; }
+.h4 { font-size: 18px; }
+.h5 { font-size: 16px; }
+.h6 { font-size: 14px; }
+
+.text-large { font-size: 18px; }
+.text-regular { font-size: 16px; }
+.text-small { font-size: 14px; }
+.text-xsmall { font-size: 13px; }
+.text-xxsmall { font-size: 11px; }
+
+.text-light { color: var(--color-light-gray); }
+.text-gray { color: var(--color-gray); }
+.text-dark { color: var(--color-dark-gray); }
+.text-white { color: var(--color-white); }
+
+.text-uppercase { text-transform: uppercase; }
+.text-center { text-align: center; }
+
+/* ==========================================================================
+   SPACING UTILITIES - REUSABLE
+   ========================================================================== */
+
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+
+.ml-sm { margin-left: var(--space-sm); }
+.ml-md { margin-left: var(--space-md); }
+.ml-lg { margin-left: var(--space-lg); }
+
+.mr-sm { margin-right: var(--space-sm); }
+.mr-md { margin-right: var(--space-md); }
+.mr-lg { margin-right: var(--space-lg); }
+
+/* ==========================================================================
+   FLEX UTILITIES - REUSABLE
+   ========================================================================== */
+
+.flex {
+    display: flex;
+}
+
+.flex-between {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-center {
+    justify-content: center;
+    align-items: center;
+}
+
+/* ==========================================================================
+   RESPONSIVE UTILITIES - REUSABLE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .h1 { font-size: 32px; }
+    .h2 { font-size: 28px; }
+    .h3 { font-size: 20px; }
+}

@@ -1,0 +1,112 @@
+<!-- FILE: templates/gallery/artworks.html -->
+{% extends 'gallery/base.html' %}
+
+{% block title %}Artworks | Camps Bay Art Gallery{% endblock %}
+
+{% block content %}
+    <!-- Artworks Hero Section -->
+    <section class="artworks-hero">
+        <div class="container">
+            <h1 class="h1 mb-sm">Artworks Collection</h1>
+            <p class="text-large text-dark">Discover our curated selection of contemporary artworks from talented artists around the world.</p>
+            <div class="artworks-count mt-md">
+                <span class="text-small text-gray">Showing {{ total_artworks }} artworks</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter & Sort Bar -->
+    <section class="artwork-filters-section section">
+        <div class="container">
+            <form method="get" action="{% url 'artworks' %}" class="artwork-filters-form" id="artworkFilterForm">
+                <div class="filter-grid grid-2">
+                    <!-- Artist Filter -->
+                    <div class="filter-group">
+                        <label for="artistFilter" class="text-small text-uppercase text-gray mb-xs">Filter by Artist</label>
+                        <select id="artistFilter" name="artist" class="form-select">
+                            <option value="all" {% if current_artist == 'all' %}selected{% endif %}>All Artists</option>
+                            {% for artist in artists %}
+                                <option value="{{ artist }}" {% if current_artist == artist %}selected{% endif %}>
+                                    {{ artist }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Sort Options -->
+                    <div class="filter-group">
+                        <label for="sortBy" class="text-small text-uppercase text-gray mb-xs">Sort By</label>
+                        <select id="sortBy" name="sort" class="form-select">
+                            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                            <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                            <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A-Z)</option>
+                            <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Artworks Grid - REUSING EXACT SAME STRUCTURE AS INDEX.HTML -->
+    <section class="artwork-section section-light">
+        <div class="container">
+            {% if artworks %}
+                <div class="artwork-grid grid-3">
+                    {% for artwork in artworks %}
+                        <div class="artwork-card" data-artwork="{{ artwork.data_index }}">
+                            <div class="artwork-image">
+                                <img src="{{ artwork.image }}" alt="{{ artwork.title }}">
+                            </div>
+                            <div class="artwork-info">
+                                <div class="artwork-artist text-xsmall text-gray text-uppercase">{{ artwork.artist }}</div>
+                                <div class="artwork-title h5 mt-xs">{{ artwork.title }}</div>
+                                <div class="artwork-actions flex mt-md">
+                                    <button class="inquire-btn">INQUIRE</button>
+                                    <button class="view-btn ml-sm">VIEW</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                {% if total_artworks == 0 %}
+                    <div class="no-results text-center py-xl">
+                        <i class="fas fa-search mb-md" style="font-size: 48px; color: var(--color-gray);"></i>
+                        <h3 class="h3 mb-sm">No artworks found</h3>
+                        <p class="text-large text-gray mb-lg">Try adjusting your filters to see more results.</p>
+                        <a href="{% url 'artworks' %}" class="btn btn-primary">Clear All Filters</a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="no-results text-center py-xl">
+                    <i class="fas fa-palette mb-md" style="font-size: 48px; color: var(--color-gray);"></i>
+                    <h3 class="h3 mb-sm">No artworks available</h3>
+                    <p class="text-large text-gray">Please check back soon for new additions.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize artworks page filtering
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('artworkFilterForm');
+        const artistSelect = document.getElementById('artistFilter');
+        const sortSelect = document.getElementById('sortBy');
+        
+        if (filterForm) {
+            // Auto-submit form when filters change
+            artistSelect.addEventListener('change', function() {
+                filterForm.submit();
+            });
+            
+            sortSelect.addEventListener('change', function() {
+                filterForm.submit();
+            });
+        }
+    });
+</script>
+{% endblock %}

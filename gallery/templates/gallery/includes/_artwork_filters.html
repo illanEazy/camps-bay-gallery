@@ -1,0 +1,58 @@
+<!-- FILE: templates/gallery/includes/_artwork_filters.html -->
+<section class="artwork-filters-section section">
+    <div class="container">
+        <form method="get" action="{% url 'artworks' %}" class="artwork-filters-form" id="artworkFilterForm">
+            <div class="filter-grid grid-2">
+                <!-- Artist Filter -->
+                <div class="filter-group">
+                    <label for="artistFilter" class="text-small text-uppercase text-gray mb-xs">Filter by Artist</label>
+                    <select id="artistFilter" name="artist" class="form-select">
+                        <option value="all" {% if current_artist == 'all' %}selected{% endif %}>All Artists</option>
+                        {% for artist in artists %}
+                            <option value="{{ artist }}" {% if current_artist == artist %}selected{% endif %}>
+                                {{ artist }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Sort Options -->
+                <div class="filter-group">
+                    <label for="sortBy" class="text-small text-uppercase text-gray mb-xs">Sort By</label>
+                    <select id="sortBy" name="sort" class="form-select">
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A-Z)</option>
+                        <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z-A)</option>
+                        <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price (Low to High)</option>
+                        <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price (High to Low)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Active Filters Display -->
+            <div class="active-filters mt-md">
+                {% if current_artist != 'all' %}
+                    <div class="active-filter-tag">
+                        <span class="text-small">Artist: {{ current_artist }}</span>
+                        <a href="{% url 'artworks' %}?sort={{ current_sort }}" class="filter-remove">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </div>
+                {% endif %}
+                
+                <div class="active-filter-tag">
+                    <span class="text-small">Sorted by: 
+                        {% if current_sort == 'newest' %}Newest First
+                        {% elif current_sort == 'oldest' %}Oldest First
+                        {% elif current_sort == 'title_asc' %}Title (A-Z)
+                        {% elif current_sort == 'title_desc' %}Title (Z-A)
+                        {% elif current_sort == 'price_low' %}Price (Low to High)
+                        {% elif current_sort == 'price_high' %}Price (High to Low)
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
