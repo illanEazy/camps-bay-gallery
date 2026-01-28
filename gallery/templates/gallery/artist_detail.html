@@ -119,20 +119,10 @@
                 <div class="artworks-scroll">
                     <div class="artworks-horizontal">
                         {% for artwork in artist.artworks %}
-                        <!-- Reusing artwork-card from components.css -->
-                        <div class="artwork-card">
-                            <div class="artwork-image">
-                                <img src="{{ artwork.image }}" alt="{{ artwork.title }}">
+                            <!-- Reuse the artwork card component with horizontal layout -->
+                            <div class="artwork-card-horizontal">
+                                {% include 'gallery/includes/_artwork_card.html' with artwork=artwork %}
                             </div>
-                            <div class="artwork-info">
-                                <div class="artwork-title h5 mt-xs">{{ artwork.title }}</div>
-                                <div class="artwork-medium text-small text-gray">{{ artwork.medium }}, {{ artwork.year }}</div>
-                                <div class="artwork-actions flex mt-md">
-                                    <button class="inquire-btn btn btn-secondary">INQUIRE</button>
-                                    <button class="view-btn btn btn-primary ml-sm">VIEW</button>
-                                </div>
-                            </div>
-                        </div>
                         {% endfor %}
                     </div>
                 </div>

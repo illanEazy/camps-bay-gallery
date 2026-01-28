@@ -7,7 +7,7 @@
    ========================================================================== */
 
    .carousel-section {
-    margin-top: 110px;
+    margin-top: 0px;
     height: calc(100vh - 110px);
     position: relative;
     overflow: hidden;
@@ -2546,3 +2546,179 @@ footer {
     --color-warning: #ffc107;
     /* ... rest of variables ... */
 }
+
+/* ==========================================================================
+   ARTWORK CARD ENHANCEMENTS - AVAILABILITY BADGES & DYNAMIC BUTTONS
+   ========================================================================== */
+
+/* Availability Badge - Positioned in artwork image */
+.artwork-image {
+    position: relative; /* Needed for absolute positioning of badges */
+}
+
+.availability-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    z-index: 2;
+}
+
+/* Availability Color Variations */
+.availability-at_gallery {
+    background: #27ae60; /* Green */
+    color: var(--color-white);
+}
+
+.availability-available {
+    background: #3498db; /* Blue */
+    color: var(--color-white);
+}
+
+.availability-on_request {
+    background: #f39c12; /* Orange */
+    color: var(--color-primary);
+}
+
+/* New Button Styles */
+.buy-now-btn {
+    background: #27ae60; /* Green */
+    color: var(--color-white);
+    border: none;
+    transition: all var(--transition-fast);
+}
+
+.buy-now-btn:hover {
+    background: #219653;
+    transform: translateY(-1px);
+}
+
+.schedule-btn {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    transition: all var(--transition-fast);
+}
+
+.schedule-btn:hover {
+    background: var(--color-secondary);
+    transform: translateY(-1px);
+}
+
+.sold-btn {
+    background: #95a5a6;
+    color: var(--color-white);
+    border: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.view-details-btn {
+    background: var(--color-secondary);
+    color: var(--color-white);
+    border: none;
+    transition: all var(--transition-fast);
+}
+
+.view-details-btn:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* Price Display Styles */
+.artwork-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: var(--color-gray);
+    font-size: 13px;
+}
+
+.discounted-price {
+    color: #27ae60; /* Green */
+    font-weight: var(--font-weight-bold);
+    font-size: 14px;
+}
+
+.current-price {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+    font-size: 14px;
+}
+
+/* Horizontal layout for artist detail page */
+.artwork-card-horizontal {
+    flex: 0 0 240px;
+    min-width: 240px;
+}
+
+/* Responsive adjustments for new buttons */
+@media (max-width: 480px) {
+    .artwork-actions {
+        flex-direction: column;
+        gap: var(--space-xs);
+    }
+    
+    .artwork-actions .btn {
+        width: 100%;
+        margin: 0 !important;
+    }
+    
+    .availability-badge {
+        font-size: 9px;
+        padding: 3px 6px;
+        top: 10px;
+        left: 10px;
+    }
+}
+
+/* ==========================================================================
+   AVAILABILITY TAGS - MINIMAL ADDITION TO EXISTING STYLES
+   ========================================================================== */
+
+/* Availability tag styles - placed below artwork title */
+.artwork-availability {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.availability-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 2px;
+}
+
+/* Color variations for different availability modes */
+.availability-tag.at-gallery {
+    background: rgba(52, 152, 219, 0.1); /* Light blue background */
+    color: #2980b9; /* Darker blue text */
+    border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.availability-tag.available {
+    background: rgba(46, 204, 113, 0.1); /* Light green background */
+    color: #27ae60; /* Darker green text */
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.availability-tag.on-request {
+    background: rgba(241, 196, 15, 0.1); /* Light yellow background */
+    color: #f39c12; /* Darker orange text */
+    border: 1px solid rgba(241, 196, 15, 0.3);
+}
+
+/* NO OTHER STYLES CHANGED - keeping everything exactly the same */
+/* The existing .view-btn and .inquire-btn classes remain unchanged */

@@ -163,7 +163,16 @@ def artworks(request):
             'dimensions': '120 × 100 cm',
             'year': '2025',
             'image': 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&h=800&fit=crop',
-            'data_index': 0
+            'data_index': 0,
+            # NEW FIELDS for availability and buttons
+            'availability': 'at_gallery',  # 'at_gallery', 'available', 'on_request'
+            'sold': False,
+            'show_price': True,
+            'price': 8500,
+            'discounted_price': None,  # Optional for sales
+            'allow_purchase': True,
+            'allow_inquiry': True,
+            'allow_schedule_viewing': True
         },
         {
             'id': 2,
@@ -175,7 +184,16 @@ def artworks(request):
             'dimensions': '85 × 45 × 30 cm',
             'year': '2024',
             'image': 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800&h=800&fit=crop',
-            'data_index': 1
+            'data_index': 1,
+            # NEW FIELDS
+            'availability': 'available',
+            'sold': False,
+            'show_price': False,  # Price hidden
+            'price': 12000,
+            'discounted_price': None,
+            'allow_purchase': True,
+            'allow_inquiry': False,  # Don't show inquire if purchase is allowed
+            'allow_schedule_viewing': True
         },
         {
             'id': 3,
@@ -187,7 +205,16 @@ def artworks(request):
             'dimensions': '150 × 120 cm',
             'year': '2025',
             'image': 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&h=800&fit=crop',
-            'data_index': 2
+            'data_index': 2,
+            # NEW FIELDS
+            'availability': 'on_request',
+            'sold': False,
+            'show_price': False,  # Price hidden for on request items
+            'price': 9500,
+            'discounted_price': None,
+            'allow_purchase': False,  # Can't purchase directly
+            'allow_inquiry': True,  # Must inquire
+            'allow_schedule_viewing': False  # Can't schedule viewing for on request
         },
         {
             'id': 4,
@@ -199,7 +226,16 @@ def artworks(request):
             'dimensions': '100 × 100 cm',
             'year': '2024',
             'image': 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=800&h=800&fit=crop',
-            'data_index': 3
+            'data_index': 3,
+            # NEW FIELDS
+            'availability': 'at_gallery',
+            'sold': True,  # Already sold
+            'show_price': True,
+            'price': 6800,
+            'discounted_price': None,
+            'allow_purchase': False,  # Can't purchase - sold out
+            'allow_inquiry': True,  # Can inquire about similar works
+            'allow_schedule_viewing': False  # Can't schedule viewing for sold item
         },
         {
             'id': 5,
@@ -211,7 +247,16 @@ def artworks(request):
             'dimensions': '110 × 90 cm',
             'year': '2025',
             'image': 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=800&fit=crop',
-            'data_index': 4
+            'data_index': 4,
+            # NEW FIELDS
+            'availability': 'available',
+            'sold': False,
+            'show_price': True,
+            'price': 7200,
+            'discounted_price': 5800,  # On sale
+            'allow_purchase': True,
+            'allow_inquiry': True,
+            'allow_schedule_viewing': True
         },
         {
             'id': 6,
@@ -223,7 +268,16 @@ def artworks(request):
             'dimensions': '130 × 95 cm',
             'year': '2025',
             'image': 'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=800&h=800&fit=crop',
-            'data_index': 5
+            'data_index': 5,
+            # NEW FIELDS
+            'availability': 'at_gallery',
+            'sold': False,
+            'show_price': True,
+            'price': 3200,
+            'discounted_price': None,
+            'allow_purchase': True,
+            'allow_inquiry': True,
+            'allow_schedule_viewing': True
         },
         {
             'id': 7,
@@ -235,7 +289,16 @@ def artworks(request):
             'dimensions': '140 × 110 cm',
             'year': '2024',
             'image': 'https://images.unsplash.com/photo-1577083288073-40892c0860fd?w=800&h=800&fit=crop',
-            'data_index': 6
+            'data_index': 6,
+            # NEW FIELDS
+            'availability': 'on_request',
+            'sold': False,
+            'show_price': False,
+            'price': 10500,
+            'discounted_price': None,
+            'allow_purchase': False,
+            'allow_inquiry': True,
+            'allow_schedule_viewing': False
         },
         {
             'id': 8,
@@ -247,7 +310,16 @@ def artworks(request):
             'dimensions': '95 × 60 × 40 cm',
             'year': '2025',
             'image': 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=800&fit=crop',
-            'data_index': 7
+            'data_index': 7,
+            # NEW FIELDS
+            'availability': 'available',
+            'sold': False,
+            'show_price': True,
+            'price': 15000,
+            'discounted_price': 12500,  # Discounted price
+            'allow_purchase': True,
+            'allow_inquiry': False,
+            'allow_schedule_viewing': True
         },
         {
             'id': 9,
@@ -259,7 +331,16 @@ def artworks(request):
             'dimensions': '125 × 100 cm',
             'year': '2025',
             'image': 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&h=800&fit=crop',
-            'data_index': 8
+            'data_index': 8,
+            # NEW FIELDS
+            'availability': 'at_gallery',
+            'sold': False,
+            'show_price': True,
+            'price': 8900,
+            'discounted_price': None,
+            'allow_purchase': True,
+            'allow_inquiry': True,
+            'allow_schedule_viewing': True
         },
     ]
     
@@ -932,3 +1013,28 @@ def manage_artists_view(request):
         return redirect('home')
     
     return redirect('view_artists')
+
+# ============================================================================
+# PLACEHOLDER VIEWS FOR ARTWORK DETAIL PAGES (TO FIX URL ERRORS)
+# ============================================================================
+
+def artwork_detail(request, artwork_id):
+    """Placeholder view for artwork detail page"""
+    # For now, redirect to artworks page
+    messages.info(request, 'Artwork detail page is coming soon!')
+    return redirect('artworks')
+
+def artwork_purchase(request, artwork_id):
+    """Placeholder view for artwork purchase"""
+    messages.info(request, 'Purchase functionality is coming soon!')
+    return redirect('artworks')
+
+def schedule_viewing(request, artwork_id):
+    """Placeholder view for scheduling viewing"""
+    messages.info(request, 'Schedule viewing functionality is coming soon!')
+    return redirect('artworks')
+
+def artwork_inquire(request, artwork_id):
+    """Placeholder view for artwork inquiry"""
+    messages.info(request, 'Inquiry functionality is coming soon!')
+    return redirect('artworks')

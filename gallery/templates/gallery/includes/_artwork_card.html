@@ -1,0 +1,85 @@
+<!-- ==========================================================================
+   ARTWORK CARD COMPONENT - REUSABLE FOR ALL ARTWORK DISPLAYS
+   ========================================================================== -->
+
+   <div class="artwork-card" data-artwork="{{ artwork.id }}">
+    <div class="artwork-image">
+        <img src="{{ artwork.image }}" alt="{{ artwork.title }}" loading="lazy">
+        
+        <!-- Year Badge - REUSING EXISTING STYLE -->
+        {% if artwork.year %}
+            <div class="artwork-year text-small text-white">
+                {{ artwork.year }}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="artwork-info">
+        <!-- Artist Name - REUSING EXISTING STYLE -->
+        <div class="artwork-artist text-xsmall text-gray text-uppercase">
+            {% if artwork.artist_id %}
+                <a href="{% url 'artist_detail' artist_id=artwork.artist_id %}" class="artist-link">
+                    {{ artwork.artist }}
+                </a>
+            {% else %}
+                {{ artwork.artist }}
+            {% endif %}
+        </div>
+        
+        <!-- Artwork Title - REUSING EXISTING STYLE -->
+        <div class="artwork-title h5 mt-xs">{{ artwork.title }}</div>
+        
+        <!-- AVAILABILITY MODE - NEW: Shows below title -->
+        <div class="artwork-availability text-xsmall mt-xs mb-sm">
+            {% if artwork.availability == 'at_gallery' %}
+                <span class="availability-tag at-gallery">Available at Gallery</span>
+            {% elif artwork.availability == 'on_request' %}
+                <span class="availability-tag on-request">Available on Request</span>
+            {% else %}
+                <span class="availability-tag available">Available</span>
+            {% endif %}
+        </div>
+        
+        <!-- Medium - Optional -->
+        {% if artwork.medium %}
+            <div class="artwork-medium text-small text-gray mb-sm">{{ artwork.medium }}</div>
+        {% endif %}
+        
+        <!-- Action Buttons - DYNAMIC based on availability -->
+        <div class="artwork-actions flex mt-md">
+            <!-- LEFT BUTTON: BUY NOW or INQUIRE -->
+            {% if artwork.availability == 'on_request' %}
+                <!-- INQUIRE button for "on request" items -->
+                <a href="{% url 'artwork_inquire' artwork.id %}" class="inquire-btn btn btn-secondary">
+                    INQUIRE
+                </a>
+            {% else %}
+                <!-- BUY NOW button for "available" or "at gallery" items -->
+                <a href="{% url 'artwork_purchase' artwork.id %}" class="view-btn btn btn-primary">
+                    BUY NOW
+                </a>
+            {% endif %}
+            
+            <!-- RIGHT BUTTON: SCHEDULE VIEWING (always shows) -->
+            <a href="{% url 'schedule_viewing' artwork.id %}" class="view-btn btn btn-primary ml-sm">
+                SCHEDULE VIEWING
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Note: This maintains EXACTLY the same visual style as before -->
+<!-- Only adds availability tags and changes button text/logic -->
+
+<!-- Note: This component requires the following artwork object properties:
+     - id, image, title, artist, artist_id, year
+     - availability: 'at_gallery', 'available', 'on_request'
+     - sold: boolean
+     - show_price: boolean
+     - price: decimal (optional)
+     - discounted_price: decimal (optional)
+     - medium: string (optional)
+     - allow_purchase: boolean
+     - allow_inquiry: boolean
+     - allow_schedule_viewing: boolean
+-->

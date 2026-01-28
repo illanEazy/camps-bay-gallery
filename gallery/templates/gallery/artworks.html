@@ -48,45 +48,14 @@
         </div>
     </section>
 
-    <!-- Artworks Grid - REUSING EXACT SAME STRUCTURE AS INDEX.HTML -->
+    <!-- Artworks Grid - NOW USING REUSABLE GRID COMPONENT -->
     <section class="artwork-section section-light">
         <div class="container">
-            {% if artworks %}
-                <div class="artwork-grid grid-3">
-                    {% for artwork in artworks %}
-                        <div class="artwork-card" data-artwork="{{ artwork.data_index }}">
-                            <div class="artwork-image">
-                                <img src="{{ artwork.image }}" alt="{{ artwork.title }}">
-                            </div>
-                            <div class="artwork-info">
-                                <div class="artwork-artist text-xsmall text-gray text-uppercase">{{ artwork.artist }}</div>
-                                <div class="artwork-title h5 mt-xs">{{ artwork.title }}</div>
-                                <div class="artwork-actions flex mt-md">
-                                    <button class="inquire-btn">INQUIRE</button>
-                                    <button class="view-btn ml-sm">VIEW</button>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                
-                {% if total_artworks == 0 %}
-                    <div class="no-results text-center py-xl">
-                        <i class="fas fa-search mb-md" style="font-size: 48px; color: var(--color-gray);"></i>
-                        <h3 class="h3 mb-sm">No artworks found</h3>
-                        <p class="text-large text-gray mb-lg">Try adjusting your filters to see more results.</p>
-                        <a href="{% url 'artworks' %}" class="btn btn-primary">Clear All Filters</a>
-                    </div>
-                {% endif %}
-            {% else %}
-                <div class="no-results text-center py-xl">
-                    <i class="fas fa-palette mb-md" style="font-size: 48px; color: var(--color-gray);"></i>
-                    <h3 class="h3 mb-sm">No artworks available</h3>
-                    <p class="text-large text-gray">Please check back soon for new additions.</p>
-                </div>
-            {% endif %}
+            <!-- Reuse the artwork grid component -->
+            {% include 'gallery/includes/_artwork_grid.html' %}
         </div>
     </section>
+</section>
 {% endblock %}
 
 {% block extra_js %}

@@ -139,6 +139,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // MODAL FUNCTIONALITY - Reusable for any detail modal
     // --------------------------------------------------------------------------
+    // Remove or comment out the modal functionality for grid cards
+    // Keep it only for detail page later
+    
+    // Instead, update the button click handlers to use the new URLs
+    // We'll handle modals only on detail pages
+
+    // ARTWORK DATA - Keep for reference but don't use modal for grid
     const artworkData = [
         {
             title: 'Coastal Abstractions',
@@ -223,45 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    const modal = document.getElementById('artworkModal');
-    const modalClose = document.getElementById('modalClose');
-    const viewButtons = document.querySelectorAll('.view-btn');
-
-    if (viewButtons && modal && modalClose) {
-        viewButtons.forEach((button) => {
-            button.addEventListener('click', () => {
-                const card = button.closest('.artwork-card');
-                const index = parseInt(card.getAttribute('data-artwork'));
-                
-                if (artworkData[index]) {
-                    const artwork = artworkData[index];
-                    
-                    document.getElementById('modalImg').src = artwork.image;
-                    document.getElementById('modalTitle').textContent = artwork.title;
-                    document.getElementById('modalArtist').textContent = artwork.artist;
-                    document.getElementById('modalDescription').textContent = artwork.description;
-                    document.getElementById('modalMedium').textContent = artwork.medium;
-                    document.getElementById('modalDimensions').textContent = artwork.dimensions;
-                    document.getElementById('modalYear').textContent = artwork.year;
-                    
-                    modal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                }
-            });
-        });
-
-        modalClose.addEventListener('click', () => {
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        });
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            }
-        });
-    }
+    // Keep countdown and other existing functionality
+    // Remove modal triggers for artwork cards in grid
 
     // EXPLORE BUTTON - Reusable smooth scroll functionality
     // --------------------------------------------------------------------------
