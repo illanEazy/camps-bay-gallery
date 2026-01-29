@@ -1,9 +1,9 @@
 <!-- ==========================================================================
-   SCHEDULE VIEWING MODAL - REUSABLE MODAL FOR SCHEDULING VIEWINGS
+   SCHEDULE MODAL - CLEAN FORM ON RIGHT SIDE
    ========================================================================== -->
 
-   <div class="modal-overlay" id="scheduleModal">
-    <div class="modal-content">
+   <div class="schedule-modal-overlay" id="scheduleModal">
+    <div class="schedule-modal-content">
         <!-- Close Button -->
         <button class="modal-close" id="closeScheduleModal">
             <i class="fas fa-times"></i>
@@ -13,74 +13,20 @@
         <div class="modal-header">
             <i class="fas fa-calendar-alt"></i>
             <h2>Schedule a Viewing</h2>
-            <p class="modal-subtitle">Select a date and time for your private viewing</p>
+            <p class="modal-subtitle">{{ artwork.title }} by {{ artwork.artist }}</p>
         </div>
         
         <!-- Modal Body -->
         <div class="modal-body">
-            <!-- Artwork Preview -->
-            <div class="inquiry-artwork-preview">
-                <img src="{{ artwork.image }}" alt="{{ artwork.title }}" class="inquiry-artwork-image">
-                <div class="inquiry-artwork-info">
-                    <h3 class="inquiry-artwork-title">{{ artwork.title }}</h3>
-                    <p class="inquiry-artwork-artist">by {{ artwork.artist }}</p>
-                    {% if artwork.medium %}
-                        <p class="inquiry-artwork-medium">{{ artwork.medium }}</p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Schedule Form -->
-            <form method="POST" action="{% url 'schedule_viewing' artwork.id %}" class="inquiry-form" id="scheduleForm">
+            <!-- Schedule Form - Clean, no image -->
+            <form method="POST" action="{% url 'schedule_viewing' artwork.id %}" class="schedule-form" id="scheduleForm">
                 {% csrf_token %}
                 
                 <input type="hidden" name="artwork_id" value="{{ artwork.id }}">
                 
+                <!-- Personal Details -->
                 <div class="form-group">
-                    <label for="scheduleDate">
-                        Preferred Date <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="date" 
-                        id="scheduleDate" 
-                        name="date" 
-                        class="form-input" 
-                        required
-                    >
-                    <small class="field-hint text-small text-gray">Select a date within the next 30 days</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="scheduleTime">
-                        Preferred Time Slot <span class="required">*</span>
-                    </label>
-                    <select id="scheduleTime" name="time" class="form-select" required>
-                        <option value="">Select a time slot</option>
-                        <!-- Time slots will be populated by JavaScript -->
-                    </select>
-                    <small class="field-hint text-small text-gray">Viewings are 30 minutes each</small>
-                </div>
-                
-                <!-- Added: Email field for non-logged in users -->
-                <div class="form-group">
-                    <label for="scheduleEmail">
-                        Your Email Address <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="email" 
-                        id="scheduleEmail" 
-                        name="email" 
-                        class="form-input" 
-                        placeholder="your@email.com"
-                        required
-                        {% if user.is_authenticated %}
-                            value="{{ user.email }}"
-                        {% endif %}
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="scheduleName">
+                    <label for="scheduleName" class="form-label">
                         Your Name <span class="required">*</span>
                     </label>
                     <input 
@@ -97,30 +43,83 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="scheduleGuests">
+                    <label for="scheduleEmail" class="form-label">
+                        Email Address <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="scheduleEmail" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="your@email.com"
+                        required
+                        {% if user.is_authenticated %}
+                            value="{{ user.email }}"
+                        {% endif %}
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="schedulePhone" class="form-label">
+                        Phone Number
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="schedulePhone" 
+                        name="phone" 
+                        class="form-input" 
+                        placeholder="Optional - for faster contact"
+                    >
+                </div>
+                
+                <!-- Scheduling Details -->
+                <div class="form-group">
+                    <label for="scheduleDate" class="form-label">
+                        Preferred Date <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="scheduleDate" 
+                        name="preferred_date" 
+                        class="form-input" 
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleTime" class="form-label">
+                        Preferred Time <span class="required">*</span>
+                    </label>
+                    <select id="scheduleTime" name="preferred_time" class="form-input" required>
+                        <option value="">Select a time slot</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleGuests" class="form-label">
                         Number of Additional Guests
                     </label>
                     <input 
                         type="number" 
                         id="scheduleGuests" 
-                        name="guests" 
+                        name="additional_guests" 
                         class="form-input" 
                         min="0" 
                         max="10" 
                         value="0"
                     >
-                    <small class="field-hint text-small text-gray">Maximum 10 guests including yourself</small>
                 </div>
                 
                 <div class="form-group">
-                    <label for="scheduleRequests">
+                    <label for="scheduleRequests" class="form-label">
                         Special Requests or Notes
                     </label>
                     <textarea 
                         id="scheduleRequests" 
                         name="special_requests" 
                         class="form-textarea" 
-                        rows="3"
+                        rows="4"
                         placeholder="Any special requirements or questions..."
                     ></textarea>
                 </div>
@@ -128,11 +127,9 @@
                 <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancelSchedule">
-                        <i class="fas fa-times"></i>
                         Cancel
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-calendar-check"></i>
                         Schedule Viewing
                     </button>
                 </div>
@@ -141,30 +138,236 @@
     </div>
 </div>
 
+<style>
+/* ==========================================================================
+   SCHEDULE MODAL SPECIFIC STYLES - RIGHT SIDEBAR STYLE
+   ========================================================================== */
+
+.schedule-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    z-index: 2000;
+    overflow-y: auto;
+}
+
+.schedule-modal-overlay.active {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+.schedule-modal-content {
+    background: var(--color-white);
+    width: 480px;
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideInRight 0.3s ease;
+}
+
+/* Modal Header */
+.modal-header {
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.modal-header i {
+    font-size: 2rem;
+    color: var(--color-white);
+    margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    color: var(--color-white);
+    margin-bottom: 0.5rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.modal-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 2rem;
+}
+
+/* Form Styles */
+.schedule-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-input, .form-textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    transition: border-color var(--transition-fast);
+}
+
+.form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+select.form-input {
+    background-color: white;
+    cursor: pointer;
+}
+
+.required {
+    color: #e74c3c;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.btn-primary:hover {
+    background: var(--color-secondary);
+}
+
+.btn-secondary {
+    background: var(--color-white);
+    color: var(--color-primary);
+    border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+    background: var(--color-light);
+    border-color: var(--color-primary);
+}
+
+/* Close Button */
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--color-white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: var(--color-secondary);
+}
+
+/* Animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .schedule-modal-content {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+
 <script>
+// Schedule Modal Functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Set min/max dates (today to 30 days from now)
-    const dateInput = document.getElementById('scheduleDate');
-    if (dateInput) {
-        const today = new Date();
-        const maxDate = new Date();
-        maxDate.setDate(today.getDate() + 30);
-        
-        // Format dates as YYYY-MM-DD
-        const formatDate = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-        
-        dateInput.min = formatDate(today);
-        dateInput.max = formatDate(maxDate);
-        
-        // Set default to tomorrow
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        dateInput.value = formatDate(tomorrow);
+    const scheduleModal = document.getElementById('scheduleModal');
+    const closeScheduleBtn = document.getElementById('closeScheduleModal');
+    const cancelScheduleBtn = document.getElementById('cancelSchedule');
+    
+    // Close modal buttons
+    if (closeScheduleBtn) {
+        closeScheduleBtn.addEventListener('click', function() {
+            scheduleModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+    
+    if (cancelScheduleBtn) {
+        cancelScheduleBtn.addEventListener('click', function() {
+            scheduleModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+    
+    // Close modal when clicking outside
+    if (scheduleModal) {
+        scheduleModal.addEventListener('click', function(e) {
+            if (e.target === scheduleModal) {
+                scheduleModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
     }
     
     // Generate time slots (9:00 AM to 5:00 PM, 30-minute intervals)
@@ -190,14 +393,60 @@ document.addEventListener('DOMContentLoaded', function() {
         timeSelect.value = '10:00';
     }
     
-    // Cancel button functionality
-    const cancelBtn = document.getElementById('cancelSchedule');
-    const modal = document.getElementById('scheduleModal');
+    // Set date constraints (today to 30 days from now)
+    const dateInput = document.getElementById('scheduleDate');
+    if (dateInput) {
+        const today = new Date();
+        const maxDate = new Date();
+        maxDate.setDate(today.getDate() + 30);
+        
+        // Format dates as YYYY-MM-DD
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
+        dateInput.min = formatDate(today);
+        dateInput.max = formatDate(maxDate);
+        
+        // Set default to tomorrow
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        dateInput.value = formatDate(tomorrow);
+    }
     
-    if (cancelBtn && modal) {
-        cancelBtn.addEventListener('click', function() {
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
+    // Form validation
+    const scheduleForm = document.getElementById('scheduleForm');
+    if (scheduleForm) {
+        scheduleForm.addEventListener('submit', function(e) {
+            const name = document.getElementById('scheduleName').value.trim();
+            const email = document.getElementById('scheduleEmail').value.trim();
+            const date = document.getElementById('scheduleDate').value;
+            const time = document.getElementById('scheduleTime').value;
+            
+            if (!name || !email || !date || !time) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+                return false;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address.');
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
+            }
+            
+            return true;
         });
     }
 });
