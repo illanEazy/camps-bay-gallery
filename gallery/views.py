@@ -24,9 +24,11 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from .forms import ArtistForm
 
+# ============================================================================
+# GLOBAL DATA
+# ============================================================================
 
-
-# Sample artist data (in production, this would come from a database)
+# Sample artist data
 ARTISTS_DATA = [
     {
         'id': 1,
@@ -111,9 +113,139 @@ ARTISTS_DATA = [
     }
 ]
 
+# GLOBAL ARTWORK DATA
+GLOBAL_ARTWORKS_DATA = [
+    {
+        'id': 1,
+        'title': 'Coastal Abstractions',
+        'artist': 'Amara Thompson',
+        'artist_id': 1,
+        'description': 'A meditation on the meeting of land and sea. Thompson captures the essence of Camps Bay through layered textures and a palette drawn from the coastal landscape.',
+        'medium': 'Mixed Media on Canvas',
+        'dimensions': '120 × 100 cm',
+        'year': '2025',
+        'image': 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&h=800&fit=crop',
+        'data_index': 0,
+        'availability': 'at_gallery',
+        'sold': False,
+        'show_price': True,
+        'price': 8500,
+        'discounted_price': None,
+        'allow_purchase': True,
+        'allow_inquiry': True,
+        'allow_schedule_viewing': True
+    },
+    {
+        'id': 2,
+        'title': 'Equilibrium III',
+        'artist': 'Marcus Chen',
+        'artist_id': 2,
+        'description': "Part of Chen's ongoing exploration of balance and form. This sculptural work plays with weight, shadow, and the negative space between elements.",
+        'medium': 'Bronze Sculpture',
+        'dimensions': '85 × 45 × 30 cm',
+        'year': '2024',
+        'image': 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800&h=800&fit=crop',
+        'data_index': 1,
+        'availability': 'available',
+        'sold': False,
+        'show_price': False,
+        'price': 12000,
+        'discounted_price': None,
+        'allow_purchase': True,
+        'allow_inquiry': False,
+        'allow_schedule_viewing': True
+    },
+    {
+        'id': 3,
+        'title': 'City Fragments',
+        'artist': 'Sofia Rodriguez',
+        'artist_id': 3,
+        'description': 'Rodriguez deconstructs urban landscapes into geometric fragments, revealing the hidden patterns and rhythms of contemporary life.',
+        'medium': 'Acrylic on Canvas',
+        'dimensions': '150 × 120 cm',
+        'year': '2025',
+        'image': 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&h=800&fit=crop',
+        'data_index': 2,
+        'availability': 'on_request',
+        'sold': False,
+        'show_price': False,
+        'price': 9500,
+        'discounted_price': None,
+        'allow_purchase': False,
+        'allow_inquiry': True,
+        'allow_schedule_viewing': False
+    },
+    {
+        'id': 4,
+        'title': 'Silent Spaces',
+        'artist': 'James Williams',
+        'artist_id': 4,
+        'description': 'A minimalist exploration of emptiness and presence. Williams invites contemplation through carefully considered negative space and subtle tonal shifts.',
+        'medium': 'Oil on Linen',
+        'dimensions': '100 × 100 cm',
+        'year': '2024',
+        'image': 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=800&h=800&fit=crop',
+        'data_index': 3,
+        'availability': 'at_gallery',
+        'sold': True,
+        'show_price': True,
+        'price': 6800,
+        'discounted_price': None,
+        'allow_purchase': False,
+        'allow_inquiry': True,
+        'allow_schedule_viewing': False
+    },
+    {
+        'id': 5,
+        'title': 'Earth Memory',
+        'artist': 'Zara Okafor',
+        'artist_id': 5,
+        'description': "Okafor's textured surfaces evoke geological time and ancient landscapes. Each layer tells a story of transformation and permanence.",
+        'medium': 'Mixed Media with Natural Pigments',
+        'dimensions': '110 × 90 cm',
+        'year': '2025',
+        'image': 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=800&fit=crop',
+        'data_index': 4,
+        'availability': 'available',
+        'sold': False,
+        'show_price': True,
+        'price': 7200,
+        'discounted_price': 5800,
+        'allow_purchase': True,
+        'allow_inquiry': True,
+        'allow_schedule_viewing': True
+    },
+    {
+        'id': 6,
+        'title': 'Presence',
+        'artist': 'Kai Nakamura',
+        'artist_id': 6,
+        'description': "A contemporary take on portraiture that questions identity and perception. Nakamura's work exists between representation and abstraction.",
+        'medium': 'Digital Print on Archival Paper',
+        'dimensions': '130 × 95 cm',
+        'year': '2025',
+        'image': 'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=800&h=800&fit=crop',
+        'data_index': 5,
+        'availability': 'at_gallery',
+        'sold': False,
+        'show_price': True,
+        'price': 3200,
+        'discounted_price': None,
+        'allow_purchase': True,
+        'allow_inquiry': True,
+        'allow_schedule_viewing': True
+    }
+]
+
+# ============================================================================
+# BASIC VIEWS
+# ============================================================================
+
 def home(request):
     """Render the homepage"""
-    return render(request, 'gallery/index.html')
+    featured_artworks = GLOBAL_ARTWORKS_DATA[:3]
+    context = {'featured_artworks': featured_artworks}
+    return render(request, 'gallery/index.html', context)
 
 def about(request):
     """Render the about page"""
@@ -121,14 +253,11 @@ def about(request):
 
 def artists(request):
     """Render the artists overview page"""
-    context = {
-        'artists': ARTISTS_DATA
-    }
+    context = {'artists': ARTISTS_DATA}
     return render(request, 'gallery/artists.html', context)
 
 def artist_detail(request, artist_id):
     """Render individual artist detail page"""
-    # Find the artist with the matching ID
     artist = None
     for a in ARTISTS_DATA:
         if a['id'] == artist_id:
@@ -136,223 +265,21 @@ def artist_detail(request, artist_id):
             break
     
     if not artist:
-        # If artist not found, redirect to artists overview
-        from django.shortcuts import redirect
         return redirect('artists')
     
-    context = {
-        'artist': artist
-    }
+    context = {'artist': artist}
     return render(request, 'gallery/artist_detail.html', context)
 
 def artworks(request):
     """Render the artworks page"""
-    # Get filter and sort parameters from request
     artist_filter = request.GET.get('artist', 'all')
     sort_by = request.GET.get('sort', 'newest')
     
-    # Reuse the exact same artwork data structure from main.js
-    ARTWORKS_DATA = [
-        {
-            'id': 1,
-            'title': 'Coastal Abstractions',
-            'artist': 'Amara Thompson',
-            'artist_id': 1,
-            'description': 'A meditation on the meeting of land and sea. Thompson captures the essence of Camps Bay through layered textures and a palette drawn from the coastal landscape.',
-            'medium': 'Mixed Media on Canvas',
-            'dimensions': '120 × 100 cm',
-            'year': '2025',
-            'image': 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&h=800&fit=crop',
-            'data_index': 0,
-            # NEW FIELDS for availability and buttons
-            'availability': 'at_gallery',  # 'at_gallery', 'available', 'on_request'
-            'sold': False,
-            'show_price': True,
-            'price': 8500,
-            'discounted_price': None,  # Optional for sales
-            'allow_purchase': True,
-            'allow_inquiry': True,
-            'allow_schedule_viewing': True
-        },
-        {
-            'id': 2,
-            'title': 'Equilibrium III',
-            'artist': 'Marcus Chen',
-            'artist_id': 2,
-            'description': "Part of Chen's ongoing exploration of balance and form. This sculptural work plays with weight, shadow, and the negative space between elements.",
-            'medium': 'Bronze Sculpture',
-            'dimensions': '85 × 45 × 30 cm',
-            'year': '2024',
-            'image': 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800&h=800&fit=crop',
-            'data_index': 1,
-            # NEW FIELDS
-            'availability': 'available',
-            'sold': False,
-            'show_price': False,  # Price hidden
-            'price': 12000,
-            'discounted_price': None,
-            'allow_purchase': True,
-            'allow_inquiry': False,  # Don't show inquire if purchase is allowed
-            'allow_schedule_viewing': True
-        },
-        {
-            'id': 3,
-            'title': 'City Fragments',
-            'artist': 'Sofia Rodriguez',
-            'artist_id': 3,
-            'description': 'Rodriguez deconstructs urban landscapes into geometric fragments, revealing the hidden patterns and rhythms of contemporary life.',
-            'medium': 'Acrylic on Canvas',
-            'dimensions': '150 × 120 cm',
-            'year': '2025',
-            'image': 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&h=800&fit=crop',
-            'data_index': 2,
-            # NEW FIELDS
-            'availability': 'on_request',
-            'sold': False,
-            'show_price': False,  # Price hidden for on request items
-            'price': 9500,
-            'discounted_price': None,
-            'allow_purchase': False,  # Can't purchase directly
-            'allow_inquiry': True,  # Must inquire
-            'allow_schedule_viewing': False  # Can't schedule viewing for on request
-        },
-        {
-            'id': 4,
-            'title': 'Silent Spaces',
-            'artist': 'James Williams',
-            'artist_id': 4,
-            'description': 'A minimalist exploration of emptiness and presence. Williams invites contemplation through carefully considered negative space and subtle tonal shifts.',
-            'medium': 'Oil on Linen',
-            'dimensions': '100 × 100 cm',
-            'year': '2024',
-            'image': 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=800&h=800&fit=crop',
-            'data_index': 3,
-            # NEW FIELDS
-            'availability': 'at_gallery',
-            'sold': True,  # Already sold
-            'show_price': True,
-            'price': 6800,
-            'discounted_price': None,
-            'allow_purchase': False,  # Can't purchase - sold out
-            'allow_inquiry': True,  # Can inquire about similar works
-            'allow_schedule_viewing': False  # Can't schedule viewing for sold item
-        },
-        {
-            'id': 5,
-            'title': 'Earth Memory',
-            'artist': 'Zara Okafor',
-            'artist_id': 5,
-            'description': "Okafor's textured surfaces evoke geological time and ancient landscapes. Each layer tells a story of transformation and permanence.",
-            'medium': 'Mixed Media with Natural Pigments',
-            'dimensions': '110 × 90 cm',
-            'year': '2025',
-            'image': 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=800&fit=crop',
-            'data_index': 4,
-            # NEW FIELDS
-            'availability': 'available',
-            'sold': False,
-            'show_price': True,
-            'price': 7200,
-            'discounted_price': 5800,  # On sale
-            'allow_purchase': True,
-            'allow_inquiry': True,
-            'allow_schedule_viewing': True
-        },
-        {
-            'id': 6,
-            'title': 'Presence',
-            'artist': 'Kai Nakamura',
-            'artist_id': 6,
-            'description': "A contemporary take on portraiture that questions identity and perception. Nakamura's work exists between representation and abstraction.",
-            'medium': 'Digital Print on Archival Paper',
-            'dimensions': '130 × 95 cm',
-            'year': '2025',
-            'image': 'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=800&h=800&fit=crop',
-            'data_index': 5,
-            # NEW FIELDS
-            'availability': 'at_gallery',
-            'sold': False,
-            'show_price': True,
-            'price': 3200,
-            'discounted_price': None,
-            'allow_purchase': True,
-            'allow_inquiry': True,
-            'allow_schedule_viewing': True
-        },
-        {
-            'id': 7,
-            'title': 'Linear Tensions',
-            'artist': 'Amara Thompson',
-            'artist_id': 1,
-            'description': 'Thompson returns to geometric abstraction, creating visual tension through intersecting lines and carefully balanced composition.',
-            'medium': 'Acrylic and Graphite on Canvas',
-            'dimensions': '140 × 110 cm',
-            'year': '2024',
-            'image': 'https://images.unsplash.com/photo-1577083288073-40892c0860fd?w=800&h=800&fit=crop',
-            'data_index': 6,
-            # NEW FIELDS
-            'availability': 'on_request',
-            'sold': False,
-            'show_price': False,
-            'price': 10500,
-            'discounted_price': None,
-            'allow_purchase': False,
-            'allow_inquiry': True,
-            'allow_schedule_viewing': False
-        },
-        {
-            'id': 8,
-            'title': 'Flow State',
-            'artist': 'Marcus Chen',
-            'artist_id': 2,
-            'description': "Chen's organic forms seem to move and breathe. This piece captures a moment of transformation, frozen in bronze.",
-            'medium': 'Bronze Sculpture',
-            'dimensions': '95 × 60 × 40 cm',
-            'year': '2025',
-            'image': 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=800&fit=crop',
-            'data_index': 7,
-            # NEW FIELDS
-            'availability': 'available',
-            'sold': False,
-            'show_price': True,
-            'price': 15000,
-            'discounted_price': 12500,  # Discounted price
-            'allow_purchase': True,
-            'allow_inquiry': False,
-            'allow_schedule_viewing': True
-        },
-        {
-            'id': 9,
-            'title': 'Layered Narratives',
-            'artist': 'Sofia Rodriguez',
-            'artist_id': 3,
-            'description': 'Rodriguez weaves together fragments of text, image, and paint to create a rich tapestry of meaning and memory.',
-            'medium': 'Mixed Media Collage',
-            'dimensions': '125 × 100 cm',
-            'year': '2025',
-            'image': 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&h=800&fit=crop',
-            'data_index': 8,
-            # NEW FIELDS
-            'availability': 'at_gallery',
-            'sold': False,
-            'show_price': True,
-            'price': 8900,
-            'discounted_price': None,
-            'allow_purchase': True,
-            'allow_inquiry': True,
-            'allow_schedule_viewing': True
-        },
-    ]
+    filtered_artworks = GLOBAL_ARTWORKS_DATA
     
-    # Get unique artists for filter dropdown
-    unique_artists = sorted(set([artwork['artist'] for artwork in ARTWORKS_DATA]))
-    
-    # Filter by artist if selected
-    filtered_artworks = ARTWORKS_DATA
     if artist_filter != 'all':
-        filtered_artworks = [artwork for artwork in ARTWORKS_DATA if artwork['artist'] == artist_filter]
+        filtered_artworks = [artwork for artwork in GLOBAL_ARTWORKS_DATA if artwork['artist'] == artist_filter]
     
-    # Sort artworks (simplified to match your request)
     if sort_by == 'newest':
         filtered_artworks = sorted(filtered_artworks, key=lambda x: x['year'], reverse=True)
     elif sort_by == 'oldest':
@@ -362,6 +289,8 @@ def artworks(request):
     elif sort_by == 'title_desc':
         filtered_artworks = sorted(filtered_artworks, key=lambda x: x['title'].lower(), reverse=True)
     
+    unique_artists = sorted(set([artwork['artist'] for artwork in GLOBAL_ARTWORKS_DATA]))
+    
     context = {
         'artworks': filtered_artworks,
         'artists': unique_artists,
@@ -369,7 +298,6 @@ def artworks(request):
         'current_sort': sort_by,
         'total_artworks': len(filtered_artworks),
     }
-    
     return render(request, 'gallery/artworks.html', context)
 
 def contact(request):
@@ -381,18 +309,116 @@ def google_login_redirect(request):
     return redirect('account_login')
 
 # ============================================================================
-# AUTHENTICATION VIEWS - SIMPLIFIED & EFFICIENT
+# ARTWORK DETAIL VIEWS - ONLY ONE SET OF FUNCTIONS
+# ============================================================================
+
+def artwork_detail(request, artwork_id):
+    """Render artwork detail page"""
+    # Find artwork from global data
+    artwork = None
+    for a in GLOBAL_ARTWORKS_DATA:
+        if a['id'] == artwork_id:
+            artwork = a
+            break
+    
+    if not artwork:
+        messages.error(request, 'Artwork not found.')
+        return redirect('artworks')
+    
+    # Determine if we should auto-show inquiry modal
+    show_inquiry_modal = (artwork.get('availability') == 'on_request')
+    
+    context = {
+        'artwork': artwork,
+        'show_inquiry_modal': show_inquiry_modal,
+        'user': request.user,
+    }
+    return render(request, 'gallery/artwork_detail.html', context)
+
+def artwork_purchase(request, artwork_id):
+    """Handle artwork purchase - redirect to detail page"""
+    return redirect('artwork_detail', artwork_id=artwork_id)
+
+def schedule_viewing(request, artwork_id):
+    """Schedule viewing page - NO LOGIN REQUIRED"""
+    # Find artwork from global data
+    artwork = None
+    for a in GLOBAL_ARTWORKS_DATA:
+        if a['id'] == artwork_id:
+            artwork = a
+            break
+    
+    if not artwork:
+        messages.error(request, 'Artwork not found.')
+        return redirect('artworks')
+    
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        preferred_date = request.POST.get('preferred_date', '').strip()
+        preferred_time = request.POST.get('preferred_time', '').strip()
+        additional_guests = request.POST.get('additional_guests', '0')
+        special_requests = request.POST.get('special_requests', '').strip()
+        
+        if name and email and preferred_date and preferred_time:
+            print(f"Schedule viewing request for {artwork['title']}")
+            print(f"From: {name} ({email})")
+            print(f"Date: {preferred_date} at {preferred_time}")
+            print(f"Guests: {additional_guests}")
+            print(f"Requests: {special_requests[:100]}...")
+            
+            messages.success(request, 'Viewing scheduled successfully! We\'ll send a confirmation email shortly.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+        else:
+            messages.error(request, 'Please fill in all required fields.')
+    
+    context = {
+        'artwork': artwork,
+        'user': request.user,
+    }
+    return render(request, 'gallery/schedule_viewing.html', context)
+
+
+def artwork_inquire(request, artwork_id):
+    """Handle artwork inquiry form submission"""
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        message = request.POST.get('message', '').strip()
+        
+        # Find artwork
+        artwork = None
+        for a in GLOBAL_ARTWORKS_DATA:
+            if a['id'] == artwork_id:
+                artwork = a
+                break
+        
+        if artwork and name and email and message:
+            print(f"Inquiry received for {artwork['title']}")
+            print(f"From: {name} ({email})")
+            print(f"Message: {message[:100]}...")
+            
+            messages.success(request, 'Your inquiry has been sent! We\'ll get back to you soon.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+        else:
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+    
+    # GET request - just redirect to detail page
+    return redirect('artwork_detail', artwork_id=artwork_id)
+
+# ============================================================================
+# AUTHENTICATION VIEWS
 # ============================================================================
 
 def login_view(request):
-    """Simple login view - handles both modal and full-page requests"""
+    """Simple login view"""
     if request.user.is_authenticated:
         return redirect('home')
     
     if request.method == 'POST':
-        form = CustomLoginForm(request.POST, request=request)  # FIXED: Pass request to form
+        form = CustomLoginForm(request.POST, request=request)
         if form.is_valid():
-            # Form's clean method already authenticated and set user_cache
             user = form.user_cache
             
             if user is not None:
@@ -410,7 +436,7 @@ def login_view(request):
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
     else:
-        form = CustomLoginForm(request=request)  # FIXED: Pass request to form
+        form = CustomLoginForm(request=request)
     
     context = {
         'form': form,
@@ -418,7 +444,6 @@ def login_view(request):
         'auth_subtitle': 'Welcome back to Camps Bay Gallery'
     }
     return render(request, 'gallery/login.html', context)
-
 
 def signup_view(request):
     """Simple signup view with direct email sending"""
@@ -429,12 +454,10 @@ def signup_view(request):
         form = CustomSignupForm(request.POST)
         if form.is_valid():
             try:
-                # Create user
                 user = form.save(commit=False)
                 user.is_email_verified = False
                 user.save()
                 
-                # Generate OTP
                 otp_code = OTP.generate_otp()
                 expires_at = timezone.now() + timedelta(minutes=15)
                 
@@ -445,25 +468,17 @@ def signup_view(request):
                     expires_at=expires_at
                 )
                 
-                # Store in session
                 request.session['pending_user_id'] = user.id
                 request.session['pending_user_email'] = user.email
                 
-                # ============================================================
-                # SIMPLIFIED EMAIL SENDING (Like Crafted Thrift)
-                # ============================================================
-                
-                # Build verification URL
                 verification_url = request.build_absolute_uri(reverse('verify_email'))
                 
-                # Render email template
                 html_message = render_to_string('gallery/emails/verify_email_email.html', {
                     'user': user,
                     'otp_code': otp_code,
                     'verification_url': verification_url,
                 })
                 
-                # Plain text fallback
                 plain_message = f"""
                 Hello {user.first_name},
                 
@@ -475,7 +490,6 @@ def signup_view(request):
                 Camps Bay Gallery Team
                 """
                 
-                # Send email directly
                 send_mail(
                     subject='Verify Your Email - Camps Bay Art Gallery',
                     message=plain_message,
@@ -519,23 +533,13 @@ def verify_email_view(request):
             otp_instance = form.otp_instance
             otp_instance.mark_used()
             
-            # Mark email as verified
             user.is_email_verified = True
             user.save()
             
-            # Clear session
             del request.session['pending_user_id']
             del request.session['pending_user_email']
             
-            # FIXED: Specify which backend to use when logging in
-            # When you have multiple backends, you must specify which one to use
-            from django.contrib.auth import login
-            
-            # IMPORTANT: Manually set the backend attribute on the user
-            # We'll use the first authentication backend from settings
             user.backend = 'django.contrib.auth.backends.ModelBackend'
-            
-            # Now login will work
             login(request, user)
             
             messages.success(request, 'Email verified successfully! Welcome to Camps Bay Gallery.')
@@ -548,8 +552,6 @@ def verify_email_view(request):
         'email': request.session.get('pending_user_email', ''),
     }
     return render(request, 'gallery/verify_email.html', context)
-
-
 
 def forgot_password_view(request):
     """Simple forgot password view"""
@@ -567,14 +569,11 @@ def forgot_password_view(request):
                     messages.error(request, 'Please verify your email address first.')
                     return render(request, 'gallery/forgot_password.html', {'form': form})
                 
-                # Generate OTP for password reset
                 otp_code = OTP.generate_otp()
                 expires_at = timezone.now() + timedelta(minutes=15)
                 
-                # Delete old OTPs
                 OTP.objects.filter(user=user, otp_type='password_reset').delete()
                 
-                # Create new OTP
                 OTP.objects.create(
                     user=user,
                     otp_code=otp_code,
@@ -582,24 +581,16 @@ def forgot_password_view(request):
                     expires_at=expires_at
                 )
                 
-                # Store in session
                 request.session['reset_user_id'] = user.id
                 
-                # ============================================================
-                # SIMPLIFIED PASSWORD RESET EMAIL
-                # ============================================================
-                
-                # Build reset URL
                 reset_url = request.build_absolute_uri(reverse('reset_password_verify'))
                 
-                # Render email template
                 html_message = render_to_string('gallery/emails/password_reset.html', {
                     'user': user,
                     'otp_code': otp_code,
                     'reset_url': reset_url,
                 })
                 
-                # Plain text fallback
                 plain_message = f"""
                 Hello {user.first_name},
                 
@@ -611,7 +602,6 @@ def forgot_password_view(request):
                 Camps Bay Gallery Team
                 """
                 
-                # Send email directly
                 send_mail(
                     subject='Password Reset - Camps Bay Art Gallery',
                     message=plain_message,
@@ -642,7 +632,6 @@ def forgot_password_view(request):
     }
     return render(request, 'gallery/forgot_password.html', context)
 
-
 def reset_password_verify_view(request):
     """Verify OTP for password reset"""
     user_id = request.session.get('reset_user_id')
@@ -659,7 +648,6 @@ def reset_password_verify_view(request):
             otp_instance = form.otp_instance
             otp_instance.mark_used()
             
-            # Mark OTP as verified in session
             request.session['reset_verified'] = True
             
             messages.success(request, 'OTP verified. You can now reset your password.')
@@ -674,7 +662,6 @@ def reset_password_verify_view(request):
     }
     return render(request, 'gallery/reset_password_verify.html', context)
 
-
 def reset_password_view(request):
     """Reset password after OTP verification"""
     if not request.session.get('reset_verified'):
@@ -688,7 +675,6 @@ def reset_password_view(request):
         form = CustomResetPasswordForm(user, request.POST)
         if form.is_valid():
             form.save()
-            # Clear session
             request.session.pop('reset_verified', None)
             request.session.pop('reset_user_id', None)
             
@@ -704,10 +690,9 @@ def reset_password_view(request):
     }
     return render(request, 'gallery/reset_password.html', context)
 
-
 @login_required
 def profile_view(request):
-    """User profile page - Simple and clean"""
+    """User profile page"""
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
@@ -726,13 +711,11 @@ def profile_view(request):
     }
     return render(request, 'gallery/profile.html', context)
 
-
 def logout_view(request):
     """Simple logout view"""
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('home')
-
 
 @csrf_exempt
 @require_POST
@@ -745,10 +728,8 @@ def resend_otp_view(request):
         
         user = get_object_or_404(User, id=user_id)
         
-        # Delete existing unused OTPs
         OTP.objects.filter(user=user, otp_type=otp_type, is_used=False).delete()
         
-        # Generate new OTP
         otp_code = OTP.generate_otp()
         expires_at = timezone.now() + timedelta(minutes=15)
         
@@ -759,13 +740,10 @@ def resend_otp_view(request):
             expires_at=expires_at
         )
         
-        # Determine email type
         if otp_type == 'email_verification':
             subject = 'New Verification Code - Camps Bay Gallery'
-            # Build verification URL
             verification_url = request.build_absolute_uri(reverse('verify_email'))
             
-            # Render email template
             html_message = render_to_string('gallery/emails/verify_email_email.html', {
                 'user': user,
                 'otp_code': otp_code,
@@ -773,17 +751,14 @@ def resend_otp_view(request):
             })
         else:
             subject = 'New Password Reset Code - Camps Bay Gallery'
-            # Build reset URL
             reset_url = request.build_absolute_uri(reverse('reset_password_verify'))
             
-            # Render email template
             html_message = render_to_string('gallery/emails/password_reset.html', {
                 'user': user,
                 'otp_code': otp_code,
                 'reset_url': reset_url,
             })
         
-        # Plain text fallback
         plain_message = f"""
         Your new code is: {otp_code}
         
@@ -828,67 +803,11 @@ def admin_dashboard_view(request):
     return render(request, 'gallery/admin_dashboard.html', context)
 
 # ============================================================================
-# PLACEHOLDER VIEWS FOR FUTURE ADMIN FEATURES
-# ============================================================================
-
-@login_required
-def manage_artists_view(request):
-    """Placeholder view for managing artists - FUTURE FEATURE"""
-    if not request.user.is_owner:
-        messages.error(request, 'Access denied. Admin features are for owners only.')
-        return redirect('home')
-    
-    messages.info(request, 'Manage Artists feature is coming soon!')
-    return redirect('admin_dashboard')
-
-
-@login_required
-def manage_artworks_view(request):
-    """Placeholder view for managing artworks - FUTURE FEATURE"""
-    if not request.user.is_owner:
-        messages.error(request, 'Access denied. Admin features are for owners only.')
-        return redirect('home')
-    
-    messages.info(request, 'Manage Artworks feature is coming soon!')
-    return redirect('admin_dashboard')
-
-
-@login_required
-def analytics_view(request):
-    """Placeholder view for analytics dashboard - FUTURE FEATURE"""
-    if not request.user.is_owner:
-        messages.error(request, 'Access denied. Admin features are for owners only.')
-        return redirect('home')
-    
-    messages.info(request, 'Analytics Dashboard is coming soon!')
-    return redirect('admin_dashboard')
-
-
-@login_required
-def view_orders_view(request):
-    """View orders for customers"""
-    if not request.user.is_authenticated:
-        messages.error(request, 'Please log in to view your orders.')
-        return redirect('login')
-    
-    # Placeholder for future orders system
-    messages.info(request, 'Order history feature is coming soon!')
-    
-    if request.user.is_owner:
-        return redirect('admin_dashboard')
-    else:
-        return redirect('profile')
-
-
-# Helper function to check if user is owner
-def is_owner(user):
-    return user.is_authenticated and user.is_owner
-
-# Add these views at the bottom of views.py, before the last line
-
-# ============================================================================
 # ARTIST MANAGEMENT VIEWS
 # ============================================================================
+
+def is_owner(user):
+    return user.is_authenticated and user.is_owner
 
 @login_required
 @user_passes_test(is_owner)
@@ -912,17 +831,14 @@ def add_artist_view(request):
     }
     return render(request, 'gallery/add_artist.html', context)
 
-
 @login_required
 @user_passes_test(is_owner)
 def view_artists_view(request):
     """View all artists with search and pagination"""
     search_query = request.GET.get('q', '')
     
-    # Get all active artists by default
     artists = Artist.objects.all().order_by('first_name', 'last_name')
     
-    # Apply search filter if query exists
     if search_query:
         artists = artists.filter(
             Q(first_name__icontains=search_query) |
@@ -932,8 +848,7 @@ def view_artists_view(request):
             Q(bio__icontains=search_query)
         )
     
-    # Pagination
-    paginator = Paginator(artists, 12)  # Show 12 artists per page
+    paginator = Paginator(artists, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -946,7 +861,6 @@ def view_artists_view(request):
         'page_subtitle': 'Manage artists in your gallery'
     }
     return render(request, 'gallery/view_artists.html', context)
-
 
 @login_required
 @user_passes_test(is_owner)
@@ -961,7 +875,6 @@ def edit_artist_view(request, artist_id):
     if request.method == 'POST':
         form = ArtistForm(request.POST, request.FILES, instance=artist)
         
-        # Handle image removal
         if request.POST.get('remove_current_image') == '1':
             if artist.profile_picture:
                 artist.profile_picture.delete(save=False)
@@ -984,7 +897,6 @@ def edit_artist_view(request, artist_id):
     }
     return render(request, 'gallery/edit_artist.html', context)
 
-
 @login_required
 @user_passes_test(is_owner)
 def delete_artist_view(request, artist_id):
@@ -993,7 +905,6 @@ def delete_artist_view(request, artist_id):
         artist = Artist.objects.get(id=artist_id)
         artist_name = f"{artist.first_name} {artist.last_name}"
         
-        # Delete the artist
         artist.delete()
         
         messages.success(request, f'Artist "{artist_name}" deleted successfully!')
@@ -1003,8 +914,6 @@ def delete_artist_view(request, artist_id):
     
     return redirect('view_artists')
 
-
-# Update the placeholder manage_artists_view to redirect to view_artists
 @login_required
 def manage_artists_view(request):
     """Redirect to view artists page"""
@@ -1015,26 +924,39 @@ def manage_artists_view(request):
     return redirect('view_artists')
 
 # ============================================================================
-# PLACEHOLDER VIEWS FOR ARTWORK DETAIL PAGES (TO FIX URL ERRORS)
+# PLACEHOLDER VIEWS
 # ============================================================================
 
-def artwork_detail(request, artwork_id):
-    """Placeholder view for artwork detail page"""
-    # For now, redirect to artworks page
-    messages.info(request, 'Artwork detail page is coming soon!')
-    return redirect('artworks')
+@login_required
+def manage_artworks_view(request):
+    """Placeholder view for managing artworks - FUTURE FEATURE"""
+    if not request.user.is_owner:
+        messages.error(request, 'Access denied. Admin features are for owners only.')
+        return redirect('home')
+    
+    messages.info(request, 'Manage Artworks feature is coming soon!')
+    return redirect('admin_dashboard')
 
-def artwork_purchase(request, artwork_id):
-    """Placeholder view for artwork purchase"""
-    messages.info(request, 'Purchase functionality is coming soon!')
-    return redirect('artworks')
+@login_required
+def analytics_view(request):
+    """Placeholder view for analytics dashboard - FUTURE FEATURE"""
+    if not request.user.is_owner:
+        messages.error(request, 'Access denied. Admin features are for owners only.')
+        return redirect('home')
+    
+    messages.info(request, 'Analytics Dashboard is coming soon!')
+    return redirect('admin_dashboard')
 
-def schedule_viewing(request, artwork_id):
-    """Placeholder view for scheduling viewing"""
-    messages.info(request, 'Schedule viewing functionality is coming soon!')
-    return redirect('artworks')
-
-def artwork_inquire(request, artwork_id):
-    """Placeholder view for artwork inquiry"""
-    messages.info(request, 'Inquiry functionality is coming soon!')
-    return redirect('artworks')
+@login_required
+def view_orders_view(request):
+    """View orders for customers"""
+    if not request.user.is_authenticated:
+        messages.error(request, 'Please log in to view your orders.')
+        return redirect('login')
+    
+    messages.info(request, 'Order history feature is coming soon!')
+    
+    if request.user.is_owner:
+        return redirect('admin_dashboard')
+    else:
+        return redirect('profile')

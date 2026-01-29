@@ -1,0 +1,204 @@
+<!-- ==========================================================================
+   SCHEDULE VIEWING MODAL - REUSABLE MODAL FOR SCHEDULING VIEWINGS
+   ========================================================================== -->
+
+   <div class="modal-overlay" id="scheduleModal">
+    <div class="modal-content">
+        <!-- Close Button -->
+        <button class="modal-close" id="closeScheduleModal">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <i class="fas fa-calendar-alt"></i>
+            <h2>Schedule a Viewing</h2>
+            <p class="modal-subtitle">Select a date and time for your private viewing</p>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <!-- Artwork Preview -->
+            <div class="inquiry-artwork-preview">
+                <img src="{{ artwork.image }}" alt="{{ artwork.title }}" class="inquiry-artwork-image">
+                <div class="inquiry-artwork-info">
+                    <h3 class="inquiry-artwork-title">{{ artwork.title }}</h3>
+                    <p class="inquiry-artwork-artist">by {{ artwork.artist }}</p>
+                    {% if artwork.medium %}
+                        <p class="inquiry-artwork-medium">{{ artwork.medium }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Schedule Form -->
+            <form method="POST" action="{% url 'schedule_viewing' artwork.id %}" class="inquiry-form" id="scheduleForm">
+                {% csrf_token %}
+                
+                <input type="hidden" name="artwork_id" value="{{ artwork.id }}">
+                
+                <div class="form-group">
+                    <label for="scheduleDate">
+                        Preferred Date <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="scheduleDate" 
+                        name="date" 
+                        class="form-input" 
+                        required
+                    >
+                    <small class="field-hint text-small text-gray">Select a date within the next 30 days</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleTime">
+                        Preferred Time Slot <span class="required">*</span>
+                    </label>
+                    <select id="scheduleTime" name="time" class="form-select" required>
+                        <option value="">Select a time slot</option>
+                        <!-- Time slots will be populated by JavaScript -->
+                    </select>
+                    <small class="field-hint text-small text-gray">Viewings are 30 minutes each</small>
+                </div>
+                
+                <!-- Added: Email field for non-logged in users -->
+                <div class="form-group">
+                    <label for="scheduleEmail">
+                        Your Email Address <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="scheduleEmail" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="your@email.com"
+                        required
+                        {% if user.is_authenticated %}
+                            value="{{ user.email }}"
+                        {% endif %}
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleName">
+                        Your Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="scheduleName" 
+                        name="name" 
+                        class="form-input" 
+                        placeholder="Enter your full name"
+                        required
+                        {% if user.is_authenticated %}
+                            value="{{ user.first_name }} {{ user.last_name }}"
+                        {% endif %}
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleGuests">
+                        Number of Additional Guests
+                    </label>
+                    <input 
+                        type="number" 
+                        id="scheduleGuests" 
+                        name="guests" 
+                        class="form-input" 
+                        min="0" 
+                        max="10" 
+                        value="0"
+                    >
+                    <small class="field-hint text-small text-gray">Maximum 10 guests including yourself</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduleRequests">
+                        Special Requests or Notes
+                    </label>
+                    <textarea 
+                        id="scheduleRequests" 
+                        name="special_requests" 
+                        class="form-textarea" 
+                        rows="3"
+                        placeholder="Any special requirements or questions..."
+                    ></textarea>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelSchedule">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calendar-check"></i>
+                        Schedule Viewing
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set min/max dates (today to 30 days from now)
+    const dateInput = document.getElementById('scheduleDate');
+    if (dateInput) {
+        const today = new Date();
+        const maxDate = new Date();
+        maxDate.setDate(today.getDate() + 30);
+        
+        // Format dates as YYYY-MM-DD
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
+        dateInput.min = formatDate(today);
+        dateInput.max = formatDate(maxDate);
+        
+        // Set default to tomorrow
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        dateInput.value = formatDate(tomorrow);
+    }
+    
+    // Generate time slots (9:00 AM to 5:00 PM, 30-minute intervals)
+    const timeSelect = document.getElementById('scheduleTime');
+    if (timeSelect) {
+        const openingHours = [
+            '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+            '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+            '15:00', '15:30', '16:00', '16:30', '17:00'
+        ];
+        
+        openingHours.forEach(time => {
+            const option = document.createElement('option');
+            const [hours, minutes] = time.split(':');
+            const period = parseInt(hours) >= 12 ? 'PM' : 'AM';
+            const displayHours = parseInt(hours) % 12 || 12;
+            option.value = time;
+            option.textContent = `${displayHours}:${minutes} ${period}`;
+            timeSelect.appendChild(option);
+        });
+        
+        // Set default to 10:00 AM
+        timeSelect.value = '10:00';
+    }
+    
+    // Cancel button functionality
+    const cancelBtn = document.getElementById('cancelSchedule');
+    const modal = document.getElementById('scheduleModal');
+    
+    if (cancelBtn && modal) {
+        cancelBtn.addEventListener('click', function() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+});
+</script>

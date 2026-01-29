@@ -48,22 +48,24 @@
         <!-- Action Buttons - DYNAMIC based on availability -->
         <div class="artwork-actions flex mt-md">
             <!-- LEFT BUTTON: BUY NOW or INQUIRE -->
-            {% if artwork.availability == 'on_request' %}
+            {% if artwork.availability == 'on_request' or not artwork.allow_purchase %}
                 <!-- INQUIRE button for "on request" items -->
-                <a href="{% url 'artwork_inquire' artwork.id %}" class="inquire-btn btn btn-secondary">
+                <a href="{% url 'artwork_detail' artwork.id %}" class="inquire-btn btn btn-secondary">
                     INQUIRE
                 </a>
             {% else %}
                 <!-- BUY NOW button for "available" or "at gallery" items -->
-                <a href="{% url 'artwork_purchase' artwork.id %}" class="view-btn btn btn-primary">
+                <a href="{% url 'artwork_detail' artwork.id %}" class="view-btn btn btn-primary">
                     BUY NOW
                 </a>
             {% endif %}
             
-            <!-- RIGHT BUTTON: SCHEDULE VIEWING (always shows) -->
-            <a href="{% url 'schedule_viewing' artwork.id %}" class="view-btn btn btn-primary ml-sm">
-                SCHEDULE VIEWING
-            </a>
+            <!-- RIGHT BUTTON: SCHEDULE VIEWING (only if allowed) -->
+            {% if artwork.allow_schedule_viewing %}
+                <a href="{% url 'schedule_viewing' artwork.id %}" class="view-btn btn btn-primary ml-sm">
+                    SCHEDULE VIEWING
+                </a>
+            {% endif %}
         </div>
     </div>
 </div>

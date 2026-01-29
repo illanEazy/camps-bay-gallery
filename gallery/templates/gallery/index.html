@@ -28,8 +28,20 @@
         {% include 'gallery/includes/_artists_section.html' %}
     </section>
 
-    <!-- Artwork Section -->
+    <!-- Featured Artwork Section - NOW USING REUSABLE GRID -->
     <section class="artwork-section section-light">
-        {% include 'gallery/includes/_artwork_section.html' %}
+        <div class="container">
+            <div class="artwork-header mb-xl">
+                <h2 class="h2 mb-sm">Featured Artwork</h2>
+                <p class="text-large text-gray">Discover pieces that speak to the moment</p>
+            </div>
+            
+            <!-- Reuse the same artwork grid component -->
+            <div class="artwork-grid grid-3">
+                {% for artwork in featured_artworks %}
+                    {% include 'gallery/includes/_artwork_card.html' with artwork=artwork %}
+                {% endfor %}
+            </div>
+        </div>
     </section>
 {% endblock %}

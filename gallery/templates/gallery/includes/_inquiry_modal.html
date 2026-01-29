@@ -1,0 +1,198 @@
+<!-- ==========================================================================
+   INQUIRY MODAL - REUSABLE MODAL FOR ARTWORK INQUIRIES
+   ========================================================================== -->
+
+   <div class="modal-overlay" id="inquiryModal">
+    <div class="modal-content">
+        <!-- Close Button -->
+        <button class="modal-close" id="closeInquiryModal">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <i class="fas fa-envelope"></i>
+            <h2>Inquire About This Artwork</h2>
+            <p class="modal-subtitle">Get more information about this piece</p>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <!-- Artwork Preview -->
+            <div class="inquiry-artwork-preview">
+                <img src="{{ artwork.image }}" alt="{{ artwork.title }}" class="inquiry-artwork-image">
+                <div class="inquiry-artwork-info">
+                    <h3 class="inquiry-artwork-title">{{ artwork.title }}</h3>
+                    <p class="inquiry-artwork-artist">by {{ artwork.artist }}</p>
+                    {% if artwork.medium %}
+                        <p class="inquiry-artwork-medium">{{ artwork.medium }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Inquiry Form -->
+            <form method="POST" action="{% url 'artwork_inquire' artwork.id %}" class="inquiry-form" id="inquiryForm">
+                {% csrf_token %}
+                
+                <input type="hidden" name="artwork_id" value="{{ artwork.id }}">
+                
+                <div class="form-group">
+                    <label for="inquiryName">
+                        Your Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="inquiryName" 
+                        name="name" 
+                        class="form-input" 
+                        placeholder="Enter your full name"
+                        required
+                        {% if user.is_authenticated %}
+                            value="{{ user.first_name }} {{ user.last_name }}"
+                        {% endif %}
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="inquiryEmail">
+                        Email Address <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="inquiryEmail" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="your@email.com"
+                        required
+                        {% if user.is_authenticated %}
+                            value="{{ user.email }}"
+                        {% endif %}
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="inquiryPhone">
+                        Phone Number
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="inquiryPhone" 
+                        name="phone" 
+                        class="form-input" 
+                        placeholder="Optional - for faster contact"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="inquiryMessage">
+                        Your Message <span class="required">*</span>
+                    </label>
+                    <textarea 
+                        id="inquiryMessage" 
+                        name="message" 
+                        class="form-textarea" 
+                        rows="4"
+                        placeholder="Tell us what you'd like to know about this artwork..."
+                        required
+                    ></textarea>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelInquiry">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Inquiry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Inquiry Modal Specific Styles - REUSING EXISTING CSS CLASSES */
+.inquiry-artwork-preview {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--color-light);
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+}
+
+.inquiry-artwork-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.inquiry-artwork-title {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: 0.25rem;
+}
+
+.inquiry-artwork-artist {
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.inquiry-artwork-medium {
+    font-size: 0.85rem;
+    color: var(--color-gray);
+    font-style: italic;
+}
+
+.inquiry-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.inquiry-form .required {
+    color: #e74c3c;
+}
+
+.inquiry-form .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .inquiry-artwork-preview {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .inquiry-artwork-image {
+        width: 100%;
+        height: 120px;
+    }
+    
+    .inquiry-form .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+// Cancel button functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelBtn = document.getElementById('cancelInquiry');
+    const modal = document.getElementById('inquiryModal');
+    
+    if (cancelBtn && modal) {
+        cancelBtn.addEventListener('click', function() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+});
+</script>

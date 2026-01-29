@@ -1,0 +1,526 @@
+{% extends 'gallery/base.html' %}
+{% load static %}
+
+{% block title %}{{ artwork.title }} | Camps Bay Art Gallery{% endblock %}
+
+
+{% block extra_css %}
+<style>
+    /* Only keep styles that are NOT already in components.css */
+    
+    .artwork-detail-container {
+        padding-top: 140px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 140px 2rem 4rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        color: var(--color-gray);
+    }
+
+    .breadcrumb a {
+        color: var(--color-gray);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+
+    .breadcrumb a:hover {
+        color: var(--color-secondary);
+        text-decoration: underline;
+    }
+
+    .breadcrumb .separator {
+        color: var(--color-light-gray);
+    }
+
+    .artwork-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    .artwork-image-container {
+        position: relative;
+        background: var(--color-light);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-medium);
+    }
+
+    .artwork-main-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform var(--transition-slow);
+    }
+
+    .artwork-image-container:hover .artwork-main-image {
+        transform: scale(1.02);
+    }
+
+    .artwork-year-badge {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.75);
+        color: var(--color-white);
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-weight: var(--font-weight-medium);
+    }
+
+    .artwork-details {
+        padding: 1rem 0;
+    }
+
+    .artwork-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .artwork-title {
+        font-size: 2.5rem;
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary);
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .artwork-artist {
+        font-size: 1.1rem;
+        color: var(--color-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .artwork-artist a {
+        color: var(--color-secondary);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+
+    .artwork-artist a:hover {
+        color: var(--color-primary);
+        text-decoration: underline;
+    }
+
+    .artwork-price-section {
+        background: var(--color-light);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        border: 1px solid var(--color-border);
+    }
+
+    .price-label {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--color-gray);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .price-amount {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .current-price {
+        font-size: 2rem;
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary);
+    }
+
+    .original-price {
+        font-size: 1.2rem;
+        color: var(--color-gray);
+        text-decoration: line-through;
+    }
+
+    .price-note {
+        font-size: 0.9rem;
+        color: var(--color-gray);
+        font-style: italic;
+    }
+
+    .artwork-metadata {
+        margin: 2rem 0;
+    }
+
+    .metadata-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .metadata-item {
+        padding: 1rem;
+        background: var(--color-light);
+        border-radius: 6px;
+        border: 1px solid var(--color-border);
+    }
+
+    .metadata-label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--color-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .metadata-value {
+        font-size: 1rem;
+        color: var(--color-primary);
+        font-weight: var(--font-weight-medium);
+    }
+
+    .artwork-description {
+        margin: 2rem 0;
+        line-height: 1.8;
+        color: var(--color-dark-gray);
+    }
+
+    .back-to-artworks {
+        margin-top: 3rem;
+        text-align: center;
+    }
+
+    @media (max-width: 992px) {
+        .artwork-detail-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .artwork-title {
+            font-size: 2rem;
+        }
+        
+        .metadata-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .artwork-detail-container {
+            padding: 120px 1rem 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="artwork-detail-container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <span class="separator">/</span>
+        <a href="{% url 'artworks' %}">Artworks</a>
+        <span class="separator">/</span>
+        <span>{{ artwork.title }}</span>
+    </div>
+
+    <!-- Artwork Detail Grid -->
+    <div class="artwork-detail-grid">
+        <!-- Left Column: Image -->
+        <div class="artwork-image-container">
+            <img src="{{ artwork.image }}" alt="{{ artwork.title }}" class="artwork-main-image">
+            {% if artwork.year %}
+                <div class="artwork-year-badge">{{ artwork.year }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Details -->
+        <div class="artwork-details">
+            <!-- Header -->
+            <div class="artwork-header">
+                <h1 class="artwork-title">{{ artwork.title }}</h1>
+                <div class="artwork-artist">
+                    Artist: <a href="{% url 'artist_detail' artist_id=artwork.artist_id %}">{{ artwork.artist }}</a>
+                </div>
+                <div class="artwork-availability">
+                    {% if artwork.availability == 'at_gallery' %}
+                        <span class="availability-tag at-gallery">Available at Gallery</span>
+                    {% elif artwork.availability == 'on_request' %}
+                        <span class="availability-tag on-request">Available on Request</span>
+                    {% else %}
+                        <span class="availability-tag available">Available</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Price Section -->
+            <div class="artwork-price-section">
+                <span class="price-label">Price</span>
+                {% if artwork.show_price %}
+                    {% if artwork.discounted_price %}
+                        <div class="price-amount">
+                            <span class="current-price">R {{ artwork.discounted_price|floatformat:2 }}</span>
+                            <span class="original-price">R {{ artwork.price|floatformat:2 }}</span>
+                        </div>
+                        <span class="price-note">Special discounted price</span>
+                    {% else %}
+                        <div class="price-amount">
+                            <span class="current-price">R {{ artwork.price|floatformat:2 }}</span>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="price-amount">
+                        <span class="current-price">Price on Request</span>
+                    </div>
+                    <span class="price-note">Contact us for pricing information</span>
+                {% endif %}
+            </div>
+
+            <!-- Metadata -->
+            <div class="artwork-metadata">
+                <div class="metadata-grid">
+                    <div class="metadata-item">
+                        <span class="metadata-label">Medium</span>
+                        <span class="metadata-value">{{ artwork.medium }}</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Dimensions</span>
+                        <span class="metadata-value">{{ artwork.dimensions }}</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Year</span>
+                        <span class="metadata-value">{{ artwork.year }}</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Status</span>
+                        <span class="metadata-value">
+                            {% if artwork.sold %}Sold{% else %}Available{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="artwork-description">
+                <h3>Description</h3>
+                <p>{{ artwork.description }}</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="artwork-actions">
+                {% if artwork.availability == 'on_request' or not artwork.allow_purchase %}
+                    <!-- Show inquire button for "on request" items -->
+                    <button class="action-btn btn-secondary" id="openInquiryModal">
+                        <i class="fas fa-envelope"></i>
+                        Inquire About This Piece
+                    </button>
+                {% else %}
+                    <!-- Show purchase button for available items -->
+                    <a href="#" class="action-btn btn-primary">
+                        <i class="fas fa-shopping-cart"></i>
+                        Proceed to Checkout
+                    </a>
+                {% endif %}
+                
+                {% if artwork.allow_schedule_viewing %}
+                    <button class="action-btn btn-secondary" id="openScheduleModal">
+                        <i class="fas fa-calendar-alt"></i>
+                        Schedule Viewing
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Artworks -->
+    <div class="back-to-artworks">
+        <a href="{% url 'artworks' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Back to Artworks
+        </a>
+    </div>
+</div>
+
+<!-- Include Modals -->
+{% include 'gallery/includes/_inquiry_modal.html' %}
+{% include 'gallery/includes/_schedule_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Artwork detail page loaded');
+        console.log('Artwork availability:', "{{ artwork.availability }}");
+        
+        // ============================================================================
+        // INQUIRY MODAL FUNCTIONALITY
+        // ============================================================================
+        
+        const inquiryModal = document.getElementById('inquiryModal');
+        const openInquiryBtn = document.getElementById('openInquiryModal');
+        const closeInquiryBtn = document.getElementById('closeInquiryModal');
+        const cancelInquiryBtn = document.getElementById('cancelInquiry');
+        
+        console.log('Modal elements:', {
+            inquiryModal: !!inquiryModal,
+            openInquiryBtn: !!openInquiryBtn,
+            closeInquiryBtn: !!closeInquiryBtn,
+            cancelInquiryBtn: !!cancelInquiryBtn
+        });
+        
+        // Open inquiry modal
+        if (openInquiryBtn) {
+            openInquiryBtn.addEventListener('click', function() {
+                console.log('Open inquiry button clicked');
+                if (inquiryModal) {
+                    inquiryModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        }
+        
+        // Close inquiry modal
+        if (closeInquiryBtn) {
+            closeInquiryBtn.addEventListener('click', function() {
+                console.log('Close inquiry button clicked');
+                if (inquiryModal) {
+                    inquiryModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+        
+        // Cancel inquiry
+        if (cancelInquiryBtn) {
+            cancelInquiryBtn.addEventListener('click', function() {
+                console.log('Cancel inquiry button clicked');
+                if (inquiryModal) {
+                    inquiryModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+        
+        // Close modal when clicking outside
+        if (inquiryModal) {
+            inquiryModal.addEventListener('click', function(e) {
+                if (e.target === inquiryModal) {
+                    inquiryModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && inquiryModal && inquiryModal.classList.contains('active')) {
+                inquiryModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // ============================================================================
+        // AUTO-SHOW MODAL FOR "ON REQUEST" ITEMS
+        // ============================================================================
+        
+        // Check if artwork is "on_request" and auto-show modal
+        const artworkAvailability = "{{ artwork.availability }}";
+        console.log('Checking auto-modal for availability:', artworkAvailability);
+        
+        if (artworkAvailability === 'on_request') {
+            console.log('Artwork is "on_request" - showing modal in 1 second');
+            setTimeout(function() {
+                if (inquiryModal) {
+                    console.log('Auto-showing inquiry modal');
+                    inquiryModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }, 1000);
+        }
+        
+        // ============================================================================
+        // FORM VALIDATION
+        // ============================================================================
+        
+        const inquiryForm = document.getElementById('inquiryForm');
+        if (inquiryForm) {
+            inquiryForm.addEventListener('submit', function(e) {
+                const name = document.getElementById('inquiryName').value.trim();
+                const email = document.getElementById('inquiryEmail').value.trim();
+                const message = document.getElementById('inquiryMessage').value.trim();
+                
+                // Basic validation
+                if (!name || !email || !message) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields.');
+                    return false;
+                }
+                
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    e.preventDefault();
+                    alert('Please enter a valid email address.');
+                    return false;
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                }
+                
+                return true;
+            });
+        }
+        
+        // ============================================================================
+        // SCHEDULE MODAL FUNCTIONALITY
+        // ============================================================================
+        
+        const scheduleModal = document.getElementById('scheduleModal');
+        const openScheduleBtn = document.getElementById('openScheduleModal');
+        const closeScheduleBtn = document.getElementById('closeScheduleModal');
+        const cancelScheduleBtn = document.getElementById('cancelSchedule');
+        
+        if (openScheduleBtn && scheduleModal) {
+            openScheduleBtn.addEventListener('click', function() {
+                scheduleModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+        
+        if (closeScheduleBtn && scheduleModal) {
+            closeScheduleBtn.addEventListener('click', function() {
+                scheduleModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+        
+        if (cancelScheduleBtn && scheduleModal) {
+            cancelScheduleBtn.addEventListener('click', function() {
+                scheduleModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+        
+        if (scheduleModal) {
+            scheduleModal.addEventListener('click', function(e) {
+                if (e.target === scheduleModal) {
+                    scheduleModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
