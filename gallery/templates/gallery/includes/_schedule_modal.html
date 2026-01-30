@@ -19,10 +19,12 @@
         <!-- Modal Body -->
         <div class="modal-body">
             <!-- Schedule Form - Clean, no image -->
-            <form method="POST" action="{% url 'schedule_viewing' artwork.id %}" class="schedule-form" id="scheduleForm">
+            <form class="schedule-form" id="scheduleForm" onsubmit="handleScheduleSubmit(event)">
                 {% csrf_token %}
                 
                 <input type="hidden" name="artwork_id" value="{{ artwork.id }}">
+                <input type="hidden" name="artwork_title" value="{{ artwork.title }}">
+                <input type="hidden" name="artist" value="{{ artwork.artist }}">
                 
                 <!-- Personal Details -->
                 <div class="form-group">
@@ -340,6 +342,81 @@ select.form-input {
 
 <script>
 // Schedule Modal Functionality
+function handleScheduleSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    // Basic validation
+    const name = document.getElementById('scheduleName').value.trim();
+    const email = document.getElementById('scheduleEmail').value.trim();
+    const date = document.getElementById('scheduleDate').value;
+    const time = document.getElementById('scheduleTime').value;
+    
+    if (!name || !email || !date || !time) {
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        return false;
+    }
+    
+    // Show loading state
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
+    }
+    
+    // Simulate form submission (for frontend demo)
+    setTimeout(() => {
+        // Here you would normally send the data to your backend
+        console.log('Schedule Viewing Request:', {
+            artwork_id: formData.get('artwork_id'),
+            artwork_title: formData.get('artwork_title'),
+            artist: formData.get('artist'),
+            name: formData.get('name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            preferred_date: formData.get('preferred_date'),
+            preferred_time: formData.get('preferred_time'),
+            additional_guests: formData.get('additional_guests'),
+            special_requests: formData.get('special_requests')
+        });
+        
+        // Show success message
+        alert('Viewing scheduled successfully! We\'ll send a confirmation email shortly.');
+        
+        // Close modal
+        const modal = document.getElementById('scheduleModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Reset button state
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Schedule Viewing';
+        }
+        
+        // Reset form
+        form.reset();
+        
+        // Reset date and time to defaults
+        setDefaultDateTime();
+        
+    }, 1500);
+    
+    return false;
+}
+
+// Initialize schedule modal
 document.addEventListener('DOMContentLoaded', function() {
     const scheduleModal = document.getElementById('scheduleModal');
     const closeScheduleBtn = document.getElementById('closeScheduleModal');
@@ -348,15 +425,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close modal buttons
     if (closeScheduleBtn) {
         closeScheduleBtn.addEventListener('click', function() {
-            scheduleModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
+            if (scheduleModal) {
+                scheduleModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
         });
     }
     
     if (cancelScheduleBtn) {
         cancelScheduleBtn.addEventListener('click', function() {
-            scheduleModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
+            if (scheduleModal) {
+                scheduleModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
         });
     }
     
@@ -388,66 +469,41 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = `${displayHours}:${minutes} ${period}`;
             timeSelect.appendChild(option);
         });
-        
-        // Set default to 10:00 AM
-        timeSelect.value = '10:00';
     }
     
-    // Set date constraints (today to 30 days from now)
+    // Set default date and time
+    setDefaultDateTime();
+});
+
+function setDefaultDateTime() {
+    // Set date to tomorrow
     const dateInput = document.getElementById('scheduleDate');
     if (dateInput) {
         const today = new Date();
-        const maxDate = new Date();
-        maxDate.setDate(today.getDate() + 30);
-        
-        // Format dates as YYYY-MM-DD
-        const formatDate = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-        
-        dateInput.min = formatDate(today);
-        dateInput.max = formatDate(maxDate);
-        
-        // Set default to tomorrow
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
-        dateInput.value = formatDate(tomorrow);
+        
+        // Format date as YYYY-MM-DD
+        const year = tomorrow.getFullYear();
+        const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const day = String(tomorrow.getDate()).padStart(2, '0');
+        dateInput.value = `${year}-${month}-${day}`;
+        
+        // Set min date to today, max to 30 days from now
+        const maxDate = new Date(today);
+        maxDate.setDate(today.getDate() + 30);
+        const maxYear = maxDate.getFullYear();
+        const maxMonth = String(maxDate.getMonth() + 1).padStart(2, '0');
+        const maxDay = String(maxDate.getDate()).padStart(2, '0');
+        
+        dateInput.min = `${year}-${month}-${day}`;
+        dateInput.max = `${maxYear}-${maxMonth}-${maxDay}`;
     }
     
-    // Form validation
-    const scheduleForm = document.getElementById('scheduleForm');
-    if (scheduleForm) {
-        scheduleForm.addEventListener('submit', function(e) {
-            const name = document.getElementById('scheduleName').value.trim();
-            const email = document.getElementById('scheduleEmail').value.trim();
-            const date = document.getElementById('scheduleDate').value;
-            const time = document.getElementById('scheduleTime').value;
-            
-            if (!name || !email || !date || !time) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-                return false;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                e.preventDefault();
-                alert('Please enter a valid email address.');
-                return false;
-            }
-            
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
-            }
-            
-            return true;
-        });
+    // Set default time to 10:00 AM
+    const timeSelect = document.getElementById('scheduleTime');
+    if (timeSelect) {
+        timeSelect.value = '10:00';
     }
-});
+}
 </script>

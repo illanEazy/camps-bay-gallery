@@ -339,45 +339,6 @@ def artwork_purchase(request, artwork_id):
     """Handle artwork purchase - redirect to detail page"""
     return redirect('artwork_detail', artwork_id=artwork_id)
 
-def schedule_viewing(request, artwork_id):
-    """Schedule viewing page - NO LOGIN REQUIRED"""
-    # Find artwork from global data
-    artwork = None
-    for a in GLOBAL_ARTWORKS_DATA:
-        if a['id'] == artwork_id:
-            artwork = a
-            break
-    
-    if not artwork:
-        messages.error(request, 'Artwork not found.')
-        return redirect('artworks')
-    
-    if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        email = request.POST.get('email', '').strip()
-        preferred_date = request.POST.get('preferred_date', '').strip()
-        preferred_time = request.POST.get('preferred_time', '').strip()
-        additional_guests = request.POST.get('additional_guests', '0')
-        special_requests = request.POST.get('special_requests', '').strip()
-        
-        if name and email and preferred_date and preferred_time:
-            print(f"Schedule viewing request for {artwork['title']}")
-            print(f"From: {name} ({email})")
-            print(f"Date: {preferred_date} at {preferred_time}")
-            print(f"Guests: {additional_guests}")
-            print(f"Requests: {special_requests[:100]}...")
-            
-            messages.success(request, 'Viewing scheduled successfully! We\'ll send a confirmation email shortly.')
-            return redirect('artwork_detail', artwork_id=artwork_id)
-        else:
-            messages.error(request, 'Please fill in all required fields.')
-    
-    context = {
-        'artwork': artwork,
-        'user': request.user,
-    }
-    return render(request, 'gallery/schedule_viewing.html', context)
-
 
 def artwork_inquire(request, artwork_id):
     """Handle artwork inquiry form submission"""

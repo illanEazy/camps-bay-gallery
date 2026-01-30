@@ -11,10 +11,10 @@ urlpatterns = [
     path('artworks/', views.artworks, name='artworks'),
     path('contact/', views.contact, name='contact'),
 
-    # Artwork Detail URLs - FIXED
+    # Artwork Detail URLs
     path('artworks/<int:artwork_id>/', views.artwork_detail, name='artwork_detail'),
     path('artworks/<int:artwork_id>/purchase/', views.artwork_purchase, name='artwork_purchase'),
-    path('artworks/<int:artwork_id>/schedule/', views.schedule_viewing, name='schedule_viewing'),
+    # REMOVED: schedule_viewing URL
     path('artworks/<int:artwork_id>/inquire/', views.artwork_inquire, name='artwork_inquire'),
     
     # Authentication URLs

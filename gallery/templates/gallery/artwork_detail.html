@@ -3,7 +3,6 @@
 
 {% block title %}{{ artwork.title }} | Camps Bay Art Gallery{% endblock %}
 
-
 {% block extra_css %}
 <style>
     /* Only keep styles that are NOT already in components.css */
@@ -44,7 +43,7 @@
         grid-template-columns: 1fr 1fr;
         gap: 3rem;
         margin-bottom: 3rem;
-        align-items: start;
+        align-items: start;  /* ← Key change — items align to top, no vertical stretch */
     }
 
     .artwork-image-container {
@@ -64,18 +63,6 @@
 
     .artwork-image-container:hover .artwork-main-image {
         transform: scale(1.02);
-    }
-
-    .artwork-year-badge {
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.75);
-        color: var(--color-white);
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        font-weight: var(--font-weight-medium);
     }
 
     .artwork-details {
@@ -221,7 +208,6 @@
 </style>
 {% endblock %}
 
-
 {% block content %}
 <div class="artwork-detail-container">
     <!-- Breadcrumb Navigation -->
@@ -238,9 +224,6 @@
         <!-- Left Column: Image -->
         <div class="artwork-image-container">
             <img src="{{ artwork.image }}" alt="{{ artwork.title }}" class="artwork-main-image">
-            {% if artwork.year %}
-                <div class="artwork-year-badge">{{ artwork.year }}</div>
-            {% endif %}
         </div>
 
         <!-- Right Column: Details -->
