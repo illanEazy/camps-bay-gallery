@@ -27,6 +27,14 @@ urlpatterns = [
     path('reset-password/', views.reset_password_view, name='reset_password'),
     path('resend-otp/', views.resend_otp_view, name='resend_otp'),
     path('profile/', views.profile_view, name='profile'),
+
+    # Cart and Checkout URLs
+    path('cart/', views.cart_view, name='cart'),
+    path('checkout/', views.checkout_view, name='checkout'),
+    path('add-to-cart/<int:artwork_id>/', views.add_to_cart, name='add_to_cart'),
+    path('update-cart/<int:artwork_id>/', views.update_cart_item, name='update_cart_item'),
+    path('remove-from-cart/<int:artwork_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('process-checkout/', views.process_checkout, name='process_checkout'),
     
     # ADMIN DASHBOARD URL
     path('admin-dashboard/', views.admin_dashboard_view, name='admin_dashboard'),

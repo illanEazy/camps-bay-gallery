@@ -23,6 +23,8 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .forms import ArtistForm
+# Add this import at the top of views.py with other imports
+import random
 
 # ============================================================================
 # GLOBAL DATA
@@ -921,3 +923,185 @@ def view_orders_view(request):
         return redirect('admin_dashboard')
     else:
         return redirect('profile')
+
+# ============================================================================
+# CART & CHECKOUT VIEWS
+# ============================================================================
+
+@login_required
+def add_to_cart(request, artwork_id):
+    """Add artwork to cart"""
+    if request.method == 'POST':
+        # Get the artwork from global data
+        artwork = None
+        for a in GLOBAL_ARTWORKS_DATA:
+            if a['id'] == artwork_id:
+                artwork = a
+                break
+        
+        if not artwork:
+            messages.error(request, 'Artwork not found.')
+            return redirect('artworks')
+        
+        # Get or create cart in session
+        cart = request.session.get('cart', {})
+        
+        # Since each artwork is unique, we can only have 1 of each
+        if str(artwork_id) not in cart:
+            cart[str(artwork_id)] = {
+                'quantity': 1,
+                'added_at': timezone.now().isoformat()
+            }
+            request.session['cart'] = cart
+            messages.success(request, f'"{artwork["title"]}" added to cart.')
+        else:
+            messages.info(request, f'"{artwork["title"]}" is already in your cart.')
+        
+        # Check where to redirect
+        redirect_to = request.POST.get('redirect_to', 'cart')
+        
+        if redirect_to == 'checkout':
+            return redirect('checkout')
+        else:
+            return redirect('cart')
+    
+    return redirect('artworks')
+
+@login_required
+def cart_view(request):
+    """View shopping cart"""
+    cart = request.session.get('cart', {})
+    
+    cart_items = []
+    subtotal = 0
+    
+    for artwork_id, item_data in cart.items():
+        for artwork in GLOBAL_ARTWORKS_DATA:
+            if artwork['id'] == int(artwork_id):
+                quantity = item_data.get('quantity', 1)
+                item_total = artwork.get('price', 0) * quantity
+                subtotal += item_total
+                
+                cart_items.append({
+                    'artwork': artwork,
+                    'quantity': quantity,
+                    'item_total': item_total
+                })
+                break
+    
+    # Calculate totals
+    shipping = 500
+    tax = subtotal * 0.15
+    total = subtotal + shipping + tax
+    
+    context = {
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'tax': tax,
+        'total': total,
+        'item_count': len(cart_items)
+    }
+    
+    return render(request, 'gallery/cart.html', context)
+
+@login_required
+def checkout_view(request):
+    """Checkout page"""
+    cart = request.session.get('cart', {})
+    
+    if not cart:
+        messages.info(request, 'Your cart is empty. Add items before checkout.')
+        return redirect('cart')
+    
+    cart_items = []
+    subtotal = 0
+    
+    for artwork_id, item_data in cart.items():
+        for artwork in GLOBAL_ARTWORKS_DATA:
+            if artwork['id'] == int(artwork_id):
+                quantity = item_data.get('quantity', 1)
+                item_total = artwork.get('price', 0) * quantity
+                subtotal += item_total
+                
+                cart_items.append({
+                    'artwork': artwork,
+                    'quantity': quantity,
+                    'item_total': item_total
+                })
+                break
+    
+    # Calculate totals
+    shipping = 500
+    tax = subtotal * 0.15
+    total = subtotal + shipping + tax
+    
+    # Generate order reference
+    order_reference = f"ORD-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    
+    context = {
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'tax': tax,
+        'total': total,
+        'order_reference': order_reference,
+        'item_count': len(cart_items)
+    }
+    
+    return render(request, 'gallery/checkout.html', context)
+
+@login_required
+def process_checkout(request):
+    """Process checkout (simplified version)"""
+    if request.method == 'POST':
+        # In a real application, you would:
+        # 1. Validate the form data
+        # 2. Create an order record in the database
+        # 3. Process payment (via Stripe, PayPal, etc.)
+        # 4. Clear the cart
+        # 5. Send confirmation email
+        
+        # For now, just clear the cart and show success message
+        request.session['cart'] = {}
+        messages.success(request, 'Order placed successfully! Thank you for your purchase.')
+        
+        return redirect('home')
+    
+    return redirect('checkout')
+
+@login_required
+def update_cart_item(request, artwork_id):
+    """Update cart item quantity (AJAX)"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            quantity = int(data.get('quantity', 1))
+            
+            cart = request.session.get('cart', {})
+            
+            if str(artwork_id) in cart:
+                # Since artworks are unique, max quantity is 1
+                cart[str(artwork_id)]['quantity'] = min(quantity, 1)
+                request.session['cart'] = cart
+                
+                return JsonResponse({'success': True})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False})
+
+@login_required
+def remove_from_cart(request, artwork_id):
+    """Remove item from cart (AJAX)"""
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        
+        if str(artwork_id) in cart:
+            del cart[str(artwork_id)]
+            request.session['cart'] = cart
+            
+            return JsonResponse({'success': True})
+    
+    return JsonResponse({'success': False})

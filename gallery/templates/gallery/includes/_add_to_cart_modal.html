@@ -1,0 +1,352 @@
+<!-- ==========================================================================
+   ADD TO CART MODAL - RIGHT SIDEBAR STYLE
+   ========================================================================== -->
+
+   <div class="add-to-cart-modal-overlay" id="addToCartModal">
+    <div class="add-to-cart-modal-content">
+        <!-- Close Button -->
+        <button class="modal-close" id="closeAddToCartModal">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Modal Header -->
+        <div class="modal-header modal-header-black">
+            <i class="fas fa-shopping-cart"></i>
+            <h2>Add to Cart</h2>
+            <p class="modal-subtitle">{{ artwork.title }} by {{ artwork.artist }}</p>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <!-- Artwork Info -->
+            <div class="artwork-info-summary">
+                <div class="artwork-image-summary">
+                    <img src="{{ artwork.image }}" alt="{{ artwork.title }}">
+                </div>
+                <div class="artwork-details-summary">
+                    <h4>{{ artwork.title }}</h4>
+                    <p class="artist-name">{{ artwork.artist }}</p>
+                    {% if artwork.show_price %}
+                        <p class="price">
+                            {% if artwork.discounted_price %}
+                                <span class="current-price">R {{ artwork.discounted_price|floatformat:2 }}</span>
+                                <span class="original-price">R {{ artwork.price|floatformat:2 }}</span>
+                            {% else %}
+                                <span class="current-price">R {{ artwork.price|floatformat:2 }}</span>
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <p class="price">Price on Request</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons - SIDE BY SIDE -->
+            <div class="modal-actions modal-actions-row">
+                <form method="POST" action="{% url 'add_to_cart' artwork.id %}" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="redirect_to" value="cart">
+                    <button type="submit" class="action-btn btn-primary">
+                        <i class="fas fa-shopping-cart"></i>
+                        Add to Cart
+                    </button>
+                </form>
+                
+                <form method="POST" action="{% url 'add_to_cart' artwork.id %}" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="redirect_to" value="checkout">
+                    <button type="submit" class="action-btn btn-secondary">
+                        <i class="fas fa-credit-card"></i>
+                        Checkout
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Continue Shopping Link -->
+            <div class="continue-shopping">
+                <a href="#" id="continueShopping">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ==========================================================================
+   ADD TO CART MODAL SPECIFIC STYLES - RIGHT SIDEBAR STYLE
+   ========================================================================== */
+
+.add-to-cart-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    z-index: 2000;
+    overflow-y: auto;
+}
+
+.add-to-cart-modal-overlay.active {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+.add-to-cart-modal-content {
+    background: var(--color-white);
+    width: 480px;
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideInRight 0.3s ease;
+}
+
+/* Modal Header */
+.modal-header {
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.modal-header-black {
+    background: var(--color-accent) !important; /* Black */
+}
+
+.modal-header i {
+    font-size: 2rem;
+    color: var(--color-white);
+    margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    color: var(--color-white);
+    margin-bottom: 0.5rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.modal-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 2rem;
+}
+
+.artwork-info-summary {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.artwork-image-summary {
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.artwork-image-summary img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.artwork-details-summary h4 {
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.artist-name {
+    color: var(--color-gray);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.price {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.current-price {
+    font-weight: var(--font-weight-bold);
+    margin-right: 0.5rem;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: var(--color-gray);
+    font-size: 0.9rem;
+}
+
+/* Action Buttons - SIDE BY SIDE */
+.modal-actions {
+    margin-bottom: 1.5rem;
+}
+
+.modal-actions-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.modal-actions-row .add-to-cart-form {
+    flex: 1;
+}
+
+.action-btn {
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: 1px solid var(--color-primary);
+}
+
+.btn-primary:hover {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--color-white);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--color-light);
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    transform: translateY(-2px);
+}
+
+.continue-shopping {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.continue-shopping a {
+    color: var(--color-gray);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color var(--transition-fast);
+}
+
+.continue-shopping a:hover {
+    color: var(--color-primary);
+}
+
+/* Close Button */
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--color-white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: var(--color-secondary);
+}
+
+/* Animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .add-to-cart-modal-content {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .artwork-info-summary {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .modal-actions-row {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+// Add to Cart Modal Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartModal = document.getElementById('addToCartModal');
+    const closeAddToCartBtn = document.getElementById('closeAddToCartModal');
+    const continueShoppingLink = document.getElementById('continueShopping');
+    
+    // Close modal buttons
+    if (closeAddToCartBtn) {
+        closeAddToCartBtn.addEventListener('click', function() {
+            addToCartModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+    
+    // Continue Shopping link
+    if (continueShoppingLink) {
+        continueShoppingLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            addToCartModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+    
+    // Close modal when clicking outside
+    if (addToCartModal) {
+        addToCartModal.addEventListener('click', function(e) {
+            if (e.target === addToCartModal) {
+                addToCartModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+});
+</script>

@@ -2719,4 +2719,23 @@ footer {
     border: 1px solid rgba(241, 196, 15, 0.3);
 }
 
+/* Cart Count Badge */
+.cart-icon {
+    position: relative;
+}
 
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--color-secondary);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-weight-bold);
+}

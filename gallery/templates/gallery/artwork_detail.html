@@ -307,11 +307,11 @@
                         Inquire About This Piece
                     </button>
                 {% else %}
-                    <!-- Show purchase button for available items -->
-                    <a href="#" class="action-btn btn-primary">
+                    <!-- Show add to cart button for available items -->
+                    <button class="action-btn btn-primary" id="openAddToCartModal">
                         <i class="fas fa-shopping-cart"></i>
-                        Proceed to Checkout
-                    </a>
+                        Add To Cart
+                    </button>
                 {% endif %}
                 
                 {% if artwork.allow_schedule_viewing %}
@@ -336,6 +336,7 @@
 <!-- Include Modals -->
 {% include 'gallery/includes/_inquiry_modal.html' %}
 {% include 'gallery/includes/_schedule_modal.html' %}
+{% include 'gallery/includes/_add_to_cart_modal.html' %}
 {% endblock %}
 
 {% block extra_js %}
@@ -505,6 +506,45 @@
                 }
             });
         }
+
+        // ============================================================================
+        // ADD TO CART MODAL FUNCTIONALITY
+        // ============================================================================
+
+        const addToCartModal = document.getElementById('addToCartModal');
+        const openAddToCartBtn = document.getElementById('openAddToCartModal');
+        const closeAddToCartBtn = document.getElementById('closeAddToCartModal');
+
+        if (openAddToCartBtn && addToCartModal) {
+            openAddToCartBtn.addEventListener('click', function() {
+                addToCartModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        if (closeAddToCartBtn && addToCartModal) {
+            closeAddToCartBtn.addEventListener('click', function() {
+                addToCartModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+
+        if (addToCartModal) {
+            addToCartModal.addEventListener('click', function(e) {
+                if (e.target === addToCartModal) {
+                    addToCartModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && addToCartModal && addToCartModal.classList.contains('active')) {
+                addToCartModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
     });
 </script>
 {% endblock %}
