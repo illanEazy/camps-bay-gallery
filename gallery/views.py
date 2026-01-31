@@ -788,15 +788,21 @@ def is_owner(user):
     return user.is_authenticated and user.is_owner
 
 @login_required
-@user_passes_test(is_owner)
+@user_passes_test(lambda u: u.is_owner)
 def add_artist_view(request):
     """Add a new artist to the database"""
     if request.method == 'POST':
         form = ArtistForm(request.POST, request.FILES)
         if form.is_valid():
-            artist = form.save()
-            messages.success(request, f'Artist "{artist.first_name} {artist.last_name}" added successfully!')
-            return redirect('view_artists')
+            try:
+                artist = form.save()
+                messages.success(
+                    request, 
+                    f'Artist "{artist.first_name} {artist.last_name if artist.last_name else ""}" added successfully!'
+                )
+                return redirect('admin_dashboard')  # Redirect to dashboard after adding
+            except Exception as e:
+                messages.error(request, f'Error saving artist: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

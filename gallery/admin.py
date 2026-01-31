@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, UserProfile, OTP
+from .models import User, UserProfile, OTP, Artist
 
 # Custom User Admin
 class CustomUserAdmin(UserAdmin):
@@ -36,7 +36,34 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('country', 'newsletter_subscription')
     search_fields = ('user__email', 'city', 'country')
 
+# ARTIST ADMIN - SIMPLIFIED TO MATCH OUR FIELDS
+class ArtistAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'location', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('first_name', 'last_name', 'location', 'bio')
+    readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('first_name', 'last_name', 'location')
+        }),
+        ('Biography', {
+            'fields': ('bio',)
+        }),
+        ('Images', {
+            'fields': ('profile_picture', 'image_url')
+        }),
+        ('Status', {
+            'fields': ('is_active',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    list_editable = ('is_active',)
+
 # Register models
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(OTP, OTPAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(Artist, ArtistAdmin)  # Add this line
