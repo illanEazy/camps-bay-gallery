@@ -242,21 +242,25 @@ GLOBAL_ARTWORKS_DATA = [
 # ============================================================================
 # BASIC VIEWS
 # ============================================================================
-
 def home(request):
     """Render the homepage"""
     featured_artworks = GLOBAL_ARTWORKS_DATA[:3]
-    context = {'featured_artworks': featured_artworks}
+    context = {
+        'featured_artworks': featured_artworks,
+        'artists': ARTISTS_DATA  # Pass artists for the carousel
+    }
     return render(request, 'gallery/index.html', context)
 
 def about(request):
     """Render the about page"""
     return render(request, 'gallery/about.html')
 
+
 def artists(request):
     """Render the artists overview page"""
-    context = {'artists': ARTISTS_DATA}
+    context = {'artists': ARTISTS_DATA}  # Already has this
     return render(request, 'gallery/artists.html', context)
+
 
 def artist_detail(request, artist_id):
     """Render individual artist detail page"""
@@ -269,8 +273,19 @@ def artist_detail(request, artist_id):
     if not artist:
         return redirect('artists')
     
-    context = {'artist': artist}
+    # Get artworks for this artist from GLOBAL_ARTWORKS_DATA
+    artist_artworks = []
+    for artwork in GLOBAL_ARTWORKS_DATA:
+        if artwork.get('artist_id') == artist_id:
+            # Make sure artwork has all necessary fields for the template
+            artist_artworks.append(artwork)
+    
+    context = {
+        'artist': artist,
+        'artist_artworks': artist_artworks  # Use a different name to avoid confusion
+    }
     return render(request, 'gallery/artist_detail.html', context)
+
 
 def artworks(request):
     """Render the artworks page"""
