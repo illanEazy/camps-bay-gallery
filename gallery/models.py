@@ -127,6 +127,28 @@ class Artist(models.Model):
         verbose_name='Location'
     )
     
+    # NEW FIELDS: Medium, Style, Theme
+    medium = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Medium',
+        help_text='Optional. Artistic medium (e.g., Oil, Acrylic, Collage)'
+    )
+    
+    style = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Style',
+        help_text='Optional. Artistic style (e.g., Figurative, Contemporary)'
+    )
+    
+    theme = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Theme',
+        help_text='Optional. Artistic themes (e.g., Identity, Urban Life)'
+    )
+    
     # Biography
     bio = models.TextField(
         blank=True,
@@ -185,3 +207,4 @@ class Artist(models.Model):
         ordering = ['first_name', 'last_name']
         verbose_name = 'Artist'
         verbose_name_plural = 'Artists'
+

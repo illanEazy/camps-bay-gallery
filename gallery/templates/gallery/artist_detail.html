@@ -1,6 +1,6 @@
 {% extends 'gallery/base.html' %}
 
-{% block title %}{{ artist.full_name }} | Camps Bay Art Gallery{% endblock %}
+{% block title %}{{ artist.full_name }} - Artist Details | Camps Bay Art Gallery{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -75,6 +75,53 @@
         color: var(--color-gray);
     }
     
+    /* Artistic Details Grid - Minimal design */
+    .artist-details-grid {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 16px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .detail-item {
+        background: rgba(255, 255, 255, 0.7);
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        min-width: 120px;
+        max-width: 180px;
+        transition: all var(--transition-fast);
+    }
+    
+    .detail-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    
+    .detail-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--color-gray);
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+    
+    .detail-value {
+        font-size: 14px;
+        color: var(--color-primary);
+        font-weight: 500;
+        line-height: 1.3;
+    }
+    
     @media (max-width: 768px) {
         .artist-bio,
         .artist-artworks {
@@ -85,6 +132,41 @@
         .artworks-horizontal .artwork-card {
             flex: 0 0 200px;
             min-width: 200px;
+        }
+        
+        .artist-details-grid {
+            max-width: 100%;
+            padding: 0 16px;
+        }
+        
+        .detail-item {
+            min-width: 100px;
+            max-width: 140px;
+            padding: 6px 12px;
+        }
+        
+        .detail-value {
+            font-size: 13px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .artist-details-grid {
+            gap: 8px;
+        }
+        
+        .detail-item {
+            min-width: 90px;
+            max-width: 120px;
+            padding: 5px 10px;
+        }
+        
+        .detail-label {
+            font-size: 10px;
+        }
+        
+        .detail-value {
+            font-size: 12px;
         }
     }
 </style>
@@ -107,9 +189,35 @@
             </div>
             <h1 class="h1 mb-sm">{{ artist.full_name }}</h1>
             {% if artist.location %}
-                <div class="artist-location text-large text-gray">
+                <div class="artist-location text-large text-gray mb-md">
                     <i class="fas fa-map-marker-alt mr-xs"></i> {{ artist.location }}
                 </div>
+            {% endif %}
+            
+            <!-- Artistic Details -->
+            {% if artist.medium or artist.style or artist.theme %}
+            <div class="artist-details-grid">
+                {% if artist.medium %}
+                <div class="detail-item">
+                    <div class="detail-label">Medium</div>
+                    <div class="detail-value">{{ artist.medium }}</div>
+                </div>
+                {% endif %}
+                
+                {% if artist.style %}
+                <div class="detail-item">
+                    <div class="detail-label">Style</div>
+                    <div class="detail-value">{{ artist.style }}</div>
+                </div>
+                {% endif %}
+                
+                {% if artist.theme %}
+                <div class="detail-item">
+                    <div class="detail-label">Theme</div>
+                    <div class="detail-value">{{ artist.theme }}</div>
+                </div>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
         

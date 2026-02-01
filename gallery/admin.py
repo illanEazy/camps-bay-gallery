@@ -36,15 +36,19 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('country', 'newsletter_subscription')
     search_fields = ('user__email', 'city', 'country')
 
+
 # ARTIST ADMIN - SIMPLIFIED TO MATCH OUR FIELDS
 class ArtistAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'location', 'is_active', 'created_at')
+    list_display = ('first_name', 'last_name', 'location', 'medium', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
-    search_fields = ('first_name', 'last_name', 'location', 'bio')
+    search_fields = ('first_name', 'last_name', 'location', 'bio', 'medium', 'style', 'theme')
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         ('Basic Information', {
             'fields': ('first_name', 'last_name', 'location')
+        }),
+        ('Artistic Details', {  # NEW SECTION FOR MEDIUM/STYLE/THEME
+            'fields': ('medium', 'style', 'theme')
         }),
         ('Biography', {
             'fields': ('bio',)
@@ -61,6 +65,7 @@ class ArtistAdmin(admin.ModelAdmin):
         }),
     )
     list_editable = ('is_active',)
+
 
 # Register models
 admin.site.register(User, CustomUserAdmin)

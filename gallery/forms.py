@@ -223,12 +223,15 @@ class UserProfileForm(forms.ModelForm):
             'city': forms.TextInput(attrs={'class': 'form-input'}),
             'country': forms.TextInput(attrs={'class': 'form-input'}),
         }
+
+
 # Artist Form - SIMPLIFIED TO MATCH ADD ARTIST PAGE
 class ArtistForm(forms.ModelForm):
     class Meta:
         model = Artist
         fields = [
             'first_name', 'last_name', 'location', 
+            'medium', 'style', 'theme',  # NEW FIELDS ADDED
             'bio', 'profile_picture', 'image_url', 'is_active'
         ]
         widgets = {
@@ -246,6 +249,22 @@ class ArtistForm(forms.ModelForm):
                 'class': 'form-input',
                 'placeholder': 'Enter location (optional)',
                 'id': 'location'
+            }),
+            # NEW FIELDS WIDGETS
+            'medium': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'e.g., Oil, Acrylic, Collage (optional)',
+                'id': 'medium'
+            }),
+            'style': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'e.g., Figurative, Contemporary (optional)',
+                'id': 'style'
+            }),
+            'theme': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'e.g., Identity, Urban Life (optional)',
+                'id': 'theme'
             }),
             'bio': forms.Textarea(attrs={
                 'class': 'form-textarea',
@@ -266,6 +285,10 @@ class ArtistForm(forms.ModelForm):
         self.fields['first_name'].required = True
         self.fields['last_name'].required = False
         self.fields['location'].required = False
+        # NEW FIELDS - OPTIONAL
+        self.fields['medium'].required = False
+        self.fields['style'].required = False
+        self.fields['theme'].required = False
         self.fields['bio'].required = False
         self.fields['profile_picture'].required = False
         self.fields['image_url'].required = False

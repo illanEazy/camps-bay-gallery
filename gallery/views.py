@@ -30,6 +30,7 @@ import random
 # GLOBAL DATA
 # ============================================================================
 
+
 # Sample artist data
 ARTISTS_DATA = [
     {
@@ -335,6 +336,8 @@ def contact(request):
 def google_login_redirect(request):
     """Redirect to Google OAuth login via allauth"""
     return redirect('account_login')
+
+
 
 # ============================================================================
 # ARTWORK DETAIL VIEWS - ONLY ONE SET OF FUNCTIONS
