@@ -101,8 +101,7 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.email}'s Profile"
 
-# models.py - Add this Artist model only
-
+# models.py - SIMPLIFIED ARTIST MODEL
 class Artist(models.Model):
     """Artist model for storing artist information in the database"""
     
@@ -121,27 +120,20 @@ class Artist(models.Model):
         help_text='Optional. Enter the artist\'s last name.'
     )
     
-    # Contact & Location
-    email = models.EmailField(
-        blank=True,
-        verbose_name='Email Address'
-    )
+    # Location
     location = models.CharField(
         max_length=200,
         blank=True,
         verbose_name='Location'
     )
-    specialty = models.CharField(
-        max_length=200,
-        blank=True,
-        verbose_name='Specialty/Art Style'
-    )
     
-    # Profile Information
+    # Biography
     bio = models.TextField(
         blank=True,
         verbose_name='Biography'
     )
+    
+    # Profile Images
     profile_picture = models.ImageField(
         upload_to='artists/profile_pictures/',
         blank=True,
@@ -153,7 +145,7 @@ class Artist(models.Model):
         verbose_name='Image URL'
     )
     
-    # Status Fields
+    # Status Field
     is_active = models.BooleanField(
         default=True,
         verbose_name='Active'
@@ -166,3 +158,30 @@ class Artist(models.Model):
         if self.last_name:
             return f"{self.first_name} {self.last_name}"
         return self.first_name
+    
+    @property
+    def full_name(self):
+        """Get full name of artist"""
+        if self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.first_name
+    
+    @property
+    def image(self):
+        """Get the primary image for the artist"""
+        if self.profile_picture:
+            return self.profile_picture.url
+        elif self.image_url:
+            return self.image_url
+        else:
+            return '/static/gallery/images/default-artist.jpg'  # You should create this
+    
+    @property
+    def name(self):
+        """Get the full name (for compatibility with existing code)"""
+        return self.full_name
+    
+    class Meta:
+        ordering = ['first_name', 'last_name']
+        verbose_name = 'Artist'
+        verbose_name_plural = 'Artists'

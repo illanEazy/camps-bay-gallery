@@ -243,34 +243,60 @@ GLOBAL_ARTWORKS_DATA = [
 # BASIC VIEWS
 # ============================================================================
 
+# [file name]: views.py
+# Replace these lines at the top of views.py
+# ============================================================================
+# GLOBAL DATA - REMOVE ARTISTS_DATA
+# ============================================================================
+
+# Remove the entire ARTISTS_DATA list and replace with database queries
+
+# ============================================================================
+# BASIC VIEWS
+# ============================================================================
 def home(request):
     """Render the homepage"""
     featured_artworks = GLOBAL_ARTWORKS_DATA[:3]
-    context = {'featured_artworks': featured_artworks}
+    # Get active artists from database (limit to 6 for carousel)
+    artists = Artist.objects.filter(is_active=True).order_by('first_name')[:6]
+    
+    context = {
+        'featured_artworks': featured_artworks,
+        'artists': artists  # Now from database
+    }
     return render(request, 'gallery/index.html', context)
 
 def about(request):
     """Render the about page"""
     return render(request, 'gallery/about.html')
 
+
 def artists(request):
     """Render the artists overview page"""
-    context = {'artists': ARTISTS_DATA}
+    # Get all active artists from database
+    artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    context = {'artists': artists}
     return render(request, 'gallery/artists.html', context)
+
+
 
 def artist_detail(request, artist_id):
     """Render individual artist detail page"""
-    artist = None
-    for a in ARTISTS_DATA:
-        if a['id'] == artist_id:
-            artist = a
-            break
+    # Get artist from database
+    artist = get_object_or_404(Artist, id=artist_id, is_active=True)
     
-    if not artist:
-        return redirect('artists')
+    # For now, get artworks from global data - you'll need to create an Artwork model later
+    artist_artworks = []
+    for artwork in GLOBAL_ARTWORKS_DATA:
+        if artwork.get('artist') == artist.full_name:
+            artist_artworks.append(artwork)
     
-    context = {'artist': artist}
+    context = {
+        'artist': artist,
+        'artist_artworks': artist_artworks
+    }
     return render(request, 'gallery/artist_detail.html', context)
+
 
 def artworks(request):
     """Render the artworks page"""
@@ -773,15 +799,21 @@ def is_owner(user):
     return user.is_authenticated and user.is_owner
 
 @login_required
-@user_passes_test(is_owner)
+@user_passes_test(lambda u: u.is_owner)
 def add_artist_view(request):
     """Add a new artist to the database"""
     if request.method == 'POST':
         form = ArtistForm(request.POST, request.FILES)
         if form.is_valid():
-            artist = form.save()
-            messages.success(request, f'Artist "{artist.first_name} {artist.last_name}" added successfully!')
-            return redirect('view_artists')
+            try:
+                artist = form.save()
+                messages.success(
+                    request, 
+                    f'Artist "{artist.first_name} {artist.last_name if artist.last_name else ""}" added successfully!'
+                )
+                return redirect('admin_dashboard')  # Redirect to dashboard after adding
+            except Exception as e:
+                messages.error(request, f'Error saving artist: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

@@ -1,9 +1,10 @@
 {% extends 'gallery/base.html' %}
 
-{% block title %}{{ artist.name }} | Camps Bay Art Gallery{% endblock %}
+{% block title %}{{ artist.full_name }} | Camps Bay Art Gallery{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* Keep original styles exactly as they were */
     .artist-detail-section {
         padding: var(--space-xl) 0;
     }
@@ -96,30 +97,40 @@
         <!-- Artist Header -->
         <div class="artist-header text-center">
             <div class="artist-image-large mb-lg">
-                <img src="{{ artist.image }}" alt="{{ artist.name }}">
+                {% if artist.image %}
+                    <img src="{{ artist.image }}" alt="{{ artist.full_name }}">
+                {% else %}
+                    <div style="width: 300px; height: 300px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid var(--color-white);">
+                        <i class="fas fa-user" style="font-size: 5rem; color: #ccc;"></i>
+                    </div>
+                {% endif %}
             </div>
-            <h1 class="h1 mb-sm">{{ artist.name }}</h1>
-            <div class="artist-location text-large text-gray">
-                <i class="fas fa-map-marker-alt mr-xs"></i> {{ artist.location }}
-            </div>
+            <h1 class="h1 mb-sm">{{ artist.full_name }}</h1>
+            {% if artist.location %}
+                <div class="artist-location text-large text-gray">
+                    <i class="fas fa-map-marker-alt mr-xs"></i> {{ artist.location }}
+                </div>
+            {% endif %}
         </div>
         
         <!-- Bio Section -->
-        <div class="artist-bio">
-            <h2 class="h3 mb-md">Bio</h2>
-            <p class="text-regular mb-md">{{ artist.bio }}</p>
-        </div>
+        {% if artist.bio %}
+            <div class="artist-bio">
+                <h2 class="h3 mb-md">Bio</h2>
+                <p class="text-regular mb-md">{{ artist.bio|linebreaks }}</p>
+            </div>
+        {% endif %}
         
         <!-- Featured Works Section - Aligned with Bio -->
         <div class="artist-artworks">
             <h2 class="h3 mb-md">Featured Works</h2>
             
-            {% if artist.artworks %}
+            {% if artist_artworks %}
                 <!-- Horizontal Scrollable Artwork Container -->
                 <div class="artworks-scroll">
                     <div class="artworks-horizontal">
-                        {% for artwork in artist.artworks %}
-                            <!-- Reuse the artwork card component with horizontal layout -->
+                        {% for artwork in artist_artworks %}
+                            <!-- Use the existing artwork card component -->
                             <div class="artwork-card-horizontal">
                                 {% include 'gallery/includes/_artwork_card.html' with artwork=artwork %}
                             </div>
@@ -129,7 +140,7 @@
                 
                 <!-- Artwork Counter -->
                 <div class="artwork-counter">
-                    Showing {{ artist.artworks|length }} artwork{{ artist.artworks|length|pluralize }}
+                    Showing {{ artist_artworks|length }} artwork{{ artist_artworks|length|pluralize }}
                 </div>
             {% else %}
                 <p class="text-regular text-gray">No artworks available at the moment.</p>

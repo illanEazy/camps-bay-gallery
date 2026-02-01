@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCountdown();
     setInterval(updateCountdown, 3600000); // Update every hour
 
-    // ARTISTS CAROUSEL - WORKING VERSION
+    // ARTISTS CAROUSEL - WORKING VERSION (NOW DYNAMIC)
     // --------------------------------------------------------------------------
     let currentIndex = 0;
     const track = document.getElementById('artistsTrack');
@@ -67,18 +67,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (track && cards.length > 0 && prevBtn && nextBtn) {
         function updateCarousel() {
-            // Calculate card width including gap
             if (cards.length === 0) return;
             
-            // Get the actual width of a card
+            // Calculate card width including gap
             const cardWidth = cards[0].offsetWidth;
-            const gap = 40; // From CSS gap: 40px
+            const gap = 40;
             
             // Move track by (card width + gap) * current index
             const translateX = currentIndex * (cardWidth + gap);
             track.style.transform = `translateX(-${translateX}px)`;
-            
-            console.log('Carousel updated - Index:', currentIndex, 'Translate:', translateX);
         }
 
         // Previous button click
@@ -89,37 +86,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Next button click
         nextBtn.addEventListener('click', () => {
-            // Max index is total cards - 3 (since we show 3 at a time)
-            const maxIndex = Math.max(0, totalCards - 3);
+            // Show 3 cards at a time
+            const visibleCards = window.innerWidth < 768 ? 1 : (window.innerWidth < 1200 ? 2 : 3);
+            const maxIndex = Math.max(0, totalCards - visibleCards);
             currentIndex = Math.min(maxIndex, currentIndex + 1);
             updateCarousel();
         });
 
-        // Auto-slide every 3 seconds
-        const autoSlideInterval = setInterval(() => {
-            const maxIndex = Math.max(0, totalCards - 3);
-            
-            if (currentIndex >= maxIndex) {
-                currentIndex = 0; // Loop back to start
-            } else {
-                currentIndex++;
-            }
-            
-            updateCarousel();
-        }, 3000);
+        // Auto-slide every 5 seconds (only if there are more than visible cards)
+        if (totalCards > 3) {
+            const autoSlideInterval = setInterval(() => {
+                const visibleCards = window.innerWidth < 768 ? 1 : (window.innerWidth < 1200 ? 2 : 3);
+                const maxIndex = Math.max(0, totalCards - visibleCards);
+                
+                if (currentIndex >= maxIndex) {
+                    currentIndex = 0;
+                } else {
+                    currentIndex++;
+                }
+                
+                updateCarousel();
+            }, 5000);
 
-        // Stop auto-slide when user interacts
-        let userInteracted = false;
-        
-        prevBtn.addEventListener('click', () => {
-            userInteracted = true;
-            clearInterval(autoSlideInterval);
-        });
-        
-        nextBtn.addEventListener('click', () => {
-            userInteracted = true;
-            clearInterval(autoSlideInterval);
-        });
+            // Stop auto-slide when user interacts
+            prevBtn.addEventListener('click', () => {
+                clearInterval(autoSlideInterval);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                clearInterval(autoSlideInterval);
+            });
+        }
 
         // Handle window resize
         let resizeTimeout;
@@ -128,12 +125,8 @@ document.addEventListener('DOMContentLoaded', function() {
             resizeTimeout = setTimeout(updateCarousel, 250);
         });
         
-        // Initial position - wait for images to load
-        window.addEventListener('load', () => {
-            setTimeout(updateCarousel, 100);
-        });
-        
-        // Also update after a short delay
+        // Initial position
+        window.addEventListener('load', updateCarousel);
         setTimeout(updateCarousel, 500);
     }
 

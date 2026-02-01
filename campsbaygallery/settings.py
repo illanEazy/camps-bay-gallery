@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-v3exqomzh58oj2mi7f-5892%e6fnlno^@^x4vgiedt)*eu&js!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+]
 
 
 # Application definition
@@ -78,12 +82,14 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_UNIQUE_EMAIL = True
+
 
 # Social Auth - Google
 SOCIALACCOUNT_PROVIDERS = {
@@ -94,10 +100,12 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
+            'prompt': 'select_account consent',  # This shows Google account selector
         },
+        'VERIFIED_EMAIL': True,
         'APP': {
-            'client_id': 'your-google-client-id-here',
-            'secret': 'your-google-client-secret-here',
+            'client_id': '',
+            'secret': '',
             'key': ''
         }
     }
@@ -109,9 +117,13 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'illaneazy@gmail.com'
-EMAIL_HOST_PASSWORD = 'eazy does it!!'
+EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'Camps Bay Gallery <noreply@campsbaygallery.com>'
 EMAIL_TIMEOUT = 10
+
+# Allauth config
+SITE_ID = 2
+SITE_DOMAIN = '127.0.0.1:8000'  # Change to your domain in production
 
 # For development/testing (uncomment this and comment the above if needed):
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -126,6 +138,20 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_SECURE = False  # True in production
 SESSION_COOKIE_HTTPONLY = True
+
+
+# Google OAuth settings
+SOCIALACCOUNT_LOGIN_ON_GET = True  # Skip intermediate page
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Auto-create account
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_STORE_TOKENS = False
+
+# This is important for existing users
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True  # Allow login by email
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True  # Auto-connect social account to existing user
+
 
 
 # CSRF settings
@@ -208,3 +234,7 @@ STATICFILES_DIRS = [
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media files (Uploaded images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

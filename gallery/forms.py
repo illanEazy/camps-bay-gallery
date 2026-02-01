@@ -223,16 +223,13 @@ class UserProfileForm(forms.ModelForm):
             'city': forms.TextInput(attrs={'class': 'form-input'}),
             'country': forms.TextInput(attrs={'class': 'form-input'}),
         }
-
-# FILE: gallery/forms.py - Add these forms at the bottom
-
-# Artist Form
+# Artist Form - SIMPLIFIED TO MATCH ADD ARTIST PAGE
 class ArtistForm(forms.ModelForm):
     class Meta:
         model = Artist
         fields = [
-            'first_name', 'last_name', 'email', 'location', 
-            'specialty', 'bio', 'profile_picture', 'image_url', 'is_active'
+            'first_name', 'last_name', 'location', 
+            'bio', 'profile_picture', 'image_url', 'is_active'
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -245,20 +242,10 @@ class ArtistForm(forms.ModelForm):
                 'placeholder': 'Enter last name (optional)',
                 'id': 'last_name'
             }),
-            'email': forms.EmailInput(attrs={
-                'class': 'form-input',
-                'placeholder': 'Enter email address (optional)',
-                'id': 'email'
-            }),
             'location': forms.TextInput(attrs={
                 'class': 'form-input',
                 'placeholder': 'Enter location (optional)',
                 'id': 'location'
-            }),
-            'specialty': forms.TextInput(attrs={
-                'class': 'form-input',
-                'placeholder': 'Enter specialty/art style (optional)',
-                'id': 'specialty'
             }),
             'bio': forms.Textarea(attrs={
                 'class': 'form-textarea',
@@ -278,26 +265,12 @@ class ArtistForm(forms.ModelForm):
         # Make all fields except first_name optional
         self.fields['first_name'].required = True
         self.fields['last_name'].required = False
-        self.fields['email'].required = False
         self.fields['location'].required = False
-        self.fields['specialty'].required = False
         self.fields['bio'].required = False
         self.fields['profile_picture'].required = False
         self.fields['image_url'].required = False
         self.fields['is_active'].required = False
         self.fields['is_active'].initial = True
-    
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email:
-            # Check if email is already used by another artist
-            if self.instance.pk:  # Editing existing artist
-                if Artist.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
-                    raise ValidationError("This email is already associated with another artist.")
-            else:  # Adding new artist
-                if Artist.objects.filter(email=email).exists():
-                    raise ValidationError("This email is already associated with another artist.")
-        return email
     
     def clean_image_url(self):
         image_url = self.cleaned_data.get('image_url')

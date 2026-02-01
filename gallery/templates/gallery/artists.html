@@ -2,85 +2,6 @@
 
 {% block title %}Artists | Camps Bay Art Gallery{% endblock %}
 
-{% block extra_css %}
-<style>
-    .artists-overview-section {
-        background: #f8f8f8;
-        
-        padding-top: 160px; /* Match carousel-section margin-top  padding: var(--space-xl) var(--space-lg);*/
-    }
-    
-    .artists-overview-header {
-        text-align: center;
-        margin-bottom: var(--space-xl);
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    .artists-overview-header h1 {
-        font-size: 3rem;
-        font-weight: var(--font-weight-light);
-        letter-spacing: 2px;
-        color: var(--color-primary);
-        margin-bottom: var(--space-md);
-    }
-    
-    .artists-overview-header .subtitle {
-        font-size: 1.125rem;
-        color: var(--color-dark-gray);
-        line-height: 1.8;
-        font-weight: var(--font-weight-light);
-    }
-    
-    .artists-grid-container {
-        max-width: 1400px;
-        margin: 0px auto;
-    }
-    
-    .artists-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-lg);
-        margin-bottom: var(--space-xl);
-    }
-    
-    .view-all-container {
-        text-align: center;
-        padding: var(--space-lg) 0;
-    }
-    
-    .view-all-text {
-        font-size: 1rem;
-        color: var(--color-gray);
-        margin-bottom: var(--space-md);
-    }
-    
-    /* Responsive */
-    @media (max-width: 1024px) {
-        .artists-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--space-md);
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .artists-overview-section {
-            padding: var(--space-lg) var(--space-md);
-        }
-        
-        .artists-overview-header h1 {
-            font-size: 2.5rem;
-        }
-        
-        .artists-grid {
-            grid-template-columns: 1fr;
-            gap: var(--space-md);
-        }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <!-- Artists Overview Page -->
 <section class="artists-overview-section">
@@ -91,101 +12,22 @@
     
     <div class="artists-grid-container">
         <div class="artists-grid">
-            <!-- Amara Thompson -->
-            <div class="minimal-artist-card">
-                <a href="{% url 'artist_detail' artist_id=1 %}" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&h=800&fit=crop" alt="Amara Thompson">
-                    </div>
-                    <div class="minimal-artist-name">Amara Thompson</div>
-                </a>
-            </div>
-            
-            <!-- Marcus Chen -->
-            <div class="minimal-artist-card">
-                <a href="{% url 'artist_detail' artist_id=2 %}" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop" alt="Marcus Chen">
-                    </div>
-                    <div class="minimal-artist-name">Marcus Chen</div>
-                </a>
-            </div>
-            
-            <!-- Sofia Rodriguez -->
-            <div class="minimal-artist-card">
-                <a href="{% url 'artist_detail' artist_id=3 %}" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=800&fit=crop" alt="Sofia Rodriguez">
-                    </div>
-                    <div class="minimal-artist-name">Sofia Rodriguez</div>
-                </a>
-            </div>
-            
-            <!-- James Williams -->
-            <div class="minimal-artist-card">
-                <a href="{% url 'artist_detail' artist_id=4 %}" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?w=800&h=800&fit=crop" alt="James Williams">
-                    </div>
-                    <div class="minimal-artist-name">James Williams</div>
-                </a>
-            </div>
-            
-            <!-- Zara Okafor -->
-            <div class="minimal-artist-card">
-                <a href="{% url 'artist_detail' artist_id=5 %}" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=800&fit=crop" alt="Zara Okafor">
-                    </div>
-                    <div class="minimal-artist-name">Zara Okafor</div>
-                </a>
-            </div>
-            
-            <!-- Kai Nakamura -->
-            <div class="minimal-artist-card">
-                <a href="{% url 'artist_detail' artist_id=6 %}" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop" alt="Kai Nakamura">
-                    </div>
-                    <div class="minimal-artist-name">Kai Nakamura</div>
-                </a>
-            </div>
-            
-            <!-- Additional Artists -->
-            <div class="minimal-artist-card">
-                <a href="#" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=800&h=800&fit=crop" alt="Additional Artist">
-                    </div>
-                    <div class="minimal-artist-name">Alex Morgan</div>
-                </a>
-            </div>
-            
-            <div class="minimal-artist-card">
-                <a href="#" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1514888286974-6d03bde4ba4f?w=800&h=800&fit=crop" alt="Additional Artist">
-                    </div>
-                    <div class="minimal-artist-name">Lena Schmidt</div>
-                </a>
-            </div>
-            
-            <div class="minimal-artist-card">
-                <a href="#" class="artist-card-link">
-                    <div class="minimal-artist-image">
-                        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=800&fit=crop" alt="Additional Artist">
-                    </div>
-                    <div class="minimal-artist-name">David Park</div>
-                </a>
-            </div>
-        </div>
-        
-        <div class="view-all-container">
-            <p class="view-all-text">Discover each artist's unique journey and portfolio</p>
-            <a href="{% url 'artists' %}" class="btn btn-primary" style="min-width: 200px;">
-                <i class="fas fa-eye mr-sm"></i> Explore All Artists
-            </a>
+            <!-- Use reusable artist card component -->
+            {% for artist in artists %}
+                {% include 'gallery/includes/_artist_card.html' with artist=artist %}
+            {% empty %}
+                <p class="no-artists">No artists available at the moment.</p>
+            {% endfor %}
         </div>
     </div>
 </section>
+
+<style>
+    .no-artists {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: var(--space-xl);
+        color: var(--color-gray);
+    }
+</style>
 {% endblock %}

@@ -482,25 +482,6 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="email">
-                        Email Address
-                    </label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        class="form-input" 
-                        placeholder="artist@example.com (Optional)"
-                        value="{{ form.email.value|default:'' }}"
-                        maxlength="254"
-                    >
-                    {% if form.email.errors %}
-                        <div class="error-message">{{ form.email.errors.0 }}</div>
-                    {% endif %}
-                    <small class="field-hint">For contact purposes only</small>
-                </div>
-
-                <div class="form-group">
                     <label for="location">
                         Location
                     </label>
@@ -517,24 +498,6 @@
                         <div class="error-message">{{ form.location.errors.0 }}</div>
                     {% endif %}
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label for="specialty">
-                    Specialty / Art Style
-                </label>
-                <input 
-                    type="text" 
-                    id="specialty" 
-                    name="specialty" 
-                    class="form-input" 
-                    placeholder="e.g., Abstract & Contemporary (Optional)"
-                    value="{{ form.specialty.value|default:'' }}"
-                    maxlength="200"
-                >
-                {% if form.specialty.errors %}
-                    <div class="error-message">{{ form.specialty.errors.0 }}</div>
-                {% endif %}
             </div>
         </div>
 
@@ -731,18 +694,6 @@
                     alert('Please enter the artist\'s first name');
                     document.getElementById('first_name').focus();
                     return false;
-                }
-                
-                // Validate email format if provided
-                const email = document.getElementById('email').value.trim();
-                if (email) {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(email)) {
-                        e.preventDefault();
-                        alert('Please enter a valid email address');
-                        document.getElementById('email').focus();
-                        return false;
-                    }
                 }
                 
                 // Validate URL format if provided
