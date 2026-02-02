@@ -91,6 +91,7 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 
+
 # Social Auth - Google
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -120,6 +121,7 @@ EMAIL_HOST_USER = 'illaneazy@gmail.com'
 EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'Camps Bay Gallery <noreply@campsbaygallery.com>'
 EMAIL_TIMEOUT = 10
+
 
 # Allauth config
 SITE_ID = 2
