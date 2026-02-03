@@ -922,6 +922,75 @@ def manage_artists_view(request):
     return redirect('view_artists')
 
 # ============================================================================
+# ARtWOKR MANAGEMENT VIEWS (Placeholder)
+# ============================================================================
+
+
+@login_required
+@user_passes_test(is_owner)
+def add_artwork_view(request):
+    """Add a new artwork to the database - PLACEHOLDER VIEW"""
+    if request.method == 'POST':
+        # Placeholder for now - will implement later
+        messages.success(request, 'Artwork added successfully!')
+        return redirect('view_artworks')
+    
+    # Get all artists for the dropdown
+    artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    
+    context = {
+        'artists': artists,
+        'page_title': 'Add Artwork',
+        'page_subtitle': 'Add a new artwork to your gallery collection'
+    }
+    return render(request, 'gallery/add_artwork.html', context)
+
+@login_required
+@user_passes_test(is_owner)
+def view_artworks_view(request):
+    """View all artworks with search and pagination - PLACEHOLDER VIEW"""
+    search_query = request.GET.get('q', '')
+    
+    # For now, use global artwork data - will connect to database later
+    artworks = GLOBAL_ARTWORKS_DATA
+    
+    if search_query:
+        artworks = [artwork for artwork in artworks if 
+                   search_query.lower() in artwork['title'].lower() or
+                   search_query.lower() in artwork['artist'].lower()]
+    
+    # Create pagination manually for global data
+    paginator = Paginator(artworks, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'artworks': page_obj,
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'is_paginated': paginator.num_pages > 1,
+        'page_title': 'View Artworks',
+        'page_subtitle': 'Manage artworks in your gallery'
+    }
+    return render(request, 'gallery/view_artworks.html', context)
+
+@login_required
+@user_passes_test(is_owner)
+def edit_artwork_view(request, artwork_id):
+    """Edit an existing artwork - PLACEHOLDER VIEW"""
+    # For now, just redirect with message
+    messages.info(request, f'Edit artwork feature coming soon! (Artwork ID: {artwork_id})')
+    return redirect('view_artworks')
+
+@login_required
+@user_passes_test(is_owner)
+def delete_artwork_view(request, artwork_id):
+    """Delete an artwork - PLACEHOLDER VIEW"""
+    # For now, just redirect with message
+    messages.info(request, f'Delete artwork feature coming soon! (Artwork ID: {artwork_id})')
+    return redirect('view_artworks')
+
+# ============================================================================
 # PLACEHOLDER VIEWS
 # ============================================================================
 

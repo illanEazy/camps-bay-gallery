@@ -344,32 +344,34 @@
     </div>
 
     <!-- ============================================================================
-         ARTWORKS MANAGEMENT MODAL
+         ARTWORKS MANAGEMENT MODAL - VERTICAL RECTANGULAR BUTTONS
          ============================================================================
     -->
-    <div id="artworksModal" class="modal-overlay">
+    <div id="artworksModal" class="modal-overlay vertical-modal">
         <div class="modal-content">
             <button class="modal-close" id="closeArtworksModal">
                 <i class="fas fa-times"></i>
             </button>
             
+            <!-- Modal Header Only - No Description -->
             <div class="modal-header">
                 <i class="fas fa-images"></i>
                 <h2>Artwork Management</h2>
             </div>
             
-            <p class="modal-description">Choose an action to manage artworks in your collection</p>
-            
-            <div class="modal-actions grid-2">
-                <a href="#" class="modal-btn add-btn">
+            <!-- Vertical Stacked Rectangular Buttons -->
+            <div class="modal-actions">
+                <!-- Add Artwork Button -->
+                <a href="{% url 'add_artwork' %}" class="vertical-btn add-btn">
                     <i class="fas fa-plus-circle"></i>
                     <div class="btn-text">
                         <span class="btn-title">Add New Artwork</span>
-                        <span class="btn-subtitle">Add a new artwork to your collection</span>
+                        <span class="btn-subtitle">Add a new artwork to your gallery collection</span>
                     </div>
                 </a>
                 
-                <a href="#" class="modal-btn remove-btn">
+                <!-- View & Edit Artworks Button -->
+                <a href="{% url 'view_artworks' %}" class="vertical-btn edit-btn">
                     <i class="fas fa-edit"></i>
                     <div class="btn-text">
                         <span class="btn-title">View & Edit Artworks</span>
@@ -379,6 +381,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- ============================================================================
          ANALYTICS MODAL

@@ -45,6 +45,12 @@ urlpatterns = [
     path('dashboard/artists/<int:artist_id>/edit/', views.edit_artist_view, name='edit_artist'),
     path('dashboard/artists/<int:artist_id>/delete/', views.delete_artist_view, name='delete_artist'),
     path('dashboard/manage-artists/', views.manage_artists_view, name='manage_artists'),
+
+    # ARTWORK MANAGEMENT URLs
+    path('dashboard/artworks/add/', views.add_artwork_view, name='add_artwork'),
+    path('dashboard/artworks/', views.view_artworks_view, name='view_artworks'),
+    path('dashboard/artworks/<int:artwork_id>/edit/', views.edit_artwork_view, name='edit_artwork'),
+    path('dashboard/artworks/<int:artwork_id>/delete/', views.delete_artwork_view, name='delete_artwork'),
     
     # Placeholder URLs
     path('dashboard/manage-artworks/', views.manage_artworks_view, name='manage_artworks'),

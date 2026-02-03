@@ -207,4 +207,3 @@ class Artist(models.Model):
         ordering = ['first_name', 'last_name']
         verbose_name = 'Artist'
         verbose_name_plural = 'Artists'
-

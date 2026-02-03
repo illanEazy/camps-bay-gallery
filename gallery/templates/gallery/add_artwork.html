@@ -1,0 +1,1003 @@
+{% extends 'gallery/base.html' %}
+{% load static %}
+
+{% block title %}Add Artwork - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Reuse Add Artist Container Styles */
+    .add-artwork-container {
+        padding-top: 120px;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 120px 2rem 4rem;
+    }
+
+    /* Reuse Page Header Styles */
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background: var(--color-white);
+        border: 2px solid var(--color-border);
+        border-radius: 50%;
+        color: var(--color-primary);
+        font-size: 1.2rem;
+        transition: all var(--transition-fast);
+        text-decoration: none;
+    }
+
+    .back-btn:hover {
+        background: var(--color-primary);
+        color: var(--color-white);
+        border-color: var(--color-primary);
+        transform: translateX(-5px);
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary);
+        margin: 0;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+        color: var(--color-gray);
+        margin-top: 0.5rem;
+    }
+
+    /* Reuse Artist Form Styles */
+    .artwork-form {
+        background: var(--color-white);
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* Reuse Form Section Styles */
+    .form-section {
+        padding: 2rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .section-header {
+        margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.5rem;
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-header h2 i {
+        color: var(--color-secondary);
+    }
+
+    .section-description {
+        font-size: 0.9rem;
+        color: var(--color-gray);
+    }
+
+    /* Reuse Form Groups */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: var(--font-weight-medium);
+        color: var(--color-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .required {
+        color: var(--color-error);
+    }
+
+    .field-hint {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--color-gray);
+        font-style: italic;
+    }
+
+    /* Reuse Form Inputs */
+    .form-input,
+    .form-textarea,
+    .form-select {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        background: var(--color-white);
+        font-size: 15px;
+        color: var(--color-primary);
+        font-family: var(--font-family);
+        transition: all var(--transition-fast);
+        border-radius: 4px;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--color-secondary);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+        font-family: var(--font-family);
+    }
+
+    /* Reuse Image Upload Styles */
+    .image-upload-area {
+        border: 3px dashed var(--color-border);
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        position: relative;
+    }
+
+    .image-upload-area:hover {
+        border-color: var(--color-secondary);
+        background: var(--color-light);
+    }
+
+    .image-upload-area i {
+        font-size: 3rem;
+        color: var(--color-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .image-upload-area p {
+        font-size: 1.1rem;
+        color: var(--color-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .image-upload-area small {
+        color: var(--color-gray);
+    }
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* Reuse Image Preview */
+    .image-preview {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .preview-item {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 2px solid var(--color-border);
+    }
+
+    .preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-remove {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition-fast);
+    }
+
+    .preview-remove:hover {
+        background: var(--color-error);
+        transform: scale(1.1);
+    }
+
+    /* NEW: Price Fields Styling */
+    .price-fields {
+        background: var(--color-light);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 2px solid var(--color-border);
+        transition: all var(--transition-fast);
+    }
+
+    .price-fields:hover {
+        border-color: var(--color-secondary);
+    }
+
+    .price-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .currency-symbol {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-gray);
+        font-weight: var(--font-weight-medium);
+    }
+
+    .price-input {
+        padding-left: 30px;
+    }
+
+    /* Reuse Checkbox Group */
+    .checkbox-group {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: var(--color-light);
+        border-radius: 12px;
+        border: 2px solid var(--color-border);
+        transition: all var(--transition-fast);
+    }
+
+    .checkbox-group:hover {
+        border-color: var(--color-secondary);
+    }
+
+    .checkbox-input {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .checkbox-label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        cursor: pointer;
+    }
+
+    .checkbox-title {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-primary);
+    }
+
+    .checkbox-description {
+        font-size: 0.9rem;
+        color: var(--color-gray);
+    }
+
+    /* Reuse Form Actions */
+    .form-actions {
+        padding: 2rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        background: var(--color-light);
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: var(--font-weight-bold);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .btn-primary {
+        background: var(--color-primary);
+        color: var(--color-white);
+    }
+
+    .btn-primary:hover {
+        background: var(--color-secondary);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-secondary {
+        background: var(--color-white);
+        color: var(--color-primary);
+        border: 2px solid var(--color-border);
+    }
+
+    .btn-secondary:hover {
+        background: var(--color-light);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+
+    /* Success/Error Messages */
+    .message {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border-radius: 8px;
+        display: none;
+    }
+
+    .message-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+        display: block;
+    }
+
+    .message-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+        display: block;
+    }
+
+    /* Responsive - Reused from Add Artist */
+    @media (max-width: 768px) {
+        .add-artwork-container {
+            padding: 140px 1rem 2rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+
+        .form-row,
+        .price-group {
+            grid-template-columns: 1fr;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .image-upload-area {
+            padding: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .preview-item {
+            width: 120px;
+            height: 120px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="add-artwork-container">
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message message-{{ message.tags }}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} mr-sm"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <a href="{% url 'admin_dashboard' %}" class="back-btn" title="Back to Dashboard">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1>Add New Artwork</h1>
+            <p class="page-subtitle">Fill in the details to add a new artwork to your gallery</p>
+        </div>
+    </div>
+
+    <!-- Artwork Form -->
+    <form method="POST" enctype="multipart/form-data" class="artwork-form" id="artworkForm">
+        {% csrf_token %}
+        
+        <!-- Artist Selection Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-user"></i>
+                    Artist Selection
+                </h2>
+                <span class="section-description">Select the artist for this artwork (required)</span>
+            </div>
+
+            <div class="form-group">
+                <label for="artist">
+                    Artist <span class="required">*</span>
+                </label>
+                <select id="artist" name="artist" class="form-select" required>
+                    <option value="">Select an artist...</option>
+                    {% for artist in artists %}
+                        <option value="{{ artist.id }}">{{ artist.full_name }} {% if artist.location %}({{ artist.location }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+                <small class="field-hint">Artists are loaded from your database. Make sure to add artists first.</small>
+            </div>
+        </div>
+
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-info-circle"></i>
+                    Basic Information
+                </h2>
+                <span class="section-description">Essential artwork details (Title is required)</span>
+            </div>
+
+            <div class="form-group">
+                <label for="title">
+                    Artwork Title <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title" 
+                    class="form-input" 
+                    placeholder="e.g., Coastal Abstractions"
+                    required
+                    maxlength="200"
+                >
+                {% if form.title.errors %}
+                    <div class="error-message">{{ form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="medium">
+                        Medium
+                    </label>
+                    <input 
+                        type="text" 
+                        id="medium" 
+                        name="medium" 
+                        class="form-input" 
+                        placeholder="e.g., Oil on Canvas (Optional)"
+                        maxlength="200"
+                    >
+                    <small class="field-hint">Artistic medium used</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="year">
+                        Year
+                    </label>
+                    <input 
+                        type="number" 
+                        id="year" 
+                        name="year" 
+                        class="form-input" 
+                        placeholder="e.g., 2025"
+                        min="1900"
+                        max="2050"
+                    >
+                    <small class="field-hint">Year the artwork was created</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="dimensions">
+                    Dimensions
+                </label>
+                <input 
+                    type="text" 
+                    id="dimensions" 
+                    name="dimensions" 
+                    class="form-input" 
+                    placeholder="e.g., 120 × 100 cm (Optional)"
+                    maxlength="100"
+                >
+                <small class="field-hint">Artwork dimensions (height × width × depth)</small>
+            </div>
+        </div>
+
+        <!-- Status & Pricing Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-tag"></i>
+                    Status & Pricing
+                </h2>
+                <span class="section-description">Set availability and pricing for this artwork</span>
+            </div>
+
+            <div class="form-group">
+                <label for="availability">
+                    Availability Status <span class="required">*</span>
+                </label>
+                <select id="availability" name="availability" class="form-select" required>
+                    <option value="">Select availability...</option>
+                    <option value="available">Available</option>
+                    <option value="at_gallery">Available at Gallery</option>
+                    <option value="on_request">Available on Request</option>
+                </select>
+                <small class="field-hint">Determines how customers can acquire this artwork</small>
+            </div>
+
+            <!-- Price Fields - Initially hidden -->
+            <div id="priceFields" class="price-fields" style="display: none;">
+                <div class="price-group">
+                    <div class="form-group" style="position: relative;">
+                        <label for="price">
+                            Price <span class="required">*</span>
+                        </label>
+                        <span class="currency-symbol">R</span>
+                        <input 
+                            type="number" 
+                            id="price" 
+                            name="price" 
+                            class="form-input price-input" 
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                        >
+                        <small class="field-hint">Base price of the artwork</small>
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label for="discounted_price">
+                            Discounted Price
+                        </label>
+                        <span class="currency-symbol">R</span>
+                        <input 
+                            type="number" 
+                            id="discounted_price" 
+                            name="discounted_price" 
+                            class="form-input price-input" 
+                            placeholder="0.00 (Optional)"
+                            min="0"
+                            step="0.01"
+                        >
+                        <small class="field-hint">Special promotional price</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-book-open"></i>
+                    Description
+                </h2>
+                <span class="section-description">Tell the story behind this artwork</span>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Artwork Description</label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    class="form-input form-textarea" 
+                    rows="6"
+                    placeholder="Describe the artwork's inspiration, meaning, and artistic significance..."
+                ></textarea>
+                <small class="field-hint">This will be displayed on the artwork detail page</small>
+            </div>
+        </div>
+
+        <!-- Images Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-images"></i>
+                    Images
+                </h2>
+                <span class="section-description">Add artwork photos (Optional)</span>
+            </div>
+
+            <div class="form-group">
+                <label for="image">
+                    Artwork Image
+                </label>
+                <div class="image-upload-area" id="artworkUploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload artwork image</p>
+                    <small>JPG, PNG, or WEBP (Max 10MB)</small>
+                    <input 
+                        type="file" 
+                        id="image" 
+                        name="image" 
+                        class="file-input"
+                        accept="image/*"
+                    >
+                </div>
+                <div id="artworkPreview" class="image-preview"></div>
+                <small class="field-hint">Main image for the artwork. Use high-quality images for best display.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="image_url">
+                    Image URL (Alternative)
+                </label>
+                <input 
+                    type="url" 
+                    id="image_url" 
+                    name="image_url" 
+                    class="form-input" 
+                    placeholder="https://example.com/artwork-image.jpg (Optional)"
+                >
+                <small class="field-hint">Use this if you have an image hosted elsewhere</small>
+            </div>
+        </div>
+
+        <!-- Status Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-toggle-on"></i>
+                    Visibility
+                </h2>
+                <span class="section-description">Control artwork visibility on the website</span>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input 
+                        type="checkbox" 
+                        id="is_active" 
+                        name="is_active" 
+                        class="checkbox-input"
+                        checked
+                    >
+                    <label for="is_active" class="checkbox-label">
+                        <span class="checkbox-title">Active Artwork</span>
+                        <span class="checkbox-description">This artwork will be visible on the website</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Add Artwork
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ============================================================================
+        // IMAGE UPLOAD PREVIEW (Reused from Add Artist)
+        // ============================================================================
+        
+        const imageInput = document.getElementById('image');
+        const artworkPreview = document.getElementById('artworkPreview');
+        const artworkUploadArea = document.getElementById('artworkUploadArea');
+        
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                
+                if (file && file.type.startsWith('image/')) {
+                    // Check file size (10MB limit for artwork images)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('File size must be less than 10MB');
+                        imageInput.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        artworkPreview.innerHTML = '';
+                        
+                        const div = document.createElement('div');
+                        div.className = 'preview-item';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" alt="Artwork Preview">
+                            <button type="button" class="preview-remove" id="removeArtworkImage">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        artworkPreview.appendChild(div);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                } else if (file) {
+                    alert('Please select an image file (JPG, PNG, or WEBP)');
+                    imageInput.value = '';
+                }
+            });
+        }
+        
+        // Remove artwork image
+        artworkPreview.addEventListener('click', function(e) {
+            if (e.target.closest('#removeArtworkImage')) {
+                e.preventDefault();
+                artworkPreview.innerHTML = '';
+                imageInput.value = '';
+            }
+        });
+        
+        // ============================================================================
+        // AVAILABILITY & PRICE FIELD CONDITIONAL LOGIC (NEW)
+        // ============================================================================
+        
+        const availabilitySelect = document.getElementById('availability');
+        const priceFields = document.getElementById('priceFields');
+        const priceInput = document.getElementById('price');
+        const discountedPriceInput = document.getElementById('discounted_price');
+        
+        function updatePriceFieldVisibility() {
+            const selectedAvailability = availabilitySelect.value;
+            
+            if (selectedAvailability === 'on_request') {
+                // Hide price fields for "Available on Request"
+                priceFields.style.display = 'none';
+                priceInput.required = false;
+                priceInput.disabled = true;
+                discountedPriceInput.disabled = true;
+                
+                // Clear price values
+                priceInput.value = '';
+                discountedPriceInput.value = '';
+            } else if (selectedAvailability === 'available' || selectedAvailability === 'at_gallery') {
+                // Show price fields for "Available" or "Available at Gallery"
+                priceFields.style.display = 'block';
+                priceInput.required = true;
+                priceInput.disabled = false;
+                discountedPriceInput.disabled = false;
+            } else {
+                // Hide price fields if no selection
+                priceFields.style.display = 'none';
+                priceInput.required = false;
+                priceInput.disabled = true;
+                discountedPriceInput.disabled = true;
+            }
+        }
+        
+        // Initialize on page load
+        updatePriceFieldVisibility();
+        
+        // Update when selection changes
+        if (availabilitySelect) {
+            availabilitySelect.addEventListener('change', updatePriceFieldVisibility);
+        }
+        
+        // ============================================================================
+        // FORM VALIDATION (Reused pattern from Add Artist)
+        // ============================================================================
+        
+        const artworkForm = document.getElementById('artworkForm');
+        
+        if (artworkForm) {
+            artworkForm.addEventListener('submit', function(e) {
+                const artist = document.getElementById('artist').value;
+                const title = document.getElementById('title').value.trim();
+                const availability = document.getElementById('availability').value;
+                
+                // Validate required fields
+                if (!artist) {
+                    e.preventDefault();
+                    alert('Please select an artist');
+                    document.getElementById('artist').focus();
+                    return false;
+                }
+                
+                if (!title) {
+                    e.preventDefault();
+                    alert('Please enter the artwork title');
+                    document.getElementById('title').focus();
+                    return false;
+                }
+                
+                if (!availability) {
+                    e.preventDefault();
+                    alert('Please select availability status');
+                    document.getElementById('availability').focus();
+                    return false;
+                }
+                
+                // Validate price for non-"on_request" items
+                if (availability !== 'on_request') {
+                    const price = parseFloat(document.getElementById('price').value);
+                    if (!price || price <= 0) {
+                        e.preventDefault();
+                        alert('Please enter a valid price for the artwork');
+                        document.getElementById('price').focus();
+                        return false;
+                    }
+                    
+                    // Validate discounted price if provided
+                    const discountedPrice = parseFloat(document.getElementById('discounted_price').value);
+                    if (discountedPrice && discountedPrice >= price) {
+                        e.preventDefault();
+                        alert('Discounted price must be lower than the regular price');
+                        document.getElementById('discounted_price').focus();
+                        return false;
+                    }
+                }
+                
+                // Validate URL format if provided
+                const imageUrl = document.getElementById('image_url').value.trim();
+                if (imageUrl) {
+                    try {
+                        new URL(imageUrl);
+                    } catch (_) {
+                        e.preventDefault();
+                        alert('Please enter a valid URL (include http:// or https://)');
+                        document.getElementById('image_url').focus();
+                        return false;
+                    }
+                }
+                
+                // Validate year if provided
+                const yearInput = document.getElementById('year');
+                if (yearInput.value) {
+                    const year = parseInt(yearInput.value);
+                    const currentYear = new Date().getFullYear();
+                    if (year < 1900 || year > currentYear + 5) {
+                        e.preventDefault();
+                        alert(`Please enter a valid year between 1900 and ${currentYear + 5}`);
+                        yearInput.focus();
+                        return false;
+                    }
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Artwork...';
+                }
+                
+                return true;
+            });
+        }
+        
+        // ============================================================================
+        // AUTO-RESIZE TEXTAREA (Reused from Add Artist)
+        // ============================================================================
+        
+        const descriptionTextarea = document.getElementById('description');
+        if (descriptionTextarea) {
+            descriptionTextarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Initial resize
+            setTimeout(() => {
+                descriptionTextarea.style.height = 'auto';
+                descriptionTextarea.style.height = (descriptionTextarea.scrollHeight) + 'px';
+            }, 100);
+        }
+        
+        // ============================================================================
+        // DRAG AND DROP FOR IMAGE UPLOAD (Reused from Add Artist)
+        // ============================================================================
+        
+        if (artworkUploadArea) {
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                artworkUploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                artworkUploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                artworkUploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                artworkUploadArea.classList.add('highlight');
+            }
+            
+            function unhighlight(e) {
+                artworkUploadArea.classList.remove('highlight');
+            }
+            
+            // Handle dropped files
+            artworkUploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    imageInput.files = files;
+                    
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    imageInput.dispatchEvent(event);
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
