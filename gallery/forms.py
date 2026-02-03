@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from .models import User, UserProfile, OTP, Artist
+from .models import User, UserProfile, OTP, Artist, Artwork
 from django.utils import timezone
 from datetime import timedelta
 import re
@@ -294,6 +294,159 @@ class ArtistForm(forms.ModelForm):
         self.fields['image_url'].required = False
         self.fields['is_active'].required = False
         self.fields['is_active'].initial = True
+    
+    def clean_image_url(self):
+        image_url = self.cleaned_data.get('image_url')
+        if image_url:
+            # Basic URL validation
+            from django.core.validators import URLValidator
+            from django.core.exceptions import ValidationError as DjangoValidationError
+            
+            val = URLValidator()
+            try:
+                val(image_url)
+            except DjangoValidationError:
+                raise ValidationError("Please enter a valid URL (include http:// or https://)")
+        return image_url
+
+
+# Artwork Form - MATCHING ADD ARTWORK PAGE
+class ArtworkForm(forms.ModelForm):
+    # Override price field to be required conditionally
+    price = forms.DecimalField(
+        required=False,
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input price-input',
+            'placeholder': 'Enter price',
+            'id': 'price',
+            'step': '0.01'
+        })
+    )
+    
+    discounted_price = forms.DecimalField(
+        required=False,
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input price-input',
+            'placeholder': 'Discounted price (optional)',
+            'id': 'discounted_price',
+            'step': '0.01'
+        })
+    )
+    
+    class Meta:
+        model = Artwork
+        fields = [
+            'artist', 'title', 'availability', 'price', 'discounted_price',
+            'sold', 'medium', 'dimensions', 'year', 'description',
+            'image', 'image_url', 'is_active'
+        ]
+        widgets = {
+            'artist': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'artist',
+                'required': True
+            }),
+            'title': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Enter artwork title',
+                'id': 'title'
+            }),
+            'availability': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'availability',
+                'required': True
+            }),
+            'medium': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'e.g., Oil on Canvas (optional)',
+                'id': 'medium'
+            }),
+            'dimensions': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'e.g., 120 × 100 cm (optional)',
+                'id': 'dimensions'
+            }),
+            'year': forms.NumberInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'e.g., 2025',
+                'id': 'year',
+                'min': '1900',
+                'max': '2050'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'placeholder': 'Describe the artwork...',
+                'id': 'description',
+                'rows': 6
+            }),
+            'image_url': forms.URLInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Image URL (optional)',
+                'id': 'image_url'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Get active artists for dropdown
+        self.fields['artist'].queryset = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        
+        # Make required fields
+        self.fields['artist'].required = True
+        self.fields['title'].required = True
+        self.fields['availability'].required = True
+        
+        # Make optional fields
+        self.fields['medium'].required = False
+        self.fields['dimensions'].required = False
+        self.fields['year'].required = False
+        self.fields['description'].required = False
+        self.fields['image'].required = False
+        self.fields['image_url'].required = False
+        self.fields['is_active'].required = False
+        self.fields['sold'].required = False
+        
+        # Set initial values
+        self.fields['is_active'].initial = True
+        self.fields['sold'].initial = False
+        
+        # Add help text
+        self.fields['artist'].help_text = 'Select the artist who created this artwork'
+        self.fields['availability'].help_text = 'Determines how customers can acquire this artwork'
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        availability = cleaned_data.get('availability')
+        price = cleaned_data.get('price')
+        discounted_price = cleaned_data.get('discounted_price')
+        
+        # Price validation
+        if availability != 'on_request':
+            if not price:
+                self.add_error('price', 'Price is required for artworks that are not "Available on Request".')
+            elif price <= 0:
+                self.add_error('price', 'Price must be greater than 0.')
+        
+        # Discounted price validation
+        if discounted_price:
+            if not price:
+                self.add_error('discounted_price', 'Cannot set discounted price without regular price.')
+            elif discounted_price >= price:
+                self.add_error('discounted_price', 'Discounted price must be lower than the regular price.')
+        
+        # Year validation
+        year = cleaned_data.get('year')
+        if year:
+            from datetime import datetime
+            current_year = datetime.now().year
+            if year < 1900 or year > current_year + 5:
+                self.add_error('year', f'Year must be between 1900 and {current_year + 5}.')
+        
+        return cleaned_data
     
     def clean_image_url(self):
         image_url = self.cleaned_data.get('image_url')

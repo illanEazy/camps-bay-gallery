@@ -16,9 +16,9 @@ import json
 # Add these form imports
 from .forms import (
     CustomLoginForm, CustomSignupForm, OTPVerificationForm,
-    CustomForgotPasswordForm, CustomResetPasswordForm, UserProfileForm
+    CustomForgotPasswordForm, CustomResetPasswordForm, UserProfileForm, ArtworkForm
 )
-from .models import User, OTP, UserProfile, Artist
+from .models import User, OTP, UserProfile, Artist, Artwork
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -255,17 +255,44 @@ GLOBAL_ARTWORKS_DATA = [
 # ============================================================================
 # BASIC VIEWS
 # ============================================================================
+
+# Update the home function:
 def home(request):
     """Render the homepage"""
-    featured_artworks = GLOBAL_ARTWORKS_DATA[:3]
+    # Get featured artworks from database (newest 3)
+    featured_artworks_db = Artwork.objects.filter(is_active=True).order_by('-created_at')[:3]
+    
+    # Format for template
+    featured_artworks = []
+    for artwork in featured_artworks_db:
+        featured_artworks.append({
+            'id': artwork.id,
+            'title': artwork.title,
+            'artist': artwork.artist.full_name,
+            'artist_id': artwork.artist.id,
+            'image': artwork.primary_image,
+            'year': artwork.year,
+            'medium': artwork.medium,
+            'availability': artwork.availability,
+            'sold': artwork.sold,
+            'show_price': artwork.show_price,
+            'price': float(artwork.price) if artwork.price else None,
+            'discounted_price': float(artwork.discounted_price) if artwork.discounted_price else None,
+            'dimensions': artwork.dimensions,
+            'allow_purchase': artwork.allow_purchase,
+            'allow_inquiry': artwork.allow_inquiry,
+            'allow_schedule_viewing': artwork.allow_schedule_viewing
+        })
+    
     # Get active artists from database (limit to 6 for carousel)
     artists = Artist.objects.filter(is_active=True).order_by('first_name')[:6]
     
     context = {
         'featured_artworks': featured_artworks,
-        'artists': artists  # Now from database
+        'artists': artists
     }
     return render(request, 'gallery/index.html', context)
+
 
 def about(request):
     """Render the about page"""
@@ -279,18 +306,36 @@ def artists(request):
     context = {'artists': artists}
     return render(request, 'gallery/artists.html', context)
 
-
-
+# Update the artist_detail function:
 def artist_detail(request, artist_id):
     """Render individual artist detail page"""
     # Get artist from database
     artist = get_object_or_404(Artist, id=artist_id, is_active=True)
     
-    # For now, get artworks from global data - you'll need to create an Artwork model later
+    # Get artist's artworks from database
+    artist_artworks_db = Artwork.objects.filter(artist=artist, is_active=True)
+    
+    # Format for template
     artist_artworks = []
-    for artwork in GLOBAL_ARTWORKS_DATA:
-        if artwork.get('artist') == artist.full_name:
-            artist_artworks.append(artwork)
+    for artwork in artist_artworks_db:
+        artist_artworks.append({
+            'id': artwork.id,
+            'title': artwork.title,
+            'artist': artwork.artist.full_name,
+            'artist_id': artwork.artist.id,
+            'image': artwork.primary_image,
+            'year': artwork.year,
+            'medium': artwork.medium,
+            'availability': artwork.availability,
+            'sold': artwork.sold,
+            'show_price': artwork.show_price,
+            'price': float(artwork.price) if artwork.price else None,
+            'discounted_price': float(artwork.discounted_price) if artwork.discounted_price else None,
+            'dimensions': artwork.dimensions,
+            'allow_purchase': artwork.allow_purchase,
+            'allow_inquiry': artwork.allow_inquiry,
+            'allow_schedule_viewing': artwork.allow_schedule_viewing
+        })
     
     context = {
         'artist': artist,
@@ -299,35 +344,78 @@ def artist_detail(request, artist_id):
     return render(request, 'gallery/artist_detail.html', context)
 
 
+
+
 def artworks(request):
-    """Render the artworks page"""
+    """Render the artworks page from database"""
     artist_filter = request.GET.get('artist', 'all')
     sort_by = request.GET.get('sort', 'newest')
     
-    filtered_artworks = GLOBAL_ARTWORKS_DATA
+    # Get active artworks from database
+    artworks_list = Artwork.objects.filter(is_active=True).select_related('artist')
     
     if artist_filter != 'all':
-        filtered_artworks = [artwork for artwork in GLOBAL_ARTWORKS_DATA if artwork['artist'] == artist_filter]
+        try:
+            # Try to get artist by ID or name
+            if artist_filter.isdigit():
+                artworks_list = artworks_list.filter(artist_id=artist_filter)
+            else:
+                # Handle artist name filter
+                artworks_list = artworks_list.filter(
+                    Q(artist__first_name__icontains=artist_filter) |
+                    Q(artist__last_name__icontains=artist_filter)
+                )
+        except:
+            pass
     
+    # Apply sorting
     if sort_by == 'newest':
-        filtered_artworks = sorted(filtered_artworks, key=lambda x: x['year'], reverse=True)
+        artworks_list = artworks_list.order_by('-year', '-created_at')
     elif sort_by == 'oldest':
-        filtered_artworks = sorted(filtered_artworks, key=lambda x: x['year'])
+        artworks_list = artworks_list.order_by('year', 'created_at')
     elif sort_by == 'title_asc':
-        filtered_artworks = sorted(filtered_artworks, key=lambda x: x['title'].lower())
+        artworks_list = artworks_list.order_by('title')
     elif sort_by == 'title_desc':
-        filtered_artworks = sorted(filtered_artworks, key=lambda x: x['title'].lower(), reverse=True)
+        artworks_list = artworks_list.order_by('-title')
+    elif sort_by == 'price_low':
+        artworks_list = artworks_list.order_by('price')
+    elif sort_by == 'price_high':
+        artworks_list = artworks_list.order_by('-price')
     
-    unique_artists = sorted(set([artwork['artist'] for artwork in GLOBAL_ARTWORKS_DATA]))
+    # Format for template
+    formatted_artworks = []
+    for artwork in artworks_list:
+        formatted_artworks.append({
+            'id': artwork.id,
+            'title': artwork.title,
+            'artist': artwork.artist.full_name,
+            'artist_id': artwork.artist.id,
+            'image': artwork.primary_image,
+            'year': artwork.year,
+            'medium': artwork.medium,
+            'availability': artwork.availability,
+            'sold': artwork.sold,
+            'show_price': artwork.show_price,
+            'price': float(artwork.price) if artwork.price else None,
+            'discounted_price': float(artwork.discounted_price) if artwork.discounted_price else None,
+            'dimensions': artwork.dimensions,
+            'allow_purchase': artwork.allow_purchase,
+            'allow_inquiry': artwork.allow_inquiry,
+            'allow_schedule_viewing': artwork.allow_schedule_viewing
+        })
+    
+    # Get unique artists for filter
+    unique_artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
     
     context = {
-        'artworks': filtered_artworks,
+        'artworks': formatted_artworks,
         'artists': unique_artists,
         'current_artist': artist_filter,
         'current_sort': sort_by,
-        'total_artworks': len(filtered_artworks),
+        'total_artworks': len(formatted_artworks),
     }
     return render(request, 'gallery/artworks.html', context)
+
 
 def contact(request):
     """Render the contact page"""
@@ -342,29 +430,42 @@ def google_login_redirect(request):
 # ============================================================================
 # ARTWORK DETAIL VIEWS - ONLY ONE SET OF FUNCTIONS
 # ============================================================================
-
 def artwork_detail(request, artwork_id):
-    """Render artwork detail page"""
-    # Find artwork from global data
-    artwork = None
-    for a in GLOBAL_ARTWORKS_DATA:
-        if a['id'] == artwork_id:
-            artwork = a
-            break
-    
-    if not artwork:
+    """Render artwork detail page from database"""
+    try:
+        # Get artwork from database
+        artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+        
+        context = {
+            'artwork': {
+                'id': artwork.id,
+                'title': artwork.title,
+                'artist': artwork.artist.full_name,
+                'artist_id': artwork.artist.id,
+                'description': artwork.description,
+                'medium': artwork.medium,
+                'dimensions': artwork.dimensions,
+                'year': artwork.year,
+                'image': artwork.primary_image,
+                'availability': artwork.availability,
+                'sold': artwork.sold,
+                'show_price': artwork.show_price,
+                'price': float(artwork.price) if artwork.price else None,
+                'discounted_price': float(artwork.discounted_price) if artwork.discounted_price else None,
+                'allow_purchase': artwork.allow_purchase,
+                'allow_inquiry': artwork.allow_inquiry,
+                'allow_schedule_viewing': artwork.allow_schedule_viewing
+            },
+            'show_inquiry_modal': (artwork.availability == 'on_request'),
+            'user': request.user,
+        }
+        return render(request, 'gallery/artwork_detail.html', context)
+        
+    except Artwork.DoesNotExist:
         messages.error(request, 'Artwork not found.')
         return redirect('artworks')
-    
-    # Determine if we should auto-show inquiry modal
-    show_inquiry_modal = (artwork.get('availability') == 'on_request')
-    
-    context = {
-        'artwork': artwork,
-        'show_inquiry_modal': show_inquiry_modal,
-        'user': request.user,
-    }
-    return render(request, 'gallery/artwork_detail.html', context)
+
+
 
 def artwork_purchase(request, artwork_id):
     """Handle artwork purchase - redirect to detail page"""
@@ -829,6 +930,7 @@ def add_artist_view(request):
     }
     return render(request, 'gallery/add_artist.html', context)
 
+
 @login_required
 @user_passes_test(is_owner)
 def view_artists_view(request):
@@ -924,21 +1026,38 @@ def manage_artists_view(request):
 # ============================================================================
 # ARtWOKR MANAGEMENT VIEWS (Placeholder)
 # ============================================================================
-
+# Replace the placeholder artwork views with these actual implementations
 
 @login_required
 @user_passes_test(is_owner)
 def add_artwork_view(request):
-    """Add a new artwork to the database - PLACEHOLDER VIEW"""
+    """Add a new artwork to the database"""
     if request.method == 'POST':
-        # Placeholder for now - will implement later
-        messages.success(request, 'Artwork added successfully!')
-        return redirect('view_artworks')
+        form = ArtworkForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                # Save the artwork
+                artwork = form.save(commit=False)
+                artwork.created_by = request.user
+                artwork.save()
+                
+                messages.success(
+                    request, 
+                    f'Artwork "{artwork.title}" added successfully!'
+                )
+                return redirect('view_artworks')
+            except Exception as e:
+                messages.error(request, f'Error saving artwork: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ArtworkForm()
     
-    # Get all artists for the dropdown
+    # Get all active artists for the template
     artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
     
     context = {
+        'form': form,
         'artists': artists,
         'page_title': 'Add Artwork',
         'page_subtitle': 'Add a new artwork to your gallery collection'
@@ -948,18 +1067,21 @@ def add_artwork_view(request):
 @login_required
 @user_passes_test(is_owner)
 def view_artworks_view(request):
-    """View all artworks with search and pagination - PLACEHOLDER VIEW"""
+    """View all artworks with search and pagination"""
     search_query = request.GET.get('q', '')
     
-    # For now, use global artwork data - will connect to database later
-    artworks = GLOBAL_ARTWORKS_DATA
+    # Get all artworks from database
+    artworks = Artwork.objects.all().select_related('artist').order_by('-created_at')
     
     if search_query:
-        artworks = [artwork for artwork in artworks if 
-                   search_query.lower() in artwork['title'].lower() or
-                   search_query.lower() in artwork['artist'].lower()]
+        artworks = artworks.filter(
+            Q(title__icontains=search_query) |
+            Q(artist__first_name__icontains=search_query) |
+            Q(artist__last_name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(medium__icontains=search_query)
+        )
     
-    # Create pagination manually for global data
     paginator = Paginator(artworks, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -974,21 +1096,63 @@ def view_artworks_view(request):
     }
     return render(request, 'gallery/view_artworks.html', context)
 
+
 @login_required
 @user_passes_test(is_owner)
 def edit_artwork_view(request, artwork_id):
-    """Edit an existing artwork - PLACEHOLDER VIEW"""
-    # For now, just redirect with message
-    messages.info(request, f'Edit artwork feature coming soon! (Artwork ID: {artwork_id})')
-    return redirect('view_artworks')
+    """Edit an existing artwork"""
+    try:
+        artwork = Artwork.objects.get(id=artwork_id)
+    except Artwork.DoesNotExist:
+        messages.error(request, 'Artwork not found.')
+        return redirect('view_artworks')
+    
+    if request.method == 'POST':
+        form = ArtworkForm(request.POST, request.FILES, instance=artwork)
+        
+        if request.POST.get('remove_current_image') == '1':
+            if artwork.image:
+                artwork.image.delete(save=False)
+                artwork.image = None
+        
+        if form.is_valid():
+            artwork = form.save()
+            messages.success(request, f'Artwork "{artwork.title}" updated successfully!')
+            return redirect('view_artworks')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ArtworkForm(instance=artwork)
+    
+    # Get all active artists for the template
+    artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    
+    context = {
+        'form': form,
+        'artists': artists,
+        'artwork': artwork,
+        'page_title': 'Edit Artwork',
+        'page_subtitle': f'Edit {artwork.title}'
+    }
+    return render(request, 'gallery/edit_artwork.html', context)
 
 @login_required
 @user_passes_test(is_owner)
 def delete_artwork_view(request, artwork_id):
-    """Delete an artwork - PLACEHOLDER VIEW"""
-    # For now, just redirect with message
-    messages.info(request, f'Delete artwork feature coming soon! (Artwork ID: {artwork_id})')
+    """Delete an artwork"""
+    try:
+        artwork = Artwork.objects.get(id=artwork_id)
+        artwork_title = artwork.title
+        
+        artwork.delete()
+        
+        messages.success(request, f'Artwork "{artwork_title}" deleted successfully!')
+        
+    except Artwork.DoesNotExist:
+        messages.error(request, 'Artwork not found.')
+    
     return redirect('view_artworks')
+
 
 # ============================================================================
 # PLACEHOLDER VIEWS

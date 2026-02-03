@@ -518,6 +518,40 @@
         }
         
         // ============================================================================
+        // FORM FIELD VALIDATION HELPER (For future form implementations)
+        // ============================================================================
+        
+        // This is a generic form validation helper that can be used when forms are added
+        // Note: For actual form validation in add_artwork.html, use Django's form field IDs:
+        // Example: document.getElementById('id_availability'), document.getElementById('id_price'), etc.
+        function validateFormFields(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return true;
+            
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = 'red';
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+            
+            return isValid;
+        }
+        
+        // Example: If you add a form with id="adminForm", you can validate it like this:
+        // document.getElementById('adminForm').addEventListener('submit', function(e) {
+        //     if (!validateFormFields('adminForm')) {
+        //         e.preventDefault();
+        //         alert('Please fill in all required fields.');
+        //     }
+        // });
+        
+        // ============================================================================
         // DASHBOARD BUTTON HOVER EFFECTS
         // ============================================================================
         

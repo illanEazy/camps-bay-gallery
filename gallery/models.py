@@ -207,3 +207,222 @@ class Artist(models.Model):
         ordering = ['first_name', 'last_name']
         verbose_name = 'Artist'
         verbose_name_plural = 'Artists'
+
+# ============================================================================
+# ARTWORK MODEL - CONNECTED TO ARTIST
+# ============================================================================
+
+class Artwork(models.Model):
+    """Artwork model for storing artwork information in the database"""
+    
+    # AVAILABILITY CHOICES - EXACT MATCH TO FRONTEND
+    AVAILABILITY_CHOICES = (
+        ('at_gallery', 'Available at Gallery'),
+        ('available', 'Available'),
+        ('on_request', 'Available on Request'),
+    )
+    
+    # REQUIRED: ForeignKey to Artist (One Artist -> Many Artworks)
+    artist = models.ForeignKey(
+        Artist,
+        on_delete=models.CASCADE,
+        related_name='artworks',
+        verbose_name='Artist',
+        help_text='Required. Select the artist who created this artwork.'
+    )
+    
+    # REQUIRED: Basic Information
+    title = models.CharField(
+        max_length=200,
+        verbose_name='Artwork Title',
+        help_text='Required. Enter the title of the artwork.'
+    )
+    
+    # REQUIRED: Availability Status
+    availability = models.CharField(
+        max_length=20,
+        choices=AVAILABILITY_CHOICES,
+        default='available',
+        verbose_name='Availability Status',
+        help_text='How this artwork can be acquired by customers.'
+    )
+    
+    # Price Information (Conditionally Required)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Price',
+        help_text='Required unless "Available on Request". Enter price in local currency.'
+    )
+    
+    discounted_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Discounted Price',
+        help_text='Optional. Special promotional price.'
+    )
+    
+    # Sold Status
+    sold = models.BooleanField(
+        default=False,
+        verbose_name='Sold',
+        help_text='Mark as sold if this artwork has been purchased.'
+    )
+    
+    # Artistic Details (Optional)
+    medium = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Medium',
+        help_text='Optional. Artistic medium (e.g., Oil on Canvas, Bronze Sculpture)'
+    )
+    
+    dimensions = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Dimensions',
+        help_text='Optional. Artwork dimensions (e.g., 120 × 100 cm)'
+    )
+    
+    year = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Year',
+        help_text='Optional. Year the artwork was created.'
+    )
+    
+    # Description
+    description = models.TextField(
+        blank=True,
+        verbose_name='Description',
+        help_text='Optional. Detailed description of the artwork.'
+    )
+    
+    # Images
+    image = models.ImageField(
+        upload_to='artworks/images/',
+        blank=True,
+        null=True,
+        verbose_name='Artwork Image'
+    )
+    
+    image_url = models.URLField(
+        blank=True,
+        verbose_name='Image URL',
+        help_text='Optional. URL to artwork image if hosted elsewhere.'
+    )
+    
+    # Status Field
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Active',
+        help_text='Uncheck to hide this artwork from the website.'
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='artworks_created',
+        verbose_name='Created By'
+    )
+    
+    def __str__(self):
+        """String representation of the artwork"""
+        return f"{self.title} by {self.artist.full_name}"
+    
+    @property
+    def display_price(self):
+        """Get display price with discounted price if available"""
+        if self.discounted_price:
+            return self.discounted_price
+        return self.price
+    
+    @property
+    def has_discount(self):
+        """Check if artwork has a discount"""
+        return bool(self.discounted_price and self.discounted_price < self.price)
+    
+    @property
+    def discount_percentage(self):
+        """Calculate discount percentage if applicable"""
+        if self.has_discount and self.price:
+            discount = ((self.price - self.discounted_price) / self.price) * 100
+            return int(discount)
+        return 0
+    
+    @property
+    def availability_display(self):
+        """Get human-readable availability"""
+        return dict(self.AVAILABILITY_CHOICES).get(self.availability, self.availability)
+    
+    @property
+    def show_price(self):
+        """Determine if price should be shown based on availability"""
+        return self.availability != 'on_request' and not self.sold
+    
+    @property
+    def allow_purchase(self):
+        """Determine if purchase is allowed based on availability and sold status"""
+        return self.availability in ['available', 'at_gallery'] and not self.sold
+    
+    @property
+    def allow_inquiry(self):
+        """Determine if inquiry is allowed"""
+        return True  # Always allow inquiries
+    
+    @property
+    def allow_schedule_viewing(self):
+        """Determine if schedule viewing is allowed"""
+        return self.availability == 'at_gallery' and not self.sold
+    
+    @property
+    def primary_image(self):
+        """Get the primary image for the artwork"""
+        if self.image:
+            return self.image.url
+        elif self.image_url:
+            return self.image_url
+        else:
+            return '/static/gallery/images/default-artwork.jpg'  # You should create this
+    
+    def clean(self):
+        """Custom validation for price fields"""
+        from django.core.exceptions import ValidationError
+        
+        # Price is required unless availability is 'on_request'
+        if self.availability != 'on_request' and not self.price:
+            raise ValidationError({'price': 'Price is required for artworks that are not "Available on Request".'})
+        
+        # If discounted_price exists, it must be less than price
+        if self.discounted_price and self.price and self.discounted_price >= self.price:
+            raise ValidationError({'discounted_price': 'Discounted price must be lower than the regular price.'})
+        
+        # Year validation (if provided)
+        if self.year:
+            from datetime import datetime
+            current_year = datetime.now().year
+            if self.year < 1900 or self.year > current_year + 5:
+                raise ValidationError({'year': f'Year must be between 1900 and {current_year + 5}.'})
+    
+    def save(self, *args, **kwargs):
+        """Custom save method"""
+        self.full_clean()  # Run validation before saving
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Artwork'
+        verbose_name_plural = 'Artworks'
+        indexes = [
+            models.Index(fields=['artist', 'is_active', 'sold']),
+            models.Index(fields=['availability', 'is_active']),
+            models.Index(fields=['price']),
+        ]

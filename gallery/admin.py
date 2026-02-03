@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, UserProfile, OTP, Artist
+from .models import User, UserProfile, OTP, Artist, Artwork
 
 # Custom User Admin
 class CustomUserAdmin(UserAdmin):
@@ -67,8 +67,61 @@ class ArtistAdmin(admin.ModelAdmin):
     list_editable = ('is_active',)
 
 
+# ARTWORK ADMIN
+class ArtworkAdmin(admin.ModelAdmin):
+    list_display = ('title', 'artist', 'availability', 'price_display', 'sold', 'is_active', 'created_at')
+    list_filter = ('availability', 'sold', 'is_active', 'artist', 'created_at')
+    search_fields = ('title', 'artist__first_name', 'artist__last_name', 'description', 'medium')
+    readonly_fields = ('created_at', 'updated_at', 'created_by')
+    list_editable = ('sold', 'is_active')
+    list_per_page = 20
+    
+    fieldsets = (
+        ('Artist Information', {
+            'fields': ('artist', 'created_by')
+        }),
+        ('Artwork Details', {
+            'fields': ('title', 'description')
+        }),
+        ('Availability & Pricing', {
+            'fields': ('availability', 'price', 'discounted_price', 'sold')
+        }),
+        ('Artistic Information', {
+            'fields': ('medium', 'dimensions', 'year')
+        }),
+        ('Images', {
+            'fields': ('image', 'image_url')
+        }),
+        ('Status', {
+            'fields': ('is_active',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def price_display(self, obj):
+        if obj.show_price:
+            if obj.has_discount:
+                return f"R {obj.discounted_price} (was R {obj.price})"
+            return f"R {obj.price}"
+        return "Price on Request"
+    price_display.short_description = 'Price'
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('artist')
+    
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:  # If creating a new object
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
 # Register models
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(OTP, OTPAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Artist, ArtistAdmin)  # Add this line
+admin.site.register(Artwork, ArtworkAdmin)
