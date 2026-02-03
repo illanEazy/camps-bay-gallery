@@ -433,14 +433,20 @@
                 <div class="artwork-admin-card">
                     <!-- Image -->
                     <div class="artwork-admin-image">
-                        <img src="{{ artwork.image }}" alt="{{ artwork.title }}">
+                        {% if artwork.image %}
+                            <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}">
+                        {% elif artwork.image_url %}
+                            <img src="{{ artwork.image_url }}" alt="{{ artwork.title }}">
+                        {% else %}
+                            <img src="{% static 'gallery/images/default-artwork.jpg' %}" alt="{{ artwork.title }}">
+                        {% endif %}
                         
                         <!-- Status Badge -->
                         <div class="status-badge status-{{ artwork.availability }}">
                             {% if artwork.sold %}
                                 SOLD
                             {% else %}
-                                {{ artwork.availability|upper }}
+                                {{ artwork.get_availability_display|upper }}
                             {% endif %}
                         </div>
                     </div>
@@ -448,7 +454,7 @@
                     <!-- Info -->
                     <div class="artwork-admin-info">
                         <h3 class="artwork-admin-title">{{ artwork.title }}</h3>
-                        <div class="artwork-admin-artist">{{ artwork.artist }}</div>
+                        <div class="artwork-admin-artist">{{ artwork.artist.full_name }}</div>
                         
                         <!-- Metadata -->
                         <div class="artwork-admin-meta">
@@ -477,7 +483,6 @@
                         <!-- Price -->
                         {% if artwork.show_price and artwork.price %}
                             <div class="artwork-admin-price">
-                                R {{ artwork.price|floatformat:2 }}
                                 {% if artwork.discounted_price %}
                                     <span class="discounted-price">
                                         R {{ artwork.discounted_price|floatformat:2 }}
@@ -485,22 +490,27 @@
                                     <span class="original-price">
                                         R {{ artwork.price|floatformat:2 }}
                                     </span>
+                                {% else %}
+                                    R {{ artwork.price|floatformat:2 }}
                                 {% endif %}
                             </div>
-                        {% else %}
+                        {% elif not artwork.sold %}
                             <div class="artwork-admin-price">Price on Request</div>
                         {% endif %}
                         
                         <!-- Action Buttons -->
                         <div class="artwork-admin-actions">
-                            <a href="#" class="action-btn edit-btn" onclick="alert('Edit feature coming soon!')">
+                            <!-- FIXED: Edit button links to edit_artwork URL -->
+                            <a href="{% url 'edit_artwork' artwork.id %}" class="action-btn edit-btn">
                                 <i class="fas fa-edit"></i>
                                 Edit
                             </a>
-                            <a href="#" class="action-btn delete-btn" onclick="confirmDelete({{ artwork.id }}, '{{ artwork.title }}')">
+                            <!-- FIXED: Delete button with proper onclick - CORRECTED -->
+                            <button type="button" class="action-btn delete-btn" 
+                                    onclick="confirmDelete('{{ artwork.id }}', '{{ artwork.title|escapejs }}')">
                                 <i class="fas fa-trash"></i>
                                 Delete
-                            </a>
+                            </button>
                             <a href="{% url 'artwork_detail' artwork.id %}" class="action-btn view-btn" target="_blank">
                                 <i class="fas fa-eye"></i>
                                 View
@@ -601,15 +611,11 @@
                 This action cannot be undone. All artwork information will be permanently removed.
             `;
             
-            // Update delete link - placeholder for now
+            // Update delete link
             if (confirmDeleteBtn) {
-                confirmDeleteBtn.href = "#";
-                confirmDeleteBtn.onclick = function(e) {
-                    e.preventDefault();
-                    alert(`Delete feature coming soon! Would delete artwork ID: ${artworkId}`);
-                    deleteModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                };
+                // FIXED: Properly construct the URL using Django template syntax
+                // We need to use the URL pattern from urls.py
+                confirmDeleteBtn.href = "/dashboard/artworks/" + artworkId + "/delete/";
             }
             
             // Show modal
