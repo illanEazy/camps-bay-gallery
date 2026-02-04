@@ -338,7 +338,7 @@
                 <p>{{ artwork.description }}</p>
             </div>
 
-            <!-- Action Buttons - REMOVED "Contact About Similar Artworks" button -->
+            <!-- Action Buttons - UPDATED with proper schedule modal trigger -->
             <div class="artwork-actions">
                 {% if artwork.sold %}
                     <!-- Sold state - Show only sold out button -->
@@ -379,7 +379,7 @@
     </div>
 </div>
 
-<!-- Include Modals -->
+<!-- Include Modals - UPDATED to ensure all modals are properly included -->
 {% include 'gallery/includes/_inquiry_modal.html' %}
 {% include 'gallery/includes/_schedule_modal.html' %}
 {% include 'gallery/includes/_add_to_cart_modal.html' %}
@@ -515,7 +515,7 @@
         }
         
         // ============================================================================
-        // SCHEDULE MODAL FUNCTIONALITY
+        // SCHEDULE MODAL FUNCTIONALITY - UPDATED with proper integration
         // ============================================================================
         
         const scheduleModal = document.getElementById('scheduleModal');
@@ -552,6 +552,14 @@
                 }
             });
         }
+
+        // Close schedule modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && scheduleModal && scheduleModal.classList.contains('active')) {
+                scheduleModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
 
         // ============================================================================
         // ADD TO CART MODAL FUNCTIONALITY

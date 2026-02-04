@@ -1,0 +1,207 @@
+<!-- FILE: templates/gallery/emails/schedule_notification.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Viewing Request - Camps Bay Gallery</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: #000000;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .request-box {
+            background: #e3f2fd;
+            border: 2px dashed #3498db;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .client-box {
+            background: #f3e5f5;
+            border-left: 4px solid #9b59b6;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .action-box {
+            background: #e8f5e9;
+            border: 1px solid #27ae60;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .info-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 180px;
+            display: inline-block;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #2c3e50;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 10px 5px;
+            border-radius: 3px;
+        }
+        .calendar-btn {
+            background: #e74c3c;
+        }
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">Camps Bay Art Gallery</div>
+            <h1 style="margin: 20px 0 0 0; font-size: 20px; font-weight: 300;">New Viewing Request</h1>
+        </div>
+        
+        <div class="content">
+            <h2 style="color: #2c3e50; margin-bottom: 30px;">Viewing Request Received</h2>
+            
+            <div class="request-box">
+                <h3 style="color: #3498db; margin-top: 0;">📅 Viewing Appointment Request</h3>
+                <div class="info-item">
+                    <span class="info-label">Artwork:</span>
+                    <strong>{{ artwork.title }}</strong>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Artist:</span>
+                    {{ artwork.artist.full_name }}
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Preferred Date:</span>
+                    <strong style="color: #e74c3c;">{{ preferred_date }}</strong>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Preferred Time:</span>
+                    <strong style="color: #e74c3c;">{{ preferred_time }}</strong>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Additional Guests:</span>
+                    {{ additional_guests }} person(s)
+                </div>
+                <div class="info-item" style="border-bottom: none;">
+                    <span class="info-label">Request Date:</span>
+                    {{ request_date }}
+                </div>
+            </div>
+            
+            <div class="client-box">
+                <h3 style="color: #9b59b6; margin-top: 0;">👤 Client Information</h3>
+                <div class="info-item">
+                    <span class="info-label">Client Name:</span>
+                    {{ name }}
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <a href="mailto:{{ email }}">{{ email }}</a>
+                </div>
+                {% if phone %}
+                <div class="info-item">
+                    <span class="info-label">Phone:</span>
+                    {{ phone }}
+                </div>
+                {% endif %}
+                
+                {% if special_requests %}
+                <div style="margin-top: 15px;">
+                    <strong>Special Requests:</strong>
+                    <div style="background: white; padding: 10px; margin-top: 5px; border-radius: 3px; border: 1px solid #ddd;">
+                        {{ special_requests|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="action-box">
+                <h3 style="color: #27ae60; margin-top: 0;">✅ Action Required</h3>
+                <p>Please confirm this viewing appointment within <strong>24 hours</strong>.</p>
+                
+                <div style="margin-top: 20px;">
+                    <!-- Calendar links -->
+                    <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Viewing: {{ artwork.title }}&dates={{ preferred_date }}T{{ preferred_time|slice:":2" }}{{ preferred_time|slice:"3:" }}00Z/{{ preferred_date }}T{{ preferred_time|slice:":2"|add:"1" }}{{ preferred_time|slice:"3:" }}00Z&details=Client: {{ name }}%0AArtwork: {{ artwork.title }}%0AArtist: {{ artwork.artist.full_name }}&location=Camps Bay Art Gallery, 57 Victoria Road, Camps Bay" 
+                       class="btn calendar-btn" target="_blank">
+                        📅 Add to Google Calendar
+                    </a>
+                    
+                    <a href="mailto:{{ email }}?subject=Viewing Confirmation: {{ artwork.title }} on {{ preferred_date }}&body=Dear {{ name }},%0D%0A%0D%0AWe confirm your viewing appointment for '{{ artwork.title }}'.%0D%0A%0D%0ADate: {{ preferred_date }}%0D%0ATime: {{ preferred_time }}%0D%0A%0D%0APlease arrive 10 minutes early.%0D%0A%0D%0ALocation: Camps Bay Art Gallery, 57 Victoria Road%0D%0A%0D%0ABest regards,%0D%0ACamps Bay Gallery Team" 
+                       class="btn">
+                        📧 Send Confirmation
+                    </a>
+                </div>
+                
+                <div style="margin-top: 20px; font-size: 13px;">
+                    <p><strong>Quick Contact:</strong></p>
+                    <p>
+                        Email: <a href="mailto:{{ email }}">{{ email }}</a>
+                        {% if phone %}| Phone: {{ phone }}{% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 13px;">
+                <p><strong>Gallery Information:</strong></p>
+                <p>
+                    Address: 57 Victoria Road, Camps Bay, Cape Town 8005<br>
+                    Hours: Monday-Friday 9:00-17:00, Saturday 10:00-16:00<br>
+                    Phone: +27 21 438 1000
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 5px 0;">
+                <strong>Camps Bay Art Gallery</strong><br>
+                Viewing appointment management system
+            </p>
+            <p style="margin: 15px 0 0 0; font-size: 12px; color: #999;">
+                This is an automated notification. Please confirm the appointment.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

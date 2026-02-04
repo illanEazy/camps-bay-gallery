@@ -360,6 +360,11 @@ class Artwork(models.Model):
     def is_available_for_inquiry(self):
         """Check if artwork can be inquired about"""
         return self.is_active and not self.sold
+
+    def get_absolute_url(self):
+        """Get absolute URL for the artwork detail page"""
+        from django.urls import reverse
+        return reverse('artwork_detail', kwargs={'artwork_id': self.id})
     
     @property
     def display_price(self):

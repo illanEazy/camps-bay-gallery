@@ -2848,3 +2848,66 @@ footer {
 .badge.bg-success {
     background: #27ae60 !important;
 }
+
+/* FILE: static/gallery/css/components.css */
+/* ADD: Button styles for artwork actions */
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 25px;
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+    border-radius: 3px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.btn-primary:hover {
+    background: var(--color-secondary);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--color-white);
+    color: var(--color-primary);
+    border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+    background: var(--color-light);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+}
+
+.btn-disabled {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-disabled:hover {
+    background: #95a5a6;
+    transform: none;
+    cursor: not-allowed;
+}
+
+.artwork-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}

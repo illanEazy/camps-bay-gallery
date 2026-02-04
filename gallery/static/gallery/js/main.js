@@ -130,14 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(updateCarousel, 500);
     }
 
-    // MODAL FUNCTIONALITY - Reusable for any detail modal
-    // --------------------------------------------------------------------------
-    // Remove or comment out the modal functionality for grid cards
-    // Keep it only for detail page later
-    
-    // Instead, update the button click handlers to use the new URLs
-    // We'll handle modals only on detail pages
-
     // ARTWORK DATA - Keep for reference but don't use modal for grid
     const artworkData = [
         {
@@ -222,9 +214,6 @@ document.addEventListener('DOMContentLoaded', function() {
             image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&h=800&fit=crop'
         }
     ];
-
-    // Keep countdown and other existing functionality
-    // Remove modal triggers for artwork cards in grid
 
     // EXPLORE BUTTON - Reusable smooth scroll functionality
     // --------------------------------------------------------------------------
@@ -349,4 +338,156 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize when DOM is loaded
     initPasswordToggles();
+
+    // ============================================================================
+    // MODAL FUNCTIONALITY - REUSABLE (NEW ADDITION)
+    // ============================================================================
+    
+    // Handle modal open/close for any modal
+    function setupModal(modalId, openButtonId, closeButtonId, cancelButtonId = null) {
+        const modal = document.getElementById(modalId);
+        const openBtn = document.getElementById(openButtonId);
+        const closeBtn = document.getElementById(closeButtonId);
+        const cancelBtn = cancelButtonId ? document.getElementById(cancelButtonId) : null;
+        
+        if (openBtn && modal) {
+            openBtn.addEventListener('click', function() {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+        
+        if (closeBtn && modal) {
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+        
+        if (cancelBtn && modal) {
+            cancelBtn.addEventListener('click', function() {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+        
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+    }
+    
+    // Set up all modals
+    setupModal('inquiryModal', 'openInquiryModal', 'closeInquiryModal', 'cancelInquiry');
+    setupModal('scheduleModal', 'openScheduleModal', 'closeScheduleModal', 'cancelSchedule');
+    setupModal('addToCartModal', 'openAddToCartModal', 'closeAddToCartModal');
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+    });
+    
+    // ============================================================================
+    // FORM VALIDATION - REUSABLE (NEW ADDITION)
+    // ============================================================================
+    
+    function setupFormValidation(formId) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = '#e74c3c';
+                    
+                    // Add error message if not exists
+                    if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('error-message')) {
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'error-message';
+                        errorMsg.textContent = 'This field is required';
+                        errorMsg.style.color = '#e74c3c';
+                        errorMsg.style.fontSize = '0.875rem';
+                        errorMsg.style.marginTop = '0.25rem';
+                        field.parentNode.insertBefore(errorMsg, field.nextSibling);
+                    }
+                } else {
+                    field.style.borderColor = '';
+                    
+                    // Remove error message if exists
+                    const errorMsg = field.nextElementSibling;
+                    if (errorMsg && errorMsg.classList.contains('error-message')) {
+                        errorMsg.remove();
+                    }
+                }
+            });
+            
+            // Email validation
+            const emailField = form.querySelector('input[type="email"][required]');
+            if (emailField && emailField.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailField.value.trim())) {
+                    isValid = false;
+                    emailField.style.borderColor = '#e74c3c';
+                    
+                    if (!emailField.nextElementSibling || !emailField.nextElementSibling.classList.contains('error-message')) {
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'error-message';
+                        errorMsg.textContent = 'Please enter a valid email address';
+                        errorMsg.style.color = '#e74c3c';
+                        errorMsg.style.fontSize = '0.875rem';
+                        errorMsg.style.marginTop = '0.25rem';
+                        emailField.parentNode.insertBefore(errorMsg, emailField.nextSibling);
+                    }
+                }
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            }
+            
+            return true;
+        });
+    }
+    
+    // Set up form validation
+    setupFormValidation('inquiryForm');
+    setupFormValidation('scheduleForm');
+    
+    // ============================================================================
+    // AUTO-SHOW INQUIRY MODAL FOR "ON REQUEST" ARTWORKS (NEW ADDITION)
+    // ============================================================================
+    
+    // Check if we're on an artwork detail page
+    const artworkAvailability = document.querySelector('.artwork-availability .availability-tag');
+    if (artworkAvailability && artworkAvailability.textContent.includes('Request')) {
+        // Auto-show inquiry modal after 1 second
+        setTimeout(() => {
+            const inquiryModal = document.getElementById('inquiryModal');
+            if (inquiryModal) {
+                inquiryModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }, 1000);
+    }
 });

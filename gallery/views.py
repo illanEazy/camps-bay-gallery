@@ -12,6 +12,8 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 import json
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 # Add these form imports
 from .forms import (
@@ -26,6 +28,7 @@ from django.core.paginator import Paginator
 from .forms import ArtistForm
 # Add this import at the top of views.py with other imports
 import random
+
 
 
 # ============================================================================
@@ -270,34 +273,349 @@ def artwork_purchase(request, artwork_id):
     """Handle artwork purchase - redirect to detail page"""
     return redirect('artwork_detail', artwork_id=artwork_id)
 
+# FILE: gallery/views.py
+# UPDATE the artwork_inquire function
 
 def artwork_inquire(request, artwork_id):
-    """Handle artwork inquiry form submission"""
+    """Handle artwork inquiry form submission with email notifications"""
     if request.method == 'POST':
+        # Get form data
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
         message = request.POST.get('message', '').strip()
+        artwork_title = request.POST.get('artwork_title', '').strip()
+        artist_name = request.POST.get('artist', '').strip()
         
         # Find artwork
-        artwork = None
-        for a in GLOBAL_ARTWORKS_DATA:
-            if a['id'] == artwork_id:
-                artwork = a
-                break
+        try:
+            artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+        except Artwork.DoesNotExist:
+            messages.error(request, 'Artwork not found.')
+            return redirect('artworks')
         
-        if artwork and name and email and message:
-            print(f"Inquiry received for {artwork['title']}")
-            print(f"From: {name} ({email})")
-            print(f"Message: {message[:100]}...")
-            
-            messages.success(request, 'Your inquiry has been sent! We\'ll get back to you soon.')
-            return redirect('artwork_detail', artwork_id=artwork_id)
-        else:
+        # Validate required fields
+        if not name or not email or not message:
             messages.error(request, 'Please fill in all required fields.')
             return redirect('artwork_detail', artwork_id=artwork_id)
+        
+        # Validate email
+        try:
+            validate_email(email)
+        except DjangoValidationError:
+            messages.error(request, 'Please enter a valid email address.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+        
+        try:
+            # Build URLs
+            site_url = request.build_absolute_uri('/')[:-1]  # Remove trailing slash
+            
+            # 1. SEND EMAIL TO GALLERY (Admin notification)
+            gallery_subject = f'New Artwork Inquiry: {artwork.title}'
+            
+            gallery_html_message = render_to_string('gallery/emails/inquiry_notification.html', {
+                'artwork': artwork,
+                'name': name,
+                'email': email,
+                'phone': phone,
+                'message': message,
+                'inquiry_date': timezone.now().strftime('%B %d, %Y %H:%M'),
+                'site_url': site_url,
+            })
+            
+            gallery_plain_message = f"""
+            NEW ARTWORK INQUIRY - Camps Bay Gallery
+            ========================================
+            
+            Artwork: {artwork.title}
+            Artist: {artwork.artist.full_name}
+            
+            From: {name}
+            Email: {email}
+            Phone: {phone if phone else 'Not provided'}
+            
+            Message:
+            {message}
+            
+            Inquiry Date: {timezone.now().strftime('%B %d, %Y %H:%M')}
+            
+            Please follow up with the customer within 24 hours.
+            
+            View artwork: {site_url}/artworks/{artwork.id}/
+            """
+            
+            # Send to gallery admin email - USE YOUR ACTUAL EMAIL
+            send_mail(
+                subject=gallery_subject,
+                message=gallery_plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=['illaneazy@gmail.com'],  # Change this to your gallery email
+                html_message=gallery_html_message,
+                fail_silently=False,
+            )
+            
+            print(f"✅ Inquiry email sent to gallery from {email}")
+            
+            # 2. SEND CONFIRMATION EMAIL TO CUSTOMER
+            customer_subject = f'Inquiry Confirmation: {artwork.title}'
+            
+            customer_html_message = render_to_string('gallery/emails/inquiry_confirmation.html', {
+                'artwork': artwork,
+                'name': name,
+                'email': email,
+                'message': message,
+                'inquiry_date': timezone.now().strftime('%B %d, %Y %H:%M'),
+                'site_url': site_url,
+                'gallery_email': settings.DEFAULT_FROM_EMAIL,
+                'gallery_phone': '+27 21 438 1000',
+            })
+            
+            customer_plain_message = f"""
+            INQUIRY CONFIRMATION - Camps Bay Gallery
+            =========================================
+            
+            Dear {name},
+            
+            Thank you for your inquiry about "{artwork.title}" by {artwork.artist.full_name}.
+            
+            We have received your message and will get back to you within 24 hours.
+            
+            Your Inquiry Details:
+            ----------------------
+            Artwork: {artwork.title}
+            Artist: {artwork.artist.full_name}
+            Medium: {artwork.medium}
+            Dimensions: {artwork.dimensions}
+            Year: {artwork.year}
+            
+            Your Message:
+            {message}
+            
+            Inquiry Date: {timezone.now().strftime('%B %d, %Y %H:%M')}
+            
+            We'll contact you at: {email}
+            {f'Phone: {phone}' if phone else ''}
+            
+            If you have any urgent questions, please contact us:
+            Email: {settings.DEFAULT_FROM_EMAIL}
+            Phone: +27 21 438 1000
+            
+            Best regards,
+            The Camps Bay Gallery Team
+            """
+            
+            send_mail(
+                subject=customer_subject,
+                message=customer_plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                html_message=customer_html_message,
+                fail_silently=False,
+            )
+            
+            print(f"✅ Confirmation email sent to {email}")
+            
+            messages.success(request, 'Your inquiry has been sent! We\'ll get back to you within 24 hours. A confirmation email has been sent to your inbox.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+            
+        except Exception as e:
+            print(f"❌ Error sending inquiry emails: {str(e)}")
+            messages.error(request, f'There was an error sending your inquiry. Please try again. Error: {str(e)}')
+            return redirect('artwork_detail', artwork_id=artwork_id)
     
-    # GET request - just redirect to detail page
+    # GET request - redirect to detail page
     return redirect('artwork_detail', artwork_id=artwork_id)
+
+
+# FILE: gallery/views.py
+# UPDATE the schedule_viewing function
+
+def schedule_viewing(request, artwork_id):
+    """Handle schedule viewing form submission with email notifications"""
+    if request.method == 'POST':
+        # Get form data
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        preferred_date = request.POST.get('preferred_date', '').strip()
+        preferred_time = request.POST.get('preferred_time', '').strip()
+        additional_guests = request.POST.get('additional_guests', '0').strip()
+        special_requests = request.POST.get('special_requests', '').strip()
+        artwork_title = request.POST.get('artwork_title', '').strip()
+        artist_name = request.POST.get('artist', '').strip()
+        
+        # Find artwork
+        try:
+            artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+        except Artwork.DoesNotExist:
+            messages.error(request, 'Artwork not found.')
+            return redirect('artworks')
+        
+        # Validate required fields
+        if not name or not email or not preferred_date or not preferred_time:
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+        
+        # Validate email
+        try:
+            validate_email(email)
+        except DjangoValidationError:
+            messages.error(request, 'Please enter a valid email address.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+        
+        try:
+            # Format the date nicely
+            from datetime import datetime
+            try:
+                date_obj = datetime.strptime(preferred_date, '%Y-%m-%d')
+                formatted_date = date_obj.strftime('%B %d, %Y')
+            except:
+                formatted_date = preferred_date
+            
+            # Build URLs
+            site_url = request.build_absolute_uri('/')[:-1]  # Remove trailing slash
+            
+            # 1. SEND EMAIL TO GALLERY (Admin notification)
+            gallery_subject = f'New Viewing Request: {artwork.title}'
+            
+            gallery_html_message = render_to_string('gallery/emails/schedule_notification.html', {
+                'artwork': artwork,
+                'name': name,
+                'email': email,
+                'phone': phone,
+                'preferred_date': formatted_date,
+                'preferred_time': preferred_time,
+                'additional_guests': additional_guests,
+                'special_requests': special_requests,
+                'request_date': timezone.now().strftime('%B %d, %Y %H:%M'),
+                'site_url': site_url,
+            })
+            
+            gallery_plain_message = f"""
+            NEW VIEWING REQUEST - Camps Bay Gallery
+            ========================================
+            
+            Artwork: {artwork.title}
+            Artist: {artwork.artist.full_name}
+            
+            Client Details:
+            --------------
+            Name: {name}
+            Email: {email}
+            Phone: {phone if phone else 'Not provided'}
+            
+            Viewing Request:
+            ----------------
+            Preferred Date: {formatted_date}
+            Preferred Time: {preferred_time}
+            Additional Guests: {additional_guests}
+            
+            Special Requests:
+            {special_requests if special_requests else 'None'}
+            
+            Request Date: {timezone.now().strftime('%B %d, %Y %H:%M')}
+            
+            Please confirm this viewing appointment within 24 hours.
+            
+            View artwork: {site_url}/artworks/{artwork.id}/
+            """
+            
+            # Send to gallery admin email
+            send_mail(
+                subject=gallery_subject,
+                message=gallery_plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=['illaneazy@gmail.com'],  # Change this to your gallery email
+                html_message=gallery_html_message,
+                fail_silently=False,
+            )
+            
+            print(f"✅ Schedule email sent to gallery from {email}")
+            
+            # 2. SEND CONFIRMATION EMAIL TO CUSTOMER
+            customer_subject = f'Viewing Request Confirmation: {artwork.title}'
+            
+            customer_html_message = render_to_string('gallery/emails/schedule_confirmation.html', {
+                'artwork': artwork,
+                'name': name,
+                'email': email,
+                'phone': phone,
+                'preferred_date': formatted_date,
+                'preferred_time': preferred_time,
+                'additional_guests': additional_guests,
+                'special_requests': special_requests,
+                'request_date': timezone.now().strftime('%B %d, %Y %H:%M'),
+                'site_url': site_url,
+                'gallery_email': settings.DEFAULT_FROM_EMAIL,
+                'gallery_phone': '+27 21 438 1000',
+                'gallery_address': '57 Victoria Road, Camps Bay, Cape Town 8005',
+            })
+            
+            customer_plain_message = f"""
+            VIEWING REQUEST CONFIRMATION - Camps Bay Gallery
+            ================================================
+            
+            Dear {name},
+            
+            Thank you for requesting a viewing of "{artwork.title}" by {artwork.artist.full_name}.
+            
+            We have received your request and will confirm your appointment within 24 hours.
+            
+            Your Viewing Details:
+            ---------------------
+            Artwork: {artwork.title}
+            Artist: {artwork.artist.full_name}
+            
+            Preferred Date: {formatted_date}
+            Preferred Time: {preferred_time}
+            Additional Guests: {additional_guests}
+            
+            Special Requests:
+            {special_requests if special_requests else 'None'}
+            
+            Request Date: {timezone.now().strftime('%B %d, %Y %H:%M')}
+            
+            Gallery Location:
+            -----------------
+            57 Victoria Road, Camps Bay, Cape Town 8005
+            
+            Contact Information:
+            --------------------
+            Your Email: {email}
+            {f'Your Phone: {phone}' if phone else ''}
+            
+            Gallery Contact:
+            Email: {settings.DEFAULT_FROM_EMAIL}
+            Phone: +27 21 438 1000
+            
+            Please note: This is a request only. We will contact you to confirm the exact time.
+            
+            Best regards,
+            The Camps Bay Gallery Team
+            """
+            
+            send_mail(
+                subject=customer_subject,
+                message=customer_plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                html_message=customer_html_message,
+                fail_silently=False,
+            )
+            
+            print(f"✅ Confirmation email sent to {email}")
+            
+            messages.success(request, 'Your viewing request has been sent! We\'ll confirm your appointment within 24 hours. A confirmation email has been sent to your inbox.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+            
+        except Exception as e:
+            print(f"❌ Error sending schedule emails: {str(e)}")
+            messages.error(request, f'There was an error sending your request. Please try again. Error: {str(e)}')
+            return redirect('artwork_detail', artwork_id=artwork_id)
+    
+    # GET request - redirect to detail page
+    return redirect('artwork_detail', artwork_id=artwork_id)
+
 
 # ============================================================================
 # AUTHENTICATION VIEWS

@@ -1,0 +1,187 @@
+<!-- FILE: templates/gallery/emails/inquiry_confirmation.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inquiry Confirmation - Camps Bay Gallery</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: #000000;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .confirmation-box {
+            background: #e8f5e9;
+            border: 2px solid #27ae60;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .artwork-box {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .details-box {
+            background: #f0f7ff;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .info-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 150px;
+            display: inline-block;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #2c3e50;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 20px 5px;
+            border-radius: 3px;
+        }
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">Camps Bay Art Gallery</div>
+        </div>
+        
+        <div class="content">
+            <div class="confirmation-box">
+                <h2 style="color: #27ae60; margin-top: 0;">✓ Inquiry Confirmed</h2>
+                <p style="font-size: 18px;">Thank you for your interest in our artwork!</p>
+            </div>
+            
+            <p>Dear <strong>{{ name }}</strong>,</p>
+            
+            <p>We have received your inquiry about <strong>"{{ artwork.title }}"</strong> and will respond within <strong>24 hours</strong>.</p>
+            
+            <div class="artwork-box">
+                <h3 style="color: #2c3e50; margin-top: 0;">Artwork Details</h3>
+                <div class="info-item">
+                    <span class="info-label">Artwork:</span>
+                    {{ artwork.title }}
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Artist:</span>
+                    {{ artwork.artist.full_name }}
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Medium:</span>
+                    {{ artwork.medium }}
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dimensions:</span>
+                    {{ artwork.dimensions }}
+                </div>
+                <div class="info-item" style="border-bottom: none;">
+                    <span class="info-label">Year:</span>
+                    {{ artwork.year }}
+                </div>
+            </div>
+            
+            <div class="details-box">
+                <h3 style="color: #3498db; margin-top: 0;">Your Inquiry Details</h3>
+                <div class="info-item">
+                    <span class="info-label">Inquiry Date:</span>
+                    {{ inquiry_date }}
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Your Email:</span>
+                    {{ email }}
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <strong>Your Message:</strong>
+                    <div style="background: white; padding: 15px; margin-top: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                        {{ message|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin: 30px 0; padding: 20px; background: #fff8e1; border-radius: 5px;">
+                <h3 style="color: #f39c12; margin-top: 0;">What Happens Next?</h3>
+                <ol style="margin-left: 20px;">
+                    <li>Our gallery team will review your inquiry</li>
+                    <li>We'll contact you with more information about the artwork</li>
+                    <li>We can arrange a viewing if you're in Cape Town</li>
+                    <li>Discuss shipping options if needed</li>
+                </ol>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ site_url }}/artworks/{{ artwork.id }}/" class="btn">View Artwork Again</a>
+                <a href="{{ site_url }}/artworks/" class="btn" style="background: #3498db;">Browse More Artworks</a>
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px;">
+                <p><strong>Need immediate assistance?</strong></p>
+                <p>
+                    Email: <a href="mailto:{{ gallery_email }}">{{ gallery_email }}</a><br>
+                    Phone: {{ gallery_phone }}
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 5px 0;">
+                <strong>Camps Bay Art Gallery</strong><br>
+                Contemporary Art Gallery in Camps Bay, Cape Town
+            </p>
+            <p style="margin: 15px 0 0 0; font-size: 12px; color: #999;">
+                &copy; {% now "Y" %} Camps Bay Art Gallery. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

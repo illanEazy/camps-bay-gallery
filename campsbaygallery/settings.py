@@ -92,7 +92,6 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 
-
 # Social Auth - Google
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -102,9 +101,7 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
-            'prompt': 'select_account consent',  # This shows Google account selector
         },
-        'VERIFIED_EMAIL': True,
         'APP': {
             'client_id': '',
             'secret': '',
