@@ -175,7 +175,7 @@
     }
 
     .status-sold {
-        background: #7f8c8d;
+        background: #dc3545;
         color: var(--color-white);
     }
 
@@ -238,6 +238,7 @@
     /* Action Buttons */
     .artwork-admin-actions {
         display: flex;
+        flex-direction: column;
         gap: 0.5rem;
         padding-top: 1rem;
         border-top: 1px solid var(--color-border);
@@ -284,6 +285,34 @@
 
     .view-btn:hover {
         background: var(--color-secondary);
+    }
+
+    .sold-btn {
+        background: #dc3545;
+        color: var(--color-white);
+    }
+
+    .sold-btn:hover {
+        background: #c82333;
+    }
+
+    .available-btn {
+        background: #28a745;
+        color: var(--color-white);
+    }
+
+    .available-btn:hover {
+        background: #218838;
+    }
+
+    .action-buttons-row {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    .action-buttons-row .action-btn {
+        flex: 1;
     }
 
     /* No Results */
@@ -442,11 +471,11 @@
                         {% endif %}
                         
                         <!-- Status Badge -->
-                        <div class="status-badge status-{{ artwork.availability }}">
+                        <div class="status-badge status-{{ artwork.availability }}{% if artwork.sold %} status-sold{% endif %}">
                             {% if artwork.sold %}
                                 SOLD
                             {% else %}
-                                {{ artwork.get_availability_display|upper }}
+                                {{ artwork.availability_display|upper }}
                             {% endif %}
                         </div>
                     </div>
@@ -500,21 +529,45 @@
                         
                         <!-- Action Buttons -->
                         <div class="artwork-admin-actions">
-                            <!-- FIXED: Edit button links to edit_artwork URL -->
-                            <a href="{% url 'edit_artwork' artwork.id %}" class="action-btn edit-btn">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </a>
-                            <!-- FIXED: Delete button with proper onclick - CORRECTED -->
-                            <button type="button" class="action-btn delete-btn" 
-                                    onclick="confirmDelete('{{ artwork.id }}', '{{ artwork.title|escapejs }}')">
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </button>
-                            <a href="{% url 'artwork_detail' artwork.id %}" class="action-btn view-btn" target="_blank">
-                                <i class="fas fa-eye"></i>
-                                View
-                            </a>
+                            <div class="action-buttons-row">
+                                <!-- Edit Button -->
+                                <a href="{% url 'edit_artwork' artwork.id %}" class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </a>
+                                <!-- Delete Button -->
+                                <button type="button" class="action-btn delete-btn" 
+                                        onclick="confirmDelete('{{ artwork.id }}', '{{ artwork.title|escapejs }}')">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                                <!-- View Button -->
+                                <a href="{% url 'artwork_detail' artwork.id %}" class="action-btn view-btn" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                    View
+                                </a>
+                            </div>
+                            
+                            <!-- Status Toggle Button -->
+                            <div class="action-buttons-row">
+                                {% if artwork.sold %}
+                                    <!-- If sold, show button to make available -->
+                                    <a href="{% url 'mark_as_available' artwork.id %}" 
+                                       class="action-btn available-btn"
+                                       onclick="return confirm('Mark this artwork as available again? This will make it visible in the gallery.')">
+                                        <i class="fas fa-undo"></i> 
+                                        Make Available
+                                    </a>
+                                {% else %}
+                                    <!-- If available, show button to mark as sold -->
+                                    <a href="{% url 'mark_as_sold' artwork.id %}" 
+                                       class="action-btn sold-btn"
+                                       onclick="return confirm('Mark this artwork as sold? This will hide it from the gallery.')">
+                                        <i class="fas fa-tag"></i> 
+                                        Mark as Sold
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -677,6 +730,24 @@
             card.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0)';
             });
+        });
+        
+        // ============================================================================
+        // STATUS TOGGLE BUTTONS CONFIRMATION
+        // ============================================================================
+        
+        // Already handled by inline onclick events in the HTML
+        // The confirm() function in the onclick will handle the confirmation
+        
+        // ============================================================================
+        // ENHANCE STATUS BADGES
+        // ============================================================================
+        
+        // Update status badge background based on sold status
+        document.querySelectorAll('.status-badge').forEach(badge => {
+            if (badge.textContent.trim() === 'SOLD') {
+                badge.style.background = '#dc3545'; // Bootstrap danger red
+            }
         });
     });
 </script>

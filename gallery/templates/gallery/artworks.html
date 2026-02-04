@@ -24,10 +24,10 @@
                     <div class="filter-group">
                         <label for="artistFilter" class="text-small text-uppercase text-gray mb-xs">Filter by Artist</label>
                         <select id="artistFilter" name="artist" class="form-select">
-                            <option value="all" {% if current_artist == 'all' %}selected{% endif %}>All Artists</option>
+                            <option value="all" {% if current_artist == 'all' or not current_artist %}selected{% endif %}>All Artists</option>
                             {% for artist in artists %}
-                                <option value="{{ artist }}" {% if current_artist == artist %}selected{% endif %}>
-                                    {{ artist }}
+                                <option value="{{ artist.id }}" {% if current_artist == artist.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ artist.full_name }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -41,9 +41,46 @@
                             <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
                             <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A-Z)</option>
                             <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z-A)</option>
+                            <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price (Low to High)</option>
+                            <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price (High to Low)</option>
                         </select>
                     </div>
                 </div>
+                
+                <!-- Active Filters Display -->
+                {% if current_artist != 'all' or current_sort != 'newest' %}
+                <div class="active-filters mt-md">
+                    {% if current_artist != 'all' and current_artist %}
+                        {% for artist in artists %}
+                            {% if artist.id|stringformat:"s" == current_artist %}
+                            <div class="active-filter-tag">
+                                <span class="text-small">Artist: {{ artist.full_name }}</span>
+                                <a href="{% url 'artworks' %}?sort={{ current_sort }}" class="filter-remove">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% if current_sort != 'newest' %}
+                        <div class="active-filter-tag">
+                            <span class="text-small">Sorted by: 
+                                {% if current_sort == 'newest' %}Newest First
+                                {% elif current_sort == 'oldest' %}Oldest First
+                                {% elif current_sort == 'title_asc' %}Title (A-Z)
+                                {% elif current_sort == 'title_desc' %}Title (Z-A)
+                                {% elif current_sort == 'price_low' %}Price (Low to High)
+                                {% elif current_sort == 'price_high' %}Price (High to Low)
+                                {% endif %}
+                            </span>
+                            <a href="{% url 'artworks' %}{% if current_artist != 'all' %}?artist={{ current_artist }}{% endif %}" class="filter-remove">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
             </form>
         </div>
     </section>
@@ -52,10 +89,85 @@
     <section class="artwork-section section-light">
         <div class="container">
             <!-- Reuse the artwork grid component -->
-            {% include 'gallery/includes/_artwork_grid.html' %}
+            <div class="artwork-grid grid-3">
+                {% for artwork in artworks %}
+                    {% include 'gallery/includes/_artwork_card.html' with artwork=artwork %}
+                {% empty %}
+                    <div class="no-results text-center py-xl" style="grid-column: 1 / -1;">
+                        <i class="fas fa-search mb-md" style="font-size: 48px; color: var(--color-gray);"></i>
+                        <h3 class="h3 mb-sm">No artworks found</h3>
+                        <p class="text-large text-gray mb-lg">Try adjusting your filters to see more results.</p>
+                        <a href="{% url 'artworks' %}" class="btn btn-primary">Clear All Filters</a>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="pagination-container mt-xl text-center">
+                <nav class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if current_artist != 'all' %}&artist={{ current_artist }}{% endif %}{% if current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}" class="pagination-link">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    {% endif %}
+                    
+                    <span class="pagination-current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if current_artist != 'all' %}&artist={{ current_artist }}{% endif %}{% if current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}" class="pagination-link">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
         </div>
     </section>
-</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Pagination Styles */
+    .pagination-container {
+        margin-top: 4rem;
+    }
+    
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+    }
+    
+    .pagination-link {
+        padding: 0.75rem 1.5rem;
+        background: var(--color-white);
+        border: 1px solid var(--color-border);
+        color: var(--color-primary);
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-weight: var(--font-weight-medium);
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .pagination-link:hover {
+        background: var(--color-primary);
+        color: var(--color-white);
+        border-color: var(--color-primary);
+    }
+    
+    .pagination-current {
+        font-size: 0.9rem;
+        color: var(--color-gray);
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}

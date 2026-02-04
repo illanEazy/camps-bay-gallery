@@ -54,6 +54,9 @@ urlpatterns = [
     path('dashboard/artworks/', views.view_artworks_view, name='view_artworks'),
     path('dashboard/artworks/<int:artwork_id>/edit/', views.edit_artwork_view, name='edit_artwork'),
     path('dashboard/artworks/<int:artwork_id>/delete/', views.delete_artwork_view, name='delete_artwork'),
+
+    path('dashboard/artworks/<int:artwork_id>/mark-sold/', views.mark_as_sold, name='mark_as_sold'),
+    path('dashboard/artworks/<int:artwork_id>/mark-available/', views.mark_as_available, name='mark_as_available'),
     
     # Placeholder URLs
     path('dashboard/manage-artworks/', views.manage_artworks_view, name='manage_artworks'),
@@ -63,3 +66,4 @@ urlpatterns = [
     # Social Auth URLs
     path('accounts/', include('allauth.urls')),
 ]
+

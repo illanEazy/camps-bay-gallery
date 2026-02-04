@@ -1,0 +1,219 @@
+<!-- FILE: templates/gallery/emails/order_confirmation_email.html -->
+<!-- Order Confirmation Email - Matches verify_email_email.html style -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Camps Bay Gallery</title>
+    <style>
+        /* Email-friendly CSS - Inline styles would be better for production */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: #000000;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .order-box {
+            background: #f8f8f8;
+            border: 2px dashed #3498db;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 0;
+        }
+        .order-number {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #f8f8f8;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #2c3e50;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 20px 0;
+        }
+        .order-items {
+            margin: 20px 0;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            padding: 20px 0;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .totals {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+        .total-row.grand-total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 2px solid #3498db;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+            .order-number {
+                font-size: 24px;
+                letter-spacing: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">Camps Bay Art Gallery</div>
+        </div>
+        
+        <div class="content">
+            <h1 style="font-size: 28px; font-weight: 300; color: #2c3e50; margin-bottom: 20px;">
+                Order Confirmation
+            </h1>
+            
+            <p style="font-size: 16px; color: #555; line-height: 1.8; margin-bottom: 20px;">
+                Hello <strong>{{ first_name }} {{ last_name }}</strong>,
+            </p>
+            
+            <p style="font-size: 16px; color: #555; line-height: 1.8; margin-bottom: 30px;">
+                Thank you for your purchase at Camps Bay Art Gallery. Your order has been confirmed and the artworks have been marked as sold in our system.
+            </p>
+            
+            <div class="order-box">
+                <p style="font-size: 14px; color: #666; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
+                    Your Order Number
+                </p>
+                <div class="order-number">{{ order_reference }}</div>
+                <p style="font-size: 13px; color: #888; margin-top: 10px;">
+                    Order Date: {{ order_date }}
+                </p>
+            </div>
+            
+            <h3 style="color: #2c3e50; margin: 30px 0 15px 0;">Order Summary:</h3>
+            
+            <div class="order-items">
+                {% for item in items %}
+                <div class="order-item">
+                    <div>
+                        <strong>{{ item.artwork.title }}</strong><br>
+                        <small>by {{ item.artwork.artist }}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        R {{ item.artwork.price|floatformat:2 }}<br>
+                        <small>Qty: {{ item.quantity }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="totals">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>R {{ subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping:</span>
+                    <span>R {{ shipping|floatformat:2 }}</span>
+                </div>
+                <div class="total-row">
+                    <span>Tax (15%):</span>
+                    <span>R {{ tax|floatformat:2 }}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Total:</span>
+                    <span>R {{ total|floatformat:2 }}</span>
+                </div>
+            </div>
+            
+            <div style="background-color: #e8f5e9; padding: 15px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #27ae60;">
+                <p style="margin: 0; font-size: 14px;">
+                    <strong>Note:</strong> These artworks have been marked as <strong>SOLD</strong> and will remain visible on our website as part of our collection history. We will contact you within 24 hours regarding shipping details.
+                </p>
+            </div>
+            
+            <h3 style="color: #2c3e50; margin: 30px 0 15px 0;">Shipping Address:</h3>
+            <p style="font-size: 15px; color: #555; line-height: 1.6;">
+                {{ first_name }} {{ last_name }}<br>
+                {{ address }}<br>
+                {{ city }}, {{ province }} {{ postal_code }}<br>
+                {{ country }}
+            </p>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="{{ site_url }}/profile" class="btn" style="color: white; text-decoration: none;">
+                    View Your Order History
+                </a>
+            </div>
+            
+            <p style="font-size: 13px; color: #888; border-top: 1px solid #eee; padding-top: 20px;">
+                If you have any questions about your order, please contact us at info@campsbaygallery.com<br>
+                or call +27 21 438 1000.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 5px 0;">
+                <strong>Camps Bay Art Gallery</strong><br>
+                57 Victoria Road, Camps Bay, Cape Town 8005<br>
+                Phone: +27 21 438 1000 | Email: info@campsbaygallery.com
+            </p>
+            <p style="margin: 15px 0 0 0; font-size: 12px; color: #999;">
+                &copy; 2026 Camps Bay Art Gallery. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

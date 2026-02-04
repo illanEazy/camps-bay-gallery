@@ -27,243 +27,17 @@ from .forms import ArtistForm
 # Add this import at the top of views.py with other imports
 import random
 
-# ============================================================================
-# GLOBAL DATA
-# ============================================================================
-
-
-# Sample artist data
-ARTISTS_DATA = [
-    {
-        'id': 1,
-        'name': 'Amara Thompson',
-        'image': 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&h=800&fit=crop',
-        'specialty': 'Abstract & Contemporary',
-        'location': 'Cape Town, South Africa',
-        'email': 'amara@example.com',
-        'bio': 'Amara Thompson\'s work explores the intersection of memory and landscape through abstract forms. Her Coastal Abstractions series has been exhibited internationally and captures the ephemeral quality of light on water.',
-        'artworks': [
-            {
-                'title': 'Coastal Abstractions',
-                'image': 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&h=800&fit=crop',
-                'medium': 'Acrylic on canvas',
-                'year': '2025'
-            }
-        ]
-    },
-    {
-        'id': 2,
-        'name': 'Marcus Chen',
-        'image': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop',
-        'specialty': 'Sculpture & Installation',
-        'location': 'Johannesburg, South Africa',
-        'email': 'marcus@example.com',
-        'bio': 'Marcus Chen creates sculptural forms that explore equilibrium and tension in contemporary society. His work in steel and found objects has been featured in major South African galleries.',
-        'artworks': [
-            {
-                'title': 'Equilibrium III',
-                'image': 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800&h=800&fit=crop',
-                'medium': 'Steel and glass',
-                'year': '2024'
-            }
-        ]
-    },
-    {
-        'id': 3,
-        'name': 'Sofia Rodriguez',
-        'image': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=800&fit=crop',
-        'specialty': 'Urban Landscape',
-        'location': 'Buenos Aires, Argentina',
-        'email': 'sofia@example.com',
-        'bio': 'Sofia Rodriguez captures the fragmented beauty of urban environments. Her City Fragments series juxtaposes architectural elements with human presence, exploring themes of isolation and connection in modern cities.',
-        'artworks': [
-            {
-                'title': 'City Fragments',
-                'image': 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&h=800&fit=crop',
-                'medium': 'Oil on canvas',
-                'year': '2025'
-            }
-        ]
-    },
-    {
-        'id': 4,
-        'name': 'James Williams',
-        'image': 'https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?w=800&h=800&fit=crop',
-        'specialty': 'Mixed Media',
-        'location': 'London, UK',
-        'email': 'james@example.com',
-        'bio': 'James Williams combines traditional painting techniques with digital media to create works that question our relationship with technology. His pieces have been acquired by major contemporary art collections.',
-        'artworks': []
-    },
-    {
-        'id': 5,
-        'name': 'Zara Okafor',
-        'image': 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=800&fit=crop',
-        'specialty': 'Portraiture & Identity',
-        'location': 'Lagos, Nigeria',
-        'email': 'zara@example.com',
-        'bio': 'Zara Okafor\'s portraiture explores themes of identity, diaspora, and cultural heritage. Her vibrant use of color and pattern has made her one of Africa\'s most exciting emerging artists.',
-        'artworks': []
-    },
-    {
-        'id': 6,
-        'name': 'Kai Nakamura',
-        'image': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop',
-        'specialty': 'Digital & Experimental',
-        'location': 'Tokyo, Japan',
-        'email': 'kai@example.com',
-        'bio': 'Kai Nakamura pushes the boundaries of digital art, creating immersive experiences that blend traditional Japanese aesthetics with cutting-edge technology.',
-        'artworks': []
-    }
-]
-
-# GLOBAL ARTWORK DATA
-GLOBAL_ARTWORKS_DATA = [
-    {
-        'id': 1,
-        'title': 'Coastal Abstractions',
-        'artist': 'Amara Thompson',
-        'artist_id': 1,
-        'description': 'A meditation on the meeting of land and sea. Thompson captures the essence of Camps Bay through layered textures and a palette drawn from the coastal landscape.',
-        'medium': 'Mixed Media on Canvas',
-        'dimensions': '120 × 100 cm',
-        'year': '2025',
-        'image': 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&h=800&fit=crop',
-        'data_index': 0,
-        'availability': 'at_gallery',
-        'sold': False,
-        'show_price': True,
-        'price': 8500,
-        'discounted_price': None,
-        'allow_purchase': True,
-        'allow_inquiry': True,
-        'allow_schedule_viewing': True
-    },
-    {
-        'id': 2,
-        'title': 'Equilibrium III',
-        'artist': 'Marcus Chen',
-        'artist_id': 2,
-        'description': "Part of Chen's ongoing exploration of balance and form. This sculptural work plays with weight, shadow, and the negative space between elements.",
-        'medium': 'Bronze Sculpture',
-        'dimensions': '85 × 45 × 30 cm',
-        'year': '2024',
-        'image': 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800&h=800&fit=crop',
-        'data_index': 1,
-        'availability': 'available',
-        'sold': False,
-        'show_price': False,
-        'price': 12000,
-        'discounted_price': None,
-        'allow_purchase': True,
-        'allow_inquiry': False,
-        'allow_schedule_viewing': True
-    },
-    {
-        'id': 3,
-        'title': 'City Fragments',
-        'artist': 'Sofia Rodriguez',
-        'artist_id': 3,
-        'description': 'Rodriguez deconstructs urban landscapes into geometric fragments, revealing the hidden patterns and rhythms of contemporary life.',
-        'medium': 'Acrylic on Canvas',
-        'dimensions': '150 × 120 cm',
-        'year': '2025',
-        'image': 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=800&h=800&fit=crop',
-        'data_index': 2,
-        'availability': 'on_request',
-        'sold': False,
-        'show_price': False,
-        'price': 9500,
-        'discounted_price': None,
-        'allow_purchase': False,
-        'allow_inquiry': True,
-        'allow_schedule_viewing': False
-    },
-    {
-        'id': 4,
-        'title': 'Silent Spaces',
-        'artist': 'James Williams',
-        'artist_id': 4,
-        'description': 'A minimalist exploration of emptiness and presence. Williams invites contemplation through carefully considered negative space and subtle tonal shifts.',
-        'medium': 'Oil on Linen',
-        'dimensions': '100 × 100 cm',
-        'year': '2024',
-        'image': 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=800&h=800&fit=crop',
-        'data_index': 3,
-        'availability': 'at_gallery',
-        'sold': True,
-        'show_price': True,
-        'price': 6800,
-        'discounted_price': None,
-        'allow_purchase': False,
-        'allow_inquiry': True,
-        'allow_schedule_viewing': False
-    },
-    {
-        'id': 5,
-        'title': 'Earth Memory',
-        'artist': 'Zara Okafor',
-        'artist_id': 5,
-        'description': "Okafor's textured surfaces evoke geological time and ancient landscapes. Each layer tells a story of transformation and permanence.",
-        'medium': 'Mixed Media with Natural Pigments',
-        'dimensions': '110 × 90 cm',
-        'year': '2025',
-        'image': 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=800&fit=crop',
-        'data_index': 4,
-        'availability': 'available',
-        'sold': False,
-        'show_price': True,
-        'price': 7200,
-        'discounted_price': 5800,
-        'allow_purchase': True,
-        'allow_inquiry': True,
-        'allow_schedule_viewing': True
-    },
-    {
-        'id': 6,
-        'title': 'Presence',
-        'artist': 'Kai Nakamura',
-        'artist_id': 6,
-        'description': "A contemporary take on portraiture that questions identity and perception. Nakamura's work exists between representation and abstraction.",
-        'medium': 'Digital Print on Archival Paper',
-        'dimensions': '130 × 95 cm',
-        'year': '2025',
-        'image': 'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=800&h=800&fit=crop',
-        'data_index': 5,
-        'availability': 'at_gallery',
-        'sold': False,
-        'show_price': True,
-        'price': 3200,
-        'discounted_price': None,
-        'allow_purchase': True,
-        'allow_inquiry': True,
-        'allow_schedule_viewing': True
-    }
-]
 
 # ============================================================================
 # BASIC VIEWS
 # ============================================================================
 
-# [file name]: views.py
-# Replace these lines at the top of views.py
-# ============================================================================
-# GLOBAL DATA - REMOVE ARTISTS_DATA
-# ============================================================================
-
-# Remove the entire ARTISTS_DATA list and replace with database queries
-
-# ============================================================================
-# BASIC VIEWS
-# ============================================================================
-
-# Update the home function:
 def home(request):
-    """Render the homepage"""
-    # Get featured artworks from database (newest 3)
-    featured_artworks_db = Artwork.objects.filter(is_active=True).order_by('-created_at')[:3]
+    """Home page view - updated to include sold artworks and show images correctly"""
+    # Get featured artworks (including sold ones)
+    featured_artworks_db = Artwork.objects.filter(is_active=True).select_related('artist').order_by('-created_at')[:6]
     
-    # Format for template
+    # Format featured artworks as dictionaries (consistent with artworks page)
     featured_artworks = []
     for artwork in featured_artworks_db:
         featured_artworks.append({
@@ -271,7 +45,7 @@ def home(request):
             'title': artwork.title,
             'artist': artwork.artist.full_name,
             'artist_id': artwork.artist.id,
-            'image': artwork.primary_image,
+            'image': artwork.primary_image,  # This now uses the fixed property
             'year': artwork.year,
             'medium': artwork.medium,
             'availability': artwork.availability,
@@ -285,13 +59,16 @@ def home(request):
             'allow_schedule_viewing': artwork.allow_schedule_viewing
         })
     
-    # Get active artists from database (limit to 6 for carousel)
-    artists = Artist.objects.filter(is_active=True).order_by('first_name')[:6]
+    # Get active artists for carousel
+    artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')[:10]
     
     context = {
         'featured_artworks': featured_artworks,
-        'artists': artists
+        'artists': artists,
+        'page_title': 'Home',
+        'page_subtitle': 'Contemporary Art Gallery in Camps Bay'
     }
+    
     return render(request, 'gallery/index.html', context)
 
 
@@ -306,6 +83,7 @@ def artists(request):
     artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
     context = {'artists': artists}
     return render(request, 'gallery/artists.html', context)
+
 
 # Update the artist_detail function:
 def artist_detail(request, artist_id):
@@ -344,36 +122,41 @@ def artist_detail(request, artist_id):
     }
     return render(request, 'gallery/artist_detail.html', context)
 
-
-
-
+# FILE: gallery/views.py - Update artworks view with working filters
 def artworks(request):
-    """Render the artworks page from database"""
-    artist_filter = request.GET.get('artist', 'all')
+    """Display all artworks with working filters and sorting"""
+    # Get filter and sort parameters
+    search_query = request.GET.get('q', '')
+    artist_filter = request.GET.get('artist', '')
+    medium_filter = request.GET.get('medium', '')
     sort_by = request.GET.get('sort', 'newest')
     
-    # Get active artworks from database
+    # Start with all active artworks
     artworks_list = Artwork.objects.filter(is_active=True).select_related('artist')
     
-    if artist_filter != 'all':
-        try:
-            # Try to get artist by ID or name
-            if artist_filter.isdigit():
-                artworks_list = artworks_list.filter(artist_id=artist_filter)
-            else:
-                # Handle artist name filter
-                artworks_list = artworks_list.filter(
-                    Q(artist__first_name__icontains=artist_filter) |
-                    Q(artist__last_name__icontains=artist_filter)
-                )
-        except:
-            pass
+    # Apply search filter
+    if search_query:
+        artworks_list = artworks_list.filter(
+            Q(title__icontains=search_query) |
+            Q(artist__first_name__icontains=search_query) |
+            Q(artist__last_name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(medium__icontains=search_query)
+        )
+    
+    # Apply artist filter
+    if artist_filter and artist_filter != 'all':
+        artworks_list = artworks_list.filter(artist__id=artist_filter)
+    
+    # Apply medium filter
+    if medium_filter:
+        artworks_list = artworks_list.filter(medium__icontains=medium_filter)
     
     # Apply sorting
     if sort_by == 'newest':
-        artworks_list = artworks_list.order_by('-year', '-created_at')
+        artworks_list = artworks_list.order_by('-created_at')
     elif sort_by == 'oldest':
-        artworks_list = artworks_list.order_by('year', 'created_at')
+        artworks_list = artworks_list.order_by('created_at')
     elif sort_by == 'title_asc':
         artworks_list = artworks_list.order_by('title')
     elif sort_by == 'title_desc':
@@ -382,16 +165,29 @@ def artworks(request):
         artworks_list = artworks_list.order_by('price')
     elif sort_by == 'price_high':
         artworks_list = artworks_list.order_by('-price')
+    else:
+        artworks_list = artworks_list.order_by('-created_at')
     
-    # Format for template
-    formatted_artworks = []
-    for artwork in artworks_list:
-        formatted_artworks.append({
+    # Get total count before pagination
+    total_artworks = artworks_list.count()
+    
+    # Pagination
+    paginator = Paginator(artworks_list, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get all artists for filter dropdown
+    artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    
+    # Prepare artworks data for template
+    artworks_data = []
+    for artwork in page_obj:
+        artworks_data.append({
             'id': artwork.id,
             'title': artwork.title,
             'artist': artwork.artist.full_name,
             'artist_id': artwork.artist.id,
-            'image': artwork.primary_image,
+            'image': artwork.primary_image,  # This now uses the fixed property
             'year': artwork.year,
             'medium': artwork.medium,
             'availability': artwork.availability,
@@ -405,18 +201,20 @@ def artworks(request):
             'allow_schedule_viewing': artwork.allow_schedule_viewing
         })
     
-    # Get unique artists for filter
-    unique_artists = Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
-    
     context = {
-        'artworks': formatted_artworks,
-        'artists': unique_artists,
+        'artworks': artworks_data,
+        'page_obj': page_obj,
+        'total_artworks': total_artworks,
+        'search_query': search_query,
         'current_artist': artist_filter,
         'current_sort': sort_by,
-        'total_artworks': len(formatted_artworks),
+        'artists': artists,
+        'is_paginated': paginator.num_pages > 1,
+        'page_title': 'Artworks',
+        'page_subtitle': 'Browse our collection of exceptional artworks'
     }
+    
     return render(request, 'gallery/artworks.html', context)
-
 
 def contact(request):
     """Render the contact page"""
@@ -1196,12 +994,24 @@ def view_orders_view(request):
 # ============================================================================
 # UPDATED CHECKOUT VIEWS
 # ============================================================================
+# FILE: gallery/views.py - Update cart_view function
+
 def add_to_cart(request, artwork_id):
-    """Add artwork to cart - updated for quick purchase"""
+    """Add artwork to cart - prevent adding sold items"""
     if request.method == 'POST':
         try:
             # Get the artwork from database
-            artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+            artwork = Artwork.objects.get(id=artwork_id)
+            
+            # Check if artwork is sold
+            if artwork.sold:
+                messages.error(request, f'Sorry, "{artwork.title}" has been sold and is no longer available.')
+                return redirect('artwork_detail', artwork_id=artwork_id)
+            
+            # Check if artwork is active
+            if not artwork.is_active:
+                messages.error(request, f'Sorry, "{artwork.title}" is currently not available.')
+                return redirect('artwork_detail', artwork_id=artwork_id)
             
             # Check if it's a quick purchase
             action = request.POST.get('action', 'add_to_cart')
@@ -1267,9 +1077,8 @@ def add_to_cart(request, artwork_id):
     
     return redirect('artworks')
 
-
 def cart_view(request):
-    """View shopping cart - updated for guest users"""
+    """View shopping cart - updated to handle sold items properly"""
     cart = request.session.get('cart', {})
     
     cart_items = []
@@ -1277,8 +1086,18 @@ def cart_view(request):
     
     for artwork_id, item_data in cart.items():
         try:
+            # Get artwork even if it's sold (but still active)
             artwork = Artwork.objects.get(id=artwork_id, is_active=True)
             quantity = item_data.get('quantity', 1)
+            
+            # Check if artwork is sold - if so, don't include it in cart
+            if artwork.sold:
+                # Remove sold item from cart
+                if str(artwork_id) in cart:
+                    del cart[str(artwork_id)]
+                    request.session['cart'] = cart
+                continue
+                
             item_total = float(artwork.price) if artwork.price else 0
             subtotal += item_total
             
@@ -1290,7 +1109,8 @@ def cart_view(request):
                     'image': artwork.primary_image,
                     'price': float(artwork.price) if artwork.price else 0,
                     'medium': artwork.medium,
-                    'dimensions': artwork.dimensions
+                    'dimensions': artwork.dimensions,
+                    'sold': artwork.sold  # Add sold status
                 },
                 'quantity': quantity,
                 'item_total': item_total
@@ -1323,9 +1143,78 @@ def cart_view(request):
     
     return render(request, 'gallery/cart.html', context)
 
+# FILE: gallery/views.py - Update cart_view function
+
+def cart_view(request):
+    """View shopping cart - updated to handle sold items properly"""
+    cart = request.session.get('cart', {})
+    
+    cart_items = []
+    subtotal = 0
+    
+    for artwork_id, item_data in cart.items():
+        try:
+            # Get artwork even if it's sold (but still active)
+            artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+            quantity = item_data.get('quantity', 1)
+            
+            # Check if artwork is sold - if so, don't include it in cart
+            if artwork.sold:
+                # Remove sold item from cart
+                if str(artwork_id) in cart:
+                    del cart[str(artwork_id)]
+                    request.session['cart'] = cart
+                continue
+                
+            item_total = float(artwork.price) if artwork.price else 0
+            subtotal += item_total
+            
+            cart_items.append({
+                'artwork': {
+                    'id': artwork.id,
+                    'title': artwork.title,
+                    'artist': artwork.artist.full_name,
+                    'image': artwork.primary_image,
+                    'price': float(artwork.price) if artwork.price else 0,
+                    'medium': artwork.medium,
+                    'dimensions': artwork.dimensions,
+                    'sold': artwork.sold  # Add sold status
+                },
+                'quantity': quantity,
+                'item_total': item_total
+            })
+        except Artwork.DoesNotExist:
+            # Remove invalid item from cart
+            if str(artwork_id) in cart:
+                del cart[str(artwork_id)]
+                request.session['cart'] = cart
+            continue
+    
+    # Calculate totals
+    shipping = 500
+    tax = subtotal * 0.15
+    total = subtotal + shipping + tax
+    
+    # Update cart count
+    cart_count = len(cart_items)
+    request.session['cart_count'] = cart_count
+    
+    context = {
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'tax': tax,
+        'total': total,
+        'item_count': cart_count,
+        'user': request.user
+    }
+    
+    return render(request, 'gallery/cart.html', context)
+
+# FILE: gallery/views.py - Update checkout_view function
 
 def checkout_view(request):
-    """Checkout page - updated for guest users and quick purchase"""
+    """Checkout page - updated to handle sold items properly"""
     cart = request.session.get('cart', {})
     quick_purchase_id = request.session.get('quick_purchase')
     guest_checkout_item = request.session.get('guest_checkout_item')
@@ -1337,7 +1226,16 @@ def checkout_view(request):
     if quick_purchase_id or guest_checkout_item:
         try:
             if quick_purchase_id:
+                # Get artwork and check if it's sold
                 artwork = Artwork.objects.get(id=quick_purchase_id, is_active=True)
+                
+                # Check if artwork is sold
+                if artwork.sold:
+                    messages.error(request, f'Sorry, "{artwork.title}" has been sold and is no longer available.')
+                    request.session.pop('quick_purchase', None)
+                    request.session.pop('guest_checkout_item', None)
+                    return redirect('artworks')
+                
                 artwork_data = {
                     'id': artwork.id,
                     'title': artwork.title,
@@ -1374,7 +1272,18 @@ def checkout_view(request):
         # Get cart items from cart session data
         for artwork_id, item_data in cart.items():
             try:
+                # Get artwork even if it's sold
                 artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+                
+                # Check if artwork is sold
+                if artwork.sold:
+                    # Remove sold item from cart
+                    if str(artwork_id) in cart:
+                        del cart[str(artwork_id)]
+                        request.session['cart'] = cart
+                    messages.warning(request, f'"{artwork.title}" has been sold and was removed from your cart.')
+                    continue
+                    
                 item_total = float(artwork.price) if artwork.price else 0
                 subtotal += item_total
                 
@@ -1390,6 +1299,10 @@ def checkout_view(request):
                     'item_total': item_total
                 })
             except Artwork.DoesNotExist:
+                # Remove invalid item from cart
+                if str(artwork_id) in cart:
+                    del cart[str(artwork_id)]
+                    request.session['cart'] = cart
                 continue
     
     if not cart_items:
@@ -1418,9 +1331,11 @@ def checkout_view(request):
     
     return render(request, 'gallery/checkout.html', context)
 
+# FILE: gallery/views.py - Update process_checkout function
+# FILE: gallery/views.py - COMPLETE process_checkout function
 @require_POST
 def process_checkout(request):
-    """Process the checkout form submission - updated for guest users"""
+    """Process the checkout form submission - COMPLETE VERSION"""
     cart = request.session.get('cart', {})
     quick_purchase_id = request.session.get('quick_purchase')
     guest_checkout_item = request.session.get('guest_checkout_item')
@@ -1446,12 +1361,21 @@ def process_checkout(request):
     # Get cart items for processing
     cart_items = []
     subtotal = 0
+    artwork_ids = []  # Store artwork IDs to mark as sold
     
+    # Handle quick purchase or guest checkout
     if quick_purchase_id or guest_checkout_item:
         try:
             if quick_purchase_id:
+                # Get artwork and verify it's not sold
                 artwork = Artwork.objects.get(id=quick_purchase_id, is_active=True)
-                # Convert artwork to serializable dict
+                
+                # Check if artwork is already sold
+                if artwork.sold:
+                    messages.error(request, f'Sorry, "{artwork.title}" has already been sold.')
+                    request.session.pop('quick_purchase', None)
+                    return redirect('artworks')
+                
                 artwork_data = {
                     'id': artwork.id,
                     'title': artwork.title,
@@ -1461,9 +1385,11 @@ def process_checkout(request):
                     'medium': artwork.medium,
                     'dimensions': artwork.dimensions
                 }
+                artwork_ids.append(artwork.id)
             else:
                 # Use guest checkout data
                 artwork_data = guest_checkout_item
+                artwork_ids.append(artwork_data['id'])
             
             cart_items.append({
                 'artwork': artwork_data,
@@ -1479,7 +1405,18 @@ def process_checkout(request):
         # Process cart items
         for artwork_id, item_data in cart.items():
             try:
+                # Get artwork
                 artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+                
+                # Check if artwork is already sold
+                if artwork.sold:
+                    messages.error(request, f'Sorry, "{artwork.title}" has already been sold.')
+                    # Remove from cart
+                    if str(artwork_id) in cart:
+                        del cart[str(artwork_id)]
+                        request.session['cart'] = cart
+                    continue
+                
                 artwork_data = {
                     'id': artwork.id,
                     'title': artwork.title,
@@ -1495,14 +1432,29 @@ def process_checkout(request):
                     'quantity': quantity
                 })
                 subtotal += float(artwork.price) if artwork.price else 0
+                artwork_ids.append(artwork.id)
             except Artwork.DoesNotExist:
                 continue
     
+    # Check if there are items to process
     if not cart_items:
         messages.error(request, 'No items to checkout.')
         return redirect('cart')
     
     try:
+        # MARK ARTWORKS AS SOLD (but keep them visible)
+        for artwork_id in artwork_ids:
+            try:
+                artwork = Artwork.objects.get(id=artwork_id)
+                # Only mark as sold if not already sold
+                if not artwork.sold:
+                    artwork.mark_as_sold()
+                    print(f"✅ Marked artwork {artwork_id} ({artwork.title}) as sold")
+                else:
+                    print(f"⚠️ Artwork {artwork_id} was already sold")
+            except Artwork.DoesNotExist:
+                print(f"❌ Artwork {artwork_id} not found when marking as sold")
+        
         # Calculate totals
         shipping = 500
         tax = subtotal * 0.15
@@ -1525,12 +1477,13 @@ def process_checkout(request):
             'province': province,
             'postal_code': postal_code,
             'payment_method': payment_method,
-            'items': cart_items,  # Now this is JSON serializable
+            'items': cart_items,
             'subtotal': float(subtotal),
             'shipping': float(shipping),
             'tax': float(tax),
             'total': float(total),
-            'created_at': timezone.now().isoformat()
+            'created_at': timezone.now().isoformat(),
+            'artwork_ids': artwork_ids
         }
         
         # Clear cart and quick purchase
@@ -1542,10 +1495,31 @@ def process_checkout(request):
         # Store order in session for confirmation (temporary)
         request.session['last_order'] = order_data
         
-        # Send confirmation email (in production)
+        # SEND CONFIRMATION EMAIL USING TEMPLATE
         if email:
             try:
-                # Simple email without template for now
+                from django.template.loader import render_to_string
+                
+                # Render HTML email template
+                html_message = render_to_string('gallery/emails/order_confirmation_email.html', {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'order_reference': order_reference,
+                    'order_date': timezone.now().strftime('%B %d, %Y'),
+                    'items': cart_items,
+                    'subtotal': float(subtotal),
+                    'shipping': float(shipping),
+                    'tax': float(tax),
+                    'total': float(total),
+                    'address': address,
+                    'city': city,
+                    'province': province,
+                    'postal_code': postal_code,
+                    'country': country,
+                    'site_url': request.build_absolute_uri('/')[:-1],
+                })
+                
+                # Create plain text version
                 plain_message = f"""
                 Thank you for your order #{order_reference} at Camps Bay Gallery!
                 
@@ -1554,13 +1528,14 @@ def process_checkout(request):
                 Order Number: {order_reference}
                 Date: {timezone.now().strftime('%B %d, %Y')}
                 
-                Items:
-                ------
-                {chr(10).join([f"- {item['artwork']['title']} by {item['artwork']['artist']}: R {item['artwork']['price']:.2f} (Qty: {item['quantity']})" for item in cart_items])}
+                Items Purchased (Now Marked as Sold):
+                ----------------------------
+                {chr(10).join([f"- {item['artwork']['title']} by {item['artwork']['artist']}: R {float(item['artwork']['price']):.2f} (Qty: {item['quantity']})" for item in cart_items])}
                 
-                Shipping: R {shipping:.2f}
-                Tax: R {tax:.2f}
-                Total: R {total:.2f}
+                Subtotal: R {float(subtotal):.2f}
+                Shipping: R {float(shipping):.2f}
+                Tax (15%): R {float(tax):.2f}
+                Total: R {float(total):.2f}
                 
                 Shipping Address:
                 -----------------
@@ -1569,12 +1544,8 @@ def process_checkout(request):
                 {city}, {province} {postal_code}
                 {country}
                 
-                Contact:
-                --------
-                Email: {email}
-                Phone: {phone}
-                
-                We will contact you soon regarding shipping details.
+                Note: These artworks have been marked as SOLD and will remain visible on our website. 
+                We will contact you within 24 hours regarding shipping details.
                 
                 Thank you for supporting local artists!
                 
@@ -1582,25 +1553,31 @@ def process_checkout(request):
                 The Camps Bay Gallery Team
                 """
                 
+                # Send email using Django's send_mail
                 send_mail(
                     subject=f'Order Confirmation #{order_reference} - Camps Bay Gallery',
                     message=plain_message,
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[email],
-                    fail_silently=True,
+                    html_message=html_message,
+                    fail_silently=False,
                 )
-                print(f"✅ Confirmation email sent to {email}")
+                print(f"✅ Order confirmation email sent to {email}")
+                
             except Exception as e:
-                print(f"❌ Email error: {e}")
-                # Don't fail the order if email fails
+                print(f"❌ Email error details: {str(e)}")
+                # Log the error but don't crash the checkout
+                messages.warning(request, 'Order placed successfully, but there was an issue sending the confirmation email.')
         
-        messages.success(request, f'Order #{order_reference} placed successfully!')
+        # Success message and redirect
+        messages.success(request, f'Order #{order_reference} placed successfully! The artworks have been marked as SOLD and will remain visible on the website.')
         return redirect('order_confirmation', order_ref=order_reference)
         
     except Exception as e:
-        print(f"❌ Checkout error: {e}")
+        print(f"❌ Checkout error: {str(e)}")
         messages.error(request, 'There was an error processing your order. Please try again.')
         return redirect('checkout')
+
 
  
 def order_confirmation(request, order_ref):
@@ -1658,3 +1635,33 @@ def remove_from_cart(request, artwork_id):
             return JsonResponse({'success': True, 'cart_count': cart_count})
     
     return JsonResponse({'success': False})
+
+
+@login_required
+@user_passes_test(is_owner)
+def mark_as_sold(request, artwork_id):
+    """Admin function to manually mark artwork as sold"""
+    try:
+        artwork = Artwork.objects.get(id=artwork_id)
+        artwork.mark_as_sold()
+        messages.success(request, f'"{artwork.title}" has been marked as sold.')
+    except Artwork.DoesNotExist:
+        messages.error(request, 'Artwork not found.')
+    
+    return redirect('view_artworks')
+
+@login_required
+@user_passes_test(is_owner)
+def mark_as_available(request, artwork_id):
+    """Admin function to mark artwork as available again"""
+    try:
+        artwork = Artwork.objects.get(id=artwork_id)
+        artwork.sold = False
+        artwork.is_active = True
+        artwork.availability = 'available'
+        artwork.save()
+        messages.success(request, f'"{artwork.title}" has been marked as available.')
+    except Artwork.DoesNotExist:
+        messages.error(request, 'Artwork not found.')
+    
+    return redirect('view_artworks')

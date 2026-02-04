@@ -338,6 +338,28 @@ class Artwork(models.Model):
     def __str__(self):
         """String representation of the artwork"""
         return f"{self.title} by {self.artist.full_name}"
+
+
+    def mark_as_sold(self, save=True):
+        """Mark artwork as sold and update availability"""
+        self.sold = True
+        
+        if save:
+            self.save()
+        
+        return self
+        
+    def is_available_for_purchase(self):
+        """Check if artwork can be purchased"""
+        return (
+            self.is_active and 
+            not self.sold and 
+            self.availability in ['available', 'at_gallery']
+        )
+    
+    def is_available_for_inquiry(self):
+        """Check if artwork can be inquired about"""
+        return self.is_active and not self.sold
     
     @property
     def display_price(self):
@@ -384,15 +406,21 @@ class Artwork(models.Model):
         """Determine if schedule viewing is allowed"""
         return self.availability == 'at_gallery' and not self.sold
     
+    # In the Artwork model class, update the primary_image property:
     @property
     def primary_image(self):
-        """Get the primary image for the artwork"""
+        """Get the primary image for the artwork - FIXED to handle media files correctly"""
         if self.image:
-            return self.image.url
+            # For Django media files, use the url property
+            try:
+                return self.image.url
+            except ValueError:
+                # If image field exists but file is missing
+                return '/static/gallery/images/default-artwork.jpg'
         elif self.image_url:
             return self.image_url
         else:
-            return '/static/gallery/images/default-artwork.jpg'  # You should create this
+            return '/static/gallery/images/default-artwork.jpg'
     
     def clean(self):
         """Custom validation for price fields"""
