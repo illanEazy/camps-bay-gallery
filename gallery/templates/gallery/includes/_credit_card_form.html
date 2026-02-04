@@ -1,0 +1,162 @@
+<!-- ==========================================================================
+   CREDIT CARD FORM COMPONENT - REUSABLE
+   ========================================================================== -->
+
+   <div id="creditCardForm" class="payment-form-section">
+    <div class="payment-method active" data-method="card">
+        <div class="payment-method-header">
+            <i class="fas fa-credit-card"></i>
+            <span class="method-name">Credit/Debit Card</span>
+        </div>
+    </div>
+
+    <div class="card-details">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cardNumber">Card Number *</label>
+                <input type="text" id="cardNumber" name="cardNumber" 
+                       placeholder="1234 5678 9012 3456" maxlength="19"
+                       class="form-input card-input" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cardName">Name on Card *</label>
+                <input type="text" id="cardName" name="cardName"
+                       placeholder="John Doe" class="form-input" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="expiryDate">Expiry Date *</label>
+                <input type="text" id="expiryDate" name="expiryDate" 
+                       placeholder="MM/YY" maxlength="5"
+                       class="form-input card-expiry" required>
+            </div>
+            <div class="form-group">
+                <label for="cvv">CVV *</label>
+                <input type="text" id="cvv" name="cvv" 
+                       placeholder="123" maxlength="4"
+                       class="form-input card-cvv" required>
+            </div>
+        </div>
+        
+        <div class="card-icons">
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fab fa-cc-amex"></i>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Credit Card Form Styles - REUSABLE */
+.payment-form-section {
+    margin-top: 1.5rem;
+}
+
+.payment-method {
+    border: 2px solid #ddd;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.payment-method.active {
+    border-color: #3498db;
+    background: #f0f8ff;
+}
+
+.payment-method-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.payment-method-header i {
+    font-size: 24px;
+    color: #2c3e50;
+}
+
+.method-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.card-details {
+    background: #f8f8f8;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.card-input {
+    letter-spacing: 1px;
+}
+
+.card-expiry, .card-cvv {
+    max-width: 150px;
+}
+
+.card-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+}
+
+.card-icons i {
+    font-size: 32px;
+    color: #666;
+}
+
+/* Card input focus states */
+.form-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-expiry, .card-cvv {
+        max-width: 100%;
+    }
+}
+</style>
+
+<script>
+// Card number formatting
+document.addEventListener('DOMContentLoaded', function() {
+    const cardNumberInput = document.getElementById('cardNumber');
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formattedValue;
+        });
+    }
+
+    // Expiry date formatting
+    const expiryInput = document.getElementById('expiryDate');
+    if (expiryInput) {
+        expiryInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            }
+            e.target.value = value;
+        });
+    }
+});
+</script>

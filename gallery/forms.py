@@ -5,7 +5,11 @@ from django.core.exceptions import ValidationError
 from .models import User, UserProfile, OTP, Artist, Artwork
 from django.utils import timezone
 from datetime import timedelta
+from django_countries.fields import CountryField
+from django_countries import countries
 import re
+
+
 
 # Custom Login Form - FIXED TO ACCEPT REQUEST
 class CustomLoginForm(forms.Form):
@@ -461,3 +465,135 @@ class ArtworkForm(forms.ModelForm):
             except DjangoValidationError:
                 raise ValidationError("Please enter a valid URL (include http:// or https://)")
         return image_url
+
+
+# Add after existing forms
+class CheckoutForm(forms.Form):
+    """Checkout form with dynamic address fields"""
+    
+    # Contact Information
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your first name',
+            'id': 'firstName'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your last name',
+            'id': 'lastName'
+        })
+    )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your email',
+            'id': 'email'
+        })
+    )
+    phone = forms.CharField(
+        max_length=20,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your phone number',
+            'id': 'phone'
+        })
+    )
+    
+    # Shipping Address
+    address = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={
+            'class': 'form-textarea',
+            'placeholder': 'Your complete address',
+            'rows': 3,
+            'id': 'address'
+        })
+    )
+    city = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your city',
+            'id': 'city'
+        })
+    )
+    
+    # Country Field with all countries
+    country = forms.ChoiceField(
+        choices=[('', 'Select Country')] + list(countries),
+        required=True,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'country',
+            'onchange': 'updateProvinceField()'
+        })
+    )
+    
+    # Dynamic province/state/region field
+    admin_division = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter province/state/region',
+            'id': 'adminDivision'
+        })
+    )
+    
+    postal_code = forms.CharField(
+        max_length=20,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter postal code',
+            'id': 'postalCode'
+        })
+    )
+    
+    # Save address for future orders
+    save_address = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-checkbox',
+            'id': 'saveAddress'
+        })
+    )
+    
+    # Terms agreement
+    agree_terms = forms.BooleanField(
+        required=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-checkbox',
+            'id': 'terms'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Pre-fill user data if available
+        if user:
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+            self.fields['email'].initial = user.email
+            
+            # Try to get profile data
+            try:
+                profile = user.profile
+                self.fields['address'].initial = profile.address
+                self.fields['city'].initial = profile.city
+                self.fields['country'].initial = profile.country.code if profile.country else ''
+                self.fields['postal_code'].initial = getattr(profile, 'postal_code', '')
+            except UserProfile.DoesNotExist:
+                pass

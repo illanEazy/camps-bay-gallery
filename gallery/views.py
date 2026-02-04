@@ -16,7 +16,8 @@ import json
 # Add these form imports
 from .forms import (
     CustomLoginForm, CustomSignupForm, OTPVerificationForm,
-    CustomForgotPasswordForm, CustomResetPasswordForm, UserProfileForm, ArtworkForm
+    CustomForgotPasswordForm, CustomResetPasswordForm, 
+    UserProfileForm, ArtworkForm, CheckoutForm
 )
 from .models import User, OTP, UserProfile, Artist, Artwork
 from django.contrib.auth.decorators import user_passes_test
@@ -1193,74 +1194,122 @@ def view_orders_view(request):
         return redirect('profile')
 
 # ============================================================================
-# CART & CHECKOUT VIEWS
+# UPDATED CHECKOUT VIEWS
 # ============================================================================
-
-@login_required
 def add_to_cart(request, artwork_id):
-    """Add artwork to cart"""
+    """Add artwork to cart - updated for quick purchase"""
     if request.method == 'POST':
-        # Get the artwork from global data
-        artwork = None
-        for a in GLOBAL_ARTWORKS_DATA:
-            if a['id'] == artwork_id:
-                artwork = a
-                break
-        
-        if not artwork:
+        try:
+            # Get the artwork from database
+            artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+            
+            # Check if it's a quick purchase
+            action = request.POST.get('action', 'add_to_cart')
+            
+            if action == 'quick_purchase':
+                # Set quick purchase in session
+                request.session['quick_purchase'] = artwork_id
+                messages.success(request, f'Proceeding to quick purchase for "{artwork.title}".')
+                
+                # If user is not logged in, store artwork in session for guest checkout
+                if not request.user.is_authenticated:
+                    request.session['guest_checkout_item'] = {
+                        'id': artwork.id,
+                        'title': artwork.title,
+                        'artist': artwork.artist.full_name,
+                        'price': float(artwork.price) if artwork.price else 0,
+                        'image': artwork.primary_image,
+                        'medium': artwork.medium,
+                        'dimensions': artwork.dimensions
+                    }
+                
+                return redirect('checkout')
+            else:
+                # Normal add to cart
+                cart = request.session.get('cart', {})
+                
+                if str(artwork_id) not in cart:
+                    cart[str(artwork_id)] = {
+                        'quantity': 1,
+                        'added_at': timezone.now().isoformat(),
+                        'title': artwork.title,
+                        'artist': artwork.artist.full_name,
+                        'price': float(artwork.price) if artwork.price else 0,
+                        'image': artwork.primary_image
+                    }
+                    request.session['cart'] = cart
+                    messages.success(request, f'"{artwork.title}" added to cart.')
+                    
+                    # Update cart count (only for normal add to cart)
+                    cart_count = len(cart)
+                    request.session['cart_count'] = cart_count
+                else:
+                    messages.info(request, f'"{artwork.title}" is already in your cart.')
+            
+            # Check where to redirect
+            redirect_to = request.POST.get('redirect_to', 'cart')
+            
+            if redirect_to == 'checkout':
+                # For normal checkout from cart, clear quick purchase
+                request.session.pop('quick_purchase', None)
+                request.session.pop('guest_checkout_item', None)
+                return redirect('checkout')
+            else:
+                return redirect('cart')
+            
+        except Artwork.DoesNotExist:
             messages.error(request, 'Artwork not found.')
             return redirect('artworks')
-        
-        # Get or create cart in session
-        cart = request.session.get('cart', {})
-        
-        # Since each artwork is unique, we can only have 1 of each
-        if str(artwork_id) not in cart:
-            cart[str(artwork_id)] = {
-                'quantity': 1,
-                'added_at': timezone.now().isoformat()
-            }
-            request.session['cart'] = cart
-            messages.success(request, f'"{artwork["title"]}" added to cart.')
-        else:
-            messages.info(request, f'"{artwork["title"]}" is already in your cart.')
-        
-        # Check where to redirect
-        redirect_to = request.POST.get('redirect_to', 'cart')
-        
-        if redirect_to == 'checkout':
-            return redirect('checkout')
-        else:
-            return redirect('cart')
+        except Exception as e:
+            print(f"❌ Error adding to cart: {e}")
+            messages.error(request, 'An error occurred. Please try again.')
+            return redirect('artwork_detail', artwork_id=artwork_id)
     
     return redirect('artworks')
 
-@login_required
+
 def cart_view(request):
-    """View shopping cart"""
+    """View shopping cart - updated for guest users"""
     cart = request.session.get('cart', {})
     
     cart_items = []
     subtotal = 0
     
     for artwork_id, item_data in cart.items():
-        for artwork in GLOBAL_ARTWORKS_DATA:
-            if artwork['id'] == int(artwork_id):
-                quantity = item_data.get('quantity', 1)
-                item_total = artwork.get('price', 0) * quantity
-                subtotal += item_total
-                
-                cart_items.append({
-                    'artwork': artwork,
-                    'quantity': quantity,
-                    'item_total': item_total
-                })
-                break
+        try:
+            artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+            quantity = item_data.get('quantity', 1)
+            item_total = float(artwork.price) if artwork.price else 0
+            subtotal += item_total
+            
+            cart_items.append({
+                'artwork': {
+                    'id': artwork.id,
+                    'title': artwork.title,
+                    'artist': artwork.artist.full_name,
+                    'image': artwork.primary_image,
+                    'price': float(artwork.price) if artwork.price else 0,
+                    'medium': artwork.medium,
+                    'dimensions': artwork.dimensions
+                },
+                'quantity': quantity,
+                'item_total': item_total
+            })
+        except Artwork.DoesNotExist:
+            # Remove invalid item from cart
+            if str(artwork_id) in cart:
+                del cart[str(artwork_id)]
+                request.session['cart'] = cart
+            continue
     
     # Calculate totals
     shipping = 500
     tax = subtotal * 0.15
     total = subtotal + shipping + tax
+    
+    # Update cart count
+    cart_count = len(cart_items)
+    request.session['cart_count'] = cart_count
     
     context = {
         'cart_items': cart_items,
@@ -1268,36 +1317,84 @@ def cart_view(request):
         'shipping': shipping,
         'tax': tax,
         'total': total,
-        'item_count': len(cart_items)
+        'item_count': cart_count,
+        'user': request.user
     }
     
     return render(request, 'gallery/cart.html', context)
 
-@login_required
+
 def checkout_view(request):
-    """Checkout page"""
+    """Checkout page - updated for guest users and quick purchase"""
     cart = request.session.get('cart', {})
-    
-    if not cart:
-        messages.info(request, 'Your cart is empty. Add items before checkout.')
-        return redirect('cart')
+    quick_purchase_id = request.session.get('quick_purchase')
+    guest_checkout_item = request.session.get('guest_checkout_item')
     
     cart_items = []
     subtotal = 0
     
-    for artwork_id, item_data in cart.items():
-        for artwork in GLOBAL_ARTWORKS_DATA:
-            if artwork['id'] == int(artwork_id):
-                quantity = item_data.get('quantity', 1)
-                item_total = artwork.get('price', 0) * quantity
+    # Handle quick purchase
+    if quick_purchase_id or guest_checkout_item:
+        try:
+            if quick_purchase_id:
+                artwork = Artwork.objects.get(id=quick_purchase_id, is_active=True)
+                artwork_data = {
+                    'id': artwork.id,
+                    'title': artwork.title,
+                    'artist': artwork.artist.full_name,
+                    'price': float(artwork.price) if artwork.price else 0,
+                    'image': artwork.primary_image,
+                    'medium': artwork.medium,
+                    'dimensions': artwork.dimensions
+                }
+            else:
+                # Use guest checkout data
+                artwork_data = guest_checkout_item
+            
+            item_total = float(artwork_data['price']) if artwork_data['price'] else 0
+            subtotal = item_total
+            
+            cart_items.append({
+                'artwork': artwork_data,
+                'quantity': 1,
+                'item_total': item_total
+            })
+            
+        except Artwork.DoesNotExist:
+            messages.error(request, 'The selected artwork is no longer available.')
+            request.session.pop('quick_purchase', None)
+            request.session.pop('guest_checkout_item', None)
+            return redirect('artworks')
+    else:
+        # Normal cart checkout
+        if not cart:
+            messages.info(request, 'Your cart is empty. Add items before checkout.')
+            return redirect('cart')
+        
+        # Get cart items from cart session data
+        for artwork_id, item_data in cart.items():
+            try:
+                artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+                item_total = float(artwork.price) if artwork.price else 0
                 subtotal += item_total
                 
                 cart_items.append({
-                    'artwork': artwork,
-                    'quantity': quantity,
+                    'artwork': {
+                        'id': artwork.id,
+                        'title': artwork.title,
+                        'artist': artwork.artist.full_name,
+                        'image': artwork.primary_image,
+                        'price': float(artwork.price) if artwork.price else 0,
+                    },
+                    'quantity': item_data.get('quantity', 1),
                     'item_total': item_total
                 })
-                break
+            except Artwork.DoesNotExist:
+                continue
+    
+    if not cart_items:
+        messages.error(request, 'No items to checkout.')
+        return redirect('cart')
     
     # Calculate totals
     shipping = 500
@@ -1314,33 +1411,214 @@ def checkout_view(request):
         'tax': tax,
         'total': total,
         'order_reference': order_reference,
-        'item_count': len(cart_items)
+        'item_count': len(cart_items),
+        'user': request.user,
+        'is_quick_purchase': bool(quick_purchase_id or guest_checkout_item)
     }
     
     return render(request, 'gallery/checkout.html', context)
 
-@login_required
+@require_POST
 def process_checkout(request):
-    """Process checkout (simplified version)"""
-    if request.method == 'POST':
-        # In a real application, you would:
-        # 1. Validate the form data
-        # 2. Create an order record in the database
-        # 3. Process payment (via Stripe, PayPal, etc.)
-        # 4. Clear the cart
-        # 5. Send confirmation email
+    """Process the checkout form submission - updated for guest users"""
+    cart = request.session.get('cart', {})
+    quick_purchase_id = request.session.get('quick_purchase')
+    guest_checkout_item = request.session.get('guest_checkout_item')
+    
+    # Get form data
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    email = request.POST.get('email', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    address = request.POST.get('address', '').strip()
+    city = request.POST.get('city', '').strip()
+    country = request.POST.get('country', '').strip()
+    province = request.POST.get('province', '').strip()
+    postal_code = request.POST.get('postal_code', '').strip()
+    payment_method = request.POST.get('payment_method', 'card')
+    
+    # Validate required fields
+    required_fields = [first_name, last_name, email, phone, address, city, country, province, postal_code]
+    if not all(required_fields):
+        messages.error(request, 'Please fill in all required fields.')
+        return redirect('checkout')
+    
+    # Get cart items for processing
+    cart_items = []
+    subtotal = 0
+    
+    if quick_purchase_id or guest_checkout_item:
+        try:
+            if quick_purchase_id:
+                artwork = Artwork.objects.get(id=quick_purchase_id, is_active=True)
+                # Convert artwork to serializable dict
+                artwork_data = {
+                    'id': artwork.id,
+                    'title': artwork.title,
+                    'artist': artwork.artist.full_name,
+                    'price': float(artwork.price) if artwork.price else 0,
+                    'image': artwork.primary_image,
+                    'medium': artwork.medium,
+                    'dimensions': artwork.dimensions
+                }
+            else:
+                # Use guest checkout data
+                artwork_data = guest_checkout_item
+            
+            cart_items.append({
+                'artwork': artwork_data,
+                'quantity': 1
+            })
+            subtotal = float(artwork_data['price']) if artwork_data['price'] else 0
+            
+        except Artwork.DoesNotExist:
+            messages.error(request, 'The selected artwork is no longer available.')
+            request.session.pop('quick_purchase', None)
+            return redirect('artworks')
+    else:
+        # Process cart items
+        for artwork_id, item_data in cart.items():
+            try:
+                artwork = Artwork.objects.get(id=artwork_id, is_active=True)
+                artwork_data = {
+                    'id': artwork.id,
+                    'title': artwork.title,
+                    'artist': artwork.artist.full_name,
+                    'price': float(artwork.price) if artwork.price else 0,
+                    'image': artwork.primary_image,
+                    'medium': artwork.medium,
+                    'dimensions': artwork.dimensions
+                }
+                quantity = item_data.get('quantity', 1)
+                cart_items.append({
+                    'artwork': artwork_data,
+                    'quantity': quantity
+                })
+                subtotal += float(artwork.price) if artwork.price else 0
+            except Artwork.DoesNotExist:
+                continue
+    
+    if not cart_items:
+        messages.error(request, 'No items to checkout.')
+        return redirect('cart')
+    
+    try:
+        # Calculate totals
+        shipping = 500
+        tax = subtotal * 0.15
+        total = subtotal + shipping + tax
         
-        # For now, just clear the cart and show success message
+        # Generate order reference
+        order_reference = request.POST.get('order_reference', 
+                                         f"ORD-{timezone.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}")
+        
+        # Create order data (serializable)
+        order_data = {
+            'order_reference': order_reference,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'phone': phone,
+            'address': address,
+            'city': city,
+            'country': country,
+            'province': province,
+            'postal_code': postal_code,
+            'payment_method': payment_method,
+            'items': cart_items,  # Now this is JSON serializable
+            'subtotal': float(subtotal),
+            'shipping': float(shipping),
+            'tax': float(tax),
+            'total': float(total),
+            'created_at': timezone.now().isoformat()
+        }
+        
+        # Clear cart and quick purchase
         request.session['cart'] = {}
-        messages.success(request, 'Order placed successfully! Thank you for your purchase.')
+        request.session.pop('quick_purchase', None)
+        request.session.pop('guest_checkout_item', None)
+        request.session.pop('cart_count', None)
         
+        # Store order in session for confirmation (temporary)
+        request.session['last_order'] = order_data
+        
+        # Send confirmation email (in production)
+        if email:
+            try:
+                # Simple email without template for now
+                plain_message = f"""
+                Thank you for your order #{order_reference} at Camps Bay Gallery!
+                
+                Order Summary:
+                ==============
+                Order Number: {order_reference}
+                Date: {timezone.now().strftime('%B %d, %Y')}
+                
+                Items:
+                ------
+                {chr(10).join([f"- {item['artwork']['title']} by {item['artwork']['artist']}: R {item['artwork']['price']:.2f} (Qty: {item['quantity']})" for item in cart_items])}
+                
+                Shipping: R {shipping:.2f}
+                Tax: R {tax:.2f}
+                Total: R {total:.2f}
+                
+                Shipping Address:
+                -----------------
+                {first_name} {last_name}
+                {address}
+                {city}, {province} {postal_code}
+                {country}
+                
+                Contact:
+                --------
+                Email: {email}
+                Phone: {phone}
+                
+                We will contact you soon regarding shipping details.
+                
+                Thank you for supporting local artists!
+                
+                Warm regards,
+                The Camps Bay Gallery Team
+                """
+                
+                send_mail(
+                    subject=f'Order Confirmation #{order_reference} - Camps Bay Gallery',
+                    message=plain_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=True,
+                )
+                print(f"✅ Confirmation email sent to {email}")
+            except Exception as e:
+                print(f"❌ Email error: {e}")
+                # Don't fail the order if email fails
+        
+        messages.success(request, f'Order #{order_reference} placed successfully!')
+        return redirect('order_confirmation', order_ref=order_reference)
+        
+    except Exception as e:
+        print(f"❌ Checkout error: {e}")
+        messages.error(request, 'There was an error processing your order. Please try again.')
+        return redirect('checkout')
+
+ 
+def order_confirmation(request, order_ref):
+    """Order confirmation page"""
+    order_data = request.session.get('last_order', {})
+    
+    if not order_data or order_data.get('order_reference') != order_ref:
+        messages.error(request, 'Order not found.')
         return redirect('home')
     
-    return redirect('checkout')
+    context = {
+        'order': order_data,
+        'order_ref': order_ref
+    }
+    return render(request, 'gallery/order_confirmation.html', context)
 
-@login_required
 def update_cart_item(request, artwork_id):
-    """Update cart item quantity (AJAX)"""
+    """Update cart item quantity (AJAX) - updated for guest users"""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -1353,16 +1631,19 @@ def update_cart_item(request, artwork_id):
                 cart[str(artwork_id)]['quantity'] = min(quantity, 1)
                 request.session['cart'] = cart
                 
-                return JsonResponse({'success': True})
+                # Update cart count
+                cart_count = len(cart)
+                request.session['cart_count'] = cart_count
+                
+                return JsonResponse({'success': True, 'cart_count': cart_count})
             
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False})
 
-@login_required
 def remove_from_cart(request, artwork_id):
-    """Remove item from cart (AJAX)"""
+    """Remove item from cart (AJAX) - updated for guest users"""
     if request.method == 'POST':
         cart = request.session.get('cart', {})
         
@@ -1370,6 +1651,10 @@ def remove_from_cart(request, artwork_id):
             del cart[str(artwork_id)]
             request.session['cart'] = cart
             
-            return JsonResponse({'success': True})
+            # Update cart count
+            cart_count = len(cart)
+            request.session['cart_count'] = cart_count
+            
+            return JsonResponse({'success': True, 'cart_count': cart_count})
     
     return JsonResponse({'success': False})

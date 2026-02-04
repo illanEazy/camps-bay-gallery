@@ -43,21 +43,25 @@
             
             <!-- Action Buttons - SIDE BY SIDE -->
             <div class="modal-actions modal-actions-row">
+                <!-- Add to Cart Form -->
                 <form method="POST" action="{% url 'add_to_cart' artwork.id %}" class="add-to-cart-form">
                     {% csrf_token %}
                     <input type="hidden" name="redirect_to" value="cart">
+                    <input type="hidden" name="action" value="add_to_cart">
                     <button type="submit" class="action-btn btn-primary">
                         <i class="fas fa-shopping-cart"></i>
                         Add to Cart
                     </button>
                 </form>
                 
+                <!-- Quick Purchase Form -->
                 <form method="POST" action="{% url 'add_to_cart' artwork.id %}" class="add-to-cart-form">
                     {% csrf_token %}
                     <input type="hidden" name="redirect_to" value="checkout">
+                    <input type="hidden" name="action" value="quick_purchase">
                     <button type="submit" class="action-btn btn-secondary">
-                        <i class="fas fa-credit-card"></i>
-                        Checkout
+                        <i class="fas fa-bolt"></i>
+                        Quick Purchase
                     </button>
                 </form>
             </div>

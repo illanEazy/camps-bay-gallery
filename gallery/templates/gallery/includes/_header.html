@@ -36,8 +36,11 @@
             <a href="#" class="nav-icon-link">
                 <i class="fas fa-search"></i>
             </a>
-            <a href="#" class="nav-icon-link">
+            <a href="{% url 'cart' %}" class="nav-icon-link cart-icon" title="Shopping Cart">
                 <i class="fas fa-shopping-cart"></i>
+                {% if cart_count > 0 %}
+                <span class="cart-count">{{ cart_count }}</span>
+                {% endif %}
             </a>
             <!-- USER ICON - Links to profile for customers, admin dashboard for owners -->
             {% if user.is_authenticated %}

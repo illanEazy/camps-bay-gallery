@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
 import random
 import string
+from django_countries.fields import CountryField
 
 # Custom User Manager
 class CustomUserManager(BaseUserManager):
@@ -88,14 +89,14 @@ class OTP(models.Model):
             models.Index(fields=['user', 'otp_type', 'is_used']),
         ]
 
-# User Profile Model (for additional user information)
+# UserProfile model
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     bio = models.TextField(blank=True)
     address = models.TextField(blank=True)
     city = models.CharField(max_length=100, blank=True)
-    country = models.CharField(max_length=100, blank=True)
+    country = CountryField(blank=True)  
     newsletter_subscription = models.BooleanField(default=True)
     
     def __str__(self):

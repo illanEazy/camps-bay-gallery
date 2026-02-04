@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    /* CHECKOUT STYLES - EXACT MATCH TO ORIGINAL checkout.html */
+    /* CHECKOUT STYLES - UPDATED: Removed dynamic address fields, added credit card */
     .checkout-section {
         margin-top: 10px;
         min-height: calc(100vh - 110px);
@@ -53,6 +53,7 @@
         background: white;
         padding: 40px;
         box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+        border-radius: 8px;
     }
 
     .section-title {
@@ -91,7 +92,8 @@
     }
 
     .form-group input,
-    .form-group select {
+    .form-group select,
+    .form-group textarea {
         width: 100%;
         padding: 14px 15px;
         border: 1px solid #ddd;
@@ -100,12 +102,15 @@
         color: #2c3e50;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         transition: all 0.3s ease;
+        border-radius: 4px;
     }
 
     .form-group input:focus,
-    .form-group select:focus {
+    .form-group select:focus,
+    .form-group textarea:focus {
         outline: none;
         border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
     }
 
     .form-group input::placeholder {
@@ -132,20 +137,40 @@
         margin: 0;
     }
 
+    /* Quick Purchase Notice */
+    .quick-purchase-notice {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .quick-purchase-notice i {
+        margin-right: 8px;
+        color: #f39c12;
+    }
+
+    /* Payment Methods */
     .payment-methods {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        display: flex;
+        flex-direction: column;
         gap: 15px;
         margin-bottom: 25px;
     }
 
     .payment-method {
         border: 2px solid #ddd;
-        padding: 20px;
-        text-align: center;
+        padding: 15px;
         cursor: pointer;
         transition: all 0.3s ease;
         background: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .payment-method:hover {
@@ -158,28 +183,14 @@
     }
 
     .payment-method i {
-        font-size: 28px;
+        font-size: 24px;
         color: #2c3e50;
-        margin-bottom: 8px;
     }
 
     .payment-method .method-name {
-        font-size: 13px;
-        color: #666;
-        font-weight: 500;
-    }
-
-    .card-icons {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-        justify-content: flex-start;
-        align-items: center;
-    }
-
-    .card-icons i {
-        font-size: 32px;
-        color: #666;
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
     }
 
     .order-summary {
@@ -189,6 +200,7 @@
         height: fit-content;
         position: sticky;
         top: 130px;
+        border-radius: 8px;
     }
 
     .summary-title {
@@ -215,6 +227,7 @@
         width: 70px;
         height: 70px;
         overflow: hidden;
+        border-radius: 4px;
     }
 
     .order-item-image img {
@@ -290,7 +303,7 @@
     .place-order-btn {
         width: 100%;
         padding: 18px;
-        background: #2c3e50; /* CHANGED FROM GREEN TO NAVY BLUE */
+        background: #2c3e50;
         color: white;
         border: none;
         font-size: 14px;
@@ -300,10 +313,11 @@
         transition: all 0.3s ease;
         text-transform: uppercase;
         margin-top: 25px;
+        border-radius: 4px;
     }
 
     .place-order-btn:hover {
-        background: #3498db; /* CHANGED FROM DARK GREEN TO BLUE */
+        background: #3498db;
         transform: translateY(-2px);
     }
 
@@ -324,6 +338,25 @@
         color: #3498db;
     }
 
+    .login-suggestion {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .login-suggestion a {
+        color: #3498db;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .login-suggestion a:hover {
+        text-decoration: underline;
+    }
+
     @media (max-width: 992px) {
         .checkout-content {
             grid-template-columns: 1fr;
@@ -331,10 +364,6 @@
 
         .order-summary {
             position: static;
-        }
-
-        .payment-methods {
-            grid-template-columns: 1fr;
         }
     }
 
@@ -362,32 +391,41 @@
             <h1>Checkout</h1>
             <div class="secure-badge">
                 <i class="fas fa-lock"></i>
-                <span>Secure Checkout</span>
+                <span>Secure Checkout - 256-bit SSL Encryption</span>
             </div>
         </div>
 
         <div class="checkout-content">
             <div class="checkout-form">
-                <form id="checkoutForm">
+                <form id="checkoutForm" method="POST" action="{% url 'process_checkout' %}">
+                    {% csrf_token %}
+                    
+                    {% if request.session.quick_purchase %}
+                    <div class="quick-purchase-notice">
+                        <i class="fas fa-bolt"></i>
+                        <strong>Quick Purchase:</strong> You are purchasing this item directly without adding it to your cart.
+                    </div>
+                    {% endif %}
+
                     <!-- Contact Information -->
                     <div class="section-title">Contact Information</div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="firstName">First Name *</label>
-                            <input type="text" id="firstName" name="firstName" required
-                                   {% if user.is_authenticated %}value="{{ user.first_name }}"{% endif %}>
+                            <label for="first_name">First Name *</label>
+                            <input type="text" id="first_name" name="first_name" required
+                                   value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}">
                         </div>
                         <div class="form-group">
-                            <label for="lastName">Last Name *</label>
-                            <input type="text" id="lastName" name="lastName" required
-                                   {% if user.is_authenticated %}value="{{ user.last_name }}"{% endif %}>
+                            <label for="last_name">Last Name *</label>
+                            <input type="text" id="last_name" name="last_name" required
+                                   value="{% if user.is_authenticated %}{{ user.last_name }}{% endif %}">
                         </div>
                     </div>
                     <div class="form-row single">
                         <div class="form-group">
                             <label for="email">Email Address *</label>
                             <input type="email" id="email" name="email" required
-                                   {% if user.is_authenticated %}value="{{ user.email }}"{% endif %}>
+                                   value="{% if user.is_authenticated %}{{ user.email }}{% endif %}">
                         </div>
                     </div>
                     <div class="form-row single">
@@ -411,6 +449,19 @@
                             <input type="text" id="city" name="city" required>
                         </div>
                         <div class="form-group">
+                            <label for="country">Country *</label>
+                            <select id="country" name="country" required>
+                                <option value="">Select Country</option>
+                                <option value="ZA" selected>South Africa</option>
+                                <option value="US">United States</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="CA">Canada</option>
+                                <option value="AU">Australia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="province">Province *</label>
                             <select id="province" name="province" required>
                                 <option value="">Select Province</option>
@@ -425,98 +476,45 @@
                                 <option value="north-west">North West</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
-                            <label for="postalCode">Postal Code *</label>
-                            <input type="text" id="postalCode" name="postalCode" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="country">Country *</label>
-                            <input type="text" id="country" name="country" value="South Africa" required>
+                            <label for="postal_code">Postal Code *</label>
+                            <input type="text" id="postal_code" name="postal_code" required>
                         </div>
                     </div>
 
                     <div class="checkbox-group">
-                        <input type="checkbox" id="saveAddress" name="saveAddress">
-                        <label for="saveAddress">Save this address for future orders</label>
+                        <input type="checkbox" id="save_address" name="save_address">
+                        <label for="save_address">Save this address for future orders</label>
                     </div>
 
-                    <!-- Payment Method -->
+                    <!-- Payment Method - Credit Card Only -->
                     <div class="section-title" style="margin-top: 40px;">Payment Method</div>
-                    <div class="payment-methods">
-                        <div class="payment-method active" data-method="card">
-                            <i class="fas fa-credit-card"></i>
-                            <div class="method-name">Card</div>
-                        </div>
-                        <div class="payment-method" data-method="eft">
-                            <i class="fas fa-university"></i>
-                            <div class="method-name">EFT</div>
-                        </div>
-                        <div class="payment-method" data-method="paypal">
-                            <i class="fab fa-paypal"></i>
-                            <div class="method-name">PayPal</div>
-                        </div>
-                    </div>
+                    
+                    <!-- Include Credit Card Form Component -->
+                    {% include 'gallery/includes/_credit_card_form.html' %}
 
-                    <!-- Card Payment Details -->
-                    <div id="cardPayment">
-                        <div class="form-row single">
-                            <div class="form-group">
-                                <label for="cardNumber">Card Number *</label>
-                                <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
-                            </div>
-                        </div>
-                        <div class="form-row single">
-                            <div class="form-group">
-                                <label for="cardName">Name on Card *</label>
-                                <input type="text" id="cardName" name="cardName">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="expiryDate">Expiry Date *</label>
-                                <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" maxlength="5">
-                            </div>
-                            <div class="form-group">
-                                <label for="cvv">CVV *</label>
-                                <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="4">
-                            </div>
-                        </div>
-                        <div class="card-icons">
-                            <i class="fab fa-cc-visa"></i>
-                            <i class="fab fa-cc-mastercard"></i>
-                            <i class="fab fa-cc-amex"></i>
-                        </div>
+                    {% if not user.is_authenticated %}
+                    <div class="login-suggestion">
+                        <i class="fas fa-info-circle"></i>
+                        Want faster checkout? 
+                        <a href="{% url 'login' %}?next={% url 'checkout' %}">Login</a> or 
+                        <a href="{% url 'signup' %}?next={% url 'checkout' %}">Sign up</a>
                     </div>
-
-                    <!-- EFT Details (hidden by default) -->
-                    <div id="eftPayment" style="display: none;">
-                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-                            Please make payment to the following bank account. Your order will be processed once payment is confirmed.
-                        </p>
-                        <div style="background: #f8f8f8; padding: 20px; border-left: 3px solid #3498db;">
-                            <p style="color: #2c3e50; font-size: 13px; line-height: 1.8; margin: 0;">
-                                <strong>Bank:</strong> First National Bank<br>
-                                <strong>Account Name:</strong> Camps Bay Art Gallery<br>
-                                <strong>Account Number:</strong> 62 7890 1234 56<br>
-                                <strong>Branch Code:</strong> 250 655<br>
-                                <strong>Reference:</strong> <span id="orderReference">ORD-{{ order_reference|default:"2026-0001" }}</span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- PayPal (hidden by default) -->
-                    <div id="paypalPayment" style="display: none;">
-                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-                            You will be redirected to PayPal to complete your payment securely.
-                        </p>
-                    </div>
+                    {% endif %}
 
                     <div class="checkbox-group" style="margin-top: 30px;">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <label for="terms">I agree to the <a href="#" style="color: #3498db;">Terms & Conditions</a> and <a href="#" style="color: #3498db;">Privacy Policy</a></label>
+                        <input type="checkbox" id="agree_terms" name="agree_terms" required>
+                        <label for="agree_terms">
+                            I agree to the <a href="#" style="color: #3498db;">Terms & Conditions</a> and <a href="#" style="color: #3498db;">Privacy Policy</a>
+                        </label>
                     </div>
+                    
+                    <!-- Hidden fields -->
+                    <input type="hidden" name="order_reference" value="{{ order_reference }}">
+                    <input type="hidden" name="payment_method" value="card">
+                    {% if request.session.quick_purchase %}
+                    <input type="hidden" name="quick_purchase" value="true">
+                    {% endif %}
                 </form>
             </div>
 
@@ -556,7 +554,9 @@
                     <span class="value">R {{ total|floatformat:2 }}</span>
                 </div>
 
-                <button type="submit" form="checkoutForm" class="place-order-btn">Place Order</button>
+                <button type="submit" form="checkoutForm" class="place-order-btn">
+                    <i class="fas fa-lock"></i> Place Order Securely
+                </button>
                 <div class="back-to-cart">
                     <a href="{% url 'cart' %}">← Back to Cart</a>
                 </div>
@@ -568,83 +568,104 @@
 
 {% block extra_js %}
 <script>
-    // Payment method selection
-    const paymentMethods = document.querySelectorAll('.payment-method');
-    const cardPayment = document.getElementById('cardPayment');
-    const eftPayment = document.getElementById('eftPayment');
-    const paypalPayment = document.getElementById('paypalPayment');
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkoutForm = document.getElementById('checkoutForm');
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', function(e) {
+                // Basic validation
+                const requiredFields = this.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.style.borderColor = '#e74c3c';
+                    } else {
+                        field.style.borderColor = '';
+                    }
+                });
 
-    paymentMethods.forEach(method => {
-        method.addEventListener('click', function() {
-            paymentMethods.forEach(m => m.classList.remove('active'));
-            this.classList.add('active');
+                // Card validation
+                const cardNumber = document.getElementById('cardNumber');
+                const cardName = document.getElementById('cardName');
+                const expiryDate = document.getElementById('expiryDate');
+                const cvv = document.getElementById('cvv');
 
-            const selectedMethod = this.dataset.method;
+                if (cardNumber && cardNumber.value.replace(/\s/g, '').length < 16) {
+                    isValid = false;
+                    cardNumber.style.borderColor = '#e74c3c';
+                }
 
-            // Hide all payment sections
-            cardPayment.style.display = 'none';
-            eftPayment.style.display = 'none';
-            paypalPayment.style.display = 'none';
+                if (expiryDate && !expiryDate.value.match(/^\d{2}\/\d{2}$/)) {
+                    isValid = false;
+                    expiryDate.style.borderColor = '#e74c3c';
+                }
 
-            // Show selected payment section
-            if (selectedMethod === 'card') {
-                cardPayment.style.display = 'block';
-            } else if (selectedMethod === 'eft') {
-                eftPayment.style.display = 'block';
-            } else if (selectedMethod === 'paypal') {
-                paypalPayment.style.display = 'block';
-            }
-        });
-    });
+                if (cvv && (cvv.value.length < 3 || cvv.value.length > 4)) {
+                    isValid = false;
+                    cvv.style.borderColor = '#e74c3c';
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields correctly.');
+                } else {
+                    // Show processing message
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    }
+                }
+            });
+        }
 
-    // Card number formatting
-    const cardNumberInput = document.getElementById('cardNumber');
-    if (cardNumberInput) {
-        cardNumberInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\s/g, '');
-            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-            e.target.value = formattedValue;
-        });
-    }
+        // Format card number
+        const cardNumberInput = document.getElementById('cardNumber');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+                
+                // Validate card type
+                const visaPattern = /^4/;
+                const mastercardPattern = /^5[1-5]/;
+                const amexPattern = /^3[47]/;
+                
+                if (visaPattern.test(value)) {
+                    this.style.borderColor = '#1a1f71'; // Visa blue
+                } else if (mastercardPattern.test(value)) {
+                    this.style.borderColor = '#eb001b'; // Mastercard red
+                } else if (amexPattern.test(value)) {
+                    this.style.borderColor = '#2e77bc'; // Amex blue
+                }
+            });
+        }
 
-    // Expiry date formatting
-    const expiryInput = document.getElementById('expiryDate');
-    if (expiryInput) {
-        expiryInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length >= 2) {
-                value = value.slice(0, 2) + '/' + value.slice(2, 4);
-            }
-            e.target.value = value;
-        });
-    }
+        // Format expiry date
+        const expiryInput = document.getElementById('expiryDate');
+        if (expiryInput) {
+            expiryInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    let month = parseInt(value.slice(0, 2));
+                    if (month > 12) month = 12;
+                    if (month < 1) month = 1;
+                    value = month.toString().padStart(2, '0') + '/' + value.slice(2, 4);
+                }
+                e.target.value = value;
+            });
+        }
 
-    // Form submission
-    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Django backend integration here
-        const formData = new FormData(this);
-        const selectedMethod = document.querySelector('.payment-method.active').dataset.method;
-        formData.append('paymentMethod', selectedMethod);
-        
-        // For now, show alert
-        alert('Order processing... This will be connected to Django backend.\n\nPayment Method: ' + selectedMethod);
-        
-        // In production, you would send this to your Django view:
-        // fetch('/checkout/process/', {
-        //     method: 'POST',
-        //     body: formData,
-        //     headers: {
-        //         'X-CSRFToken': getCookie('csrftoken')
-        //     }
-        // })
-        // .then(response => response.json())
-        // .then(data => {
-        //     if (data.success) {
-        //         window.location.href = '/order-confirmation/' + data.order_id;
-        //     }
-        // });
+        // Restrict CVV to numbers only
+        const cvvInput = document.getElementById('cvv');
+        if (cvvInput) {
+            cvvInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
     });
 
     // CSRF token helper function for Django
@@ -663,4 +684,4 @@
         return cookieValue;
     }
 </script>
-{% endblock %}  
+{% endblock %}

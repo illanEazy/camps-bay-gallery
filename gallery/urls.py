@@ -35,6 +35,9 @@ urlpatterns = [
     path('update-cart/<int:artwork_id>/', views.update_cart_item, name='update_cart_item'),
     path('remove-from-cart/<int:artwork_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('process-checkout/', views.process_checkout, name='process_checkout'),
+
+    # Add to urlpatterns
+    path('order-confirmation/<str:order_ref>/', views.order_confirmation, name='order_confirmation'),
     
     # ADMIN DASHBOARD URL
     path('admin-dashboard/', views.admin_dashboard_view, name='admin_dashboard'),

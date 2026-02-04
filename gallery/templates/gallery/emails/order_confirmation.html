@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation - Camps Bay Gallery</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 0 0 5px 5px;
+        }
+        .order-details {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Camps Bay Art Gallery</h1>
+        <h2>Order Confirmation</h2>
+    </div>
+    
+    <div class="content">
+        <p>Dear {{ order.first_name }} {{ order.last_name }},</p>
+        
+        <p>Thank you for your order! Here are your order details:</p>
+        
+        <div class="order-details">
+            <h3>Order #{{ order.order_reference }}</h3>
+            <p><strong>Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+            
+            <h4>Items:</h4>
+            {% for item in items %}
+            <div class="item">
+                <strong>{{ item.artwork.title }}</strong><br>
+                Artist: {{ item.artwork.artist }}<br>
+                Price: R {{ item.artwork.price|floatformat:2 }}<br>
+                Quantity: {{ item.quantity }}
+            </div>
+            {% endfor %}
+            
+            <hr>
+            <p>Subtotal: R {{ order.subtotal|floatformat:2 }}</p>
+            <p>Shipping: R {{ order.shipping|floatformat:2 }}</p>
+            <p>Tax: R {{ order.tax|floatformat:2 }}</p>
+            <p class="total">Total: R {{ order.total|floatformat:2 }}</p>
+        </div>
+        
+        <p><strong>Shipping Address:</strong><br>
+        {{ order.first_name }} {{ order.last_name }}<br>
+        {{ order.address }}<br>
+        {{ order.city }}, {{ order.province }} {{ order.postal_code }}<br>
+        {{ order.country }}
+        </p>
+        
+        <p><strong>Contact:</strong><br>
+        Email: {{ order.email }}<br>
+        Phone: {{ order.phone }}
+        </p>
+        
+        <p>We will contact you soon regarding shipping details.</p>
+        
+        <p>Thank you for supporting local artists!</p>
+        
+        <p>Warm regards,<br>
+        <strong>The Camps Bay Gallery Team</strong></p>
+    </div>
+</body>
+</html>

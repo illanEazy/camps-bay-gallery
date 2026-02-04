@@ -298,6 +298,8 @@
                 <p>{{ artwork.description }}</p>
             </div>
 
+
+
             <!-- Action Buttons -->
             <div class="artwork-actions">
                 {% if artwork.availability == 'on_request' or not artwork.allow_purchase %}
@@ -307,10 +309,10 @@
                         Inquire About This Piece
                     </button>
                 {% else %}
-                    <!-- Show add to cart button for available items -->
+                    <!-- Show quick purchase button for available items -->
                     <button class="action-btn btn-primary" id="openAddToCartModal">
-                        <i class="fas fa-shopping-cart"></i>
-                        Add To Cart
+                        <i class="fas fa-bolt"></i>  <!-- Changed icon -->
+                        Quick Purchase
                     </button>
                 {% endif %}
                 
