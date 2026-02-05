@@ -121,6 +121,7 @@ DEFAULT_FROM_EMAIL = 'Camps Bay Gallery <noreply@campsbaygallery.com>'
 EMAIL_TIMEOUT = 10
 
 
+
 # Allauth config
 SITE_ID = 2
 SITE_DOMAIN = '127.0.0.1:8000'  # Change to your domain in production
@@ -185,6 +186,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'gallery.context_processors.cart_context',
+                'gallery.context_processors.artists_processor',
             ],
         },
     },

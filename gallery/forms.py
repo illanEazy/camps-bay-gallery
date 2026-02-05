@@ -597,3 +597,79 @@ class CheckoutForm(forms.Form):
                 self.fields['postal_code'].initial = getattr(profile, 'postal_code', '')
             except UserProfile.DoesNotExist:
                 pass
+
+# Contact Form - MATCHES ORIGINAL STATIC FORM DESIGN
+class ContactForm(forms.Form):
+    """Contact form for general inquiries - matches original static form"""
+    
+    # Contact Information (EXACTLY matches original form)
+    first_name = forms.CharField(
+        max_length=50,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your first name',
+            'id': 'firstName'
+        })
+    )
+    
+    last_name = forms.CharField(
+        max_length=50,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your last name',
+            'id': 'lastName'
+        })
+    )
+    
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your email',
+            'id': 'email'
+        })
+    )
+    
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Phone number (optional)',
+            'id': 'phone'
+        })
+    )
+    
+    # Message
+    message = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={
+            'class': 'form-textarea',
+            'placeholder': 'Tell us more about your inquiry...',
+            'id': 'message',
+            'rows': 6
+        })
+    )
+    
+    # Newsletter subscription (optional)
+    newsletter_subscription = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-checkbox',
+            'id': 'newsletter'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Pre-fill user data if available
+        if user and user.is_authenticated:
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+            self.fields['email'].initial = user.email
+            self.fields['phone'].initial = user.phone if hasattr(user, 'phone') else ''

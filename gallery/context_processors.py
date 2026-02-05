@@ -1,8 +1,9 @@
 from django.conf import settings
+from .models import Artist
 
 
 # FILE: gallery/context_processors.py - Updated to handle sold items
-
+# FILE: gallery/context_processors.py - Updated to handle sold items
 def cart_context(request):
     """Context processor to add cart count to all templates - updated to filter out sold items"""
     cart = request.session.get('cart', {})
@@ -44,5 +45,12 @@ def cart_context(request):
         'cart_items_preview': cart_items[:3]  # First 3 items for preview
     }
 
-  # FILE: gallery/context_processors.py - Updated to handle sold items
+# Context processors to make artists available globally
+
+def artists_processor(request):
+    """Make active artists available in all templates"""
+    return {
+        'artists': Artist.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    }
+
 

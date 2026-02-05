@@ -7,17 +7,14 @@
         <div class="logo">Camps Bay Art Gallery</div>
         <ul class="menu-items">
             <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="#visit">Visit</a></li>
+            <li><a href="{% url 'about' %}">About Us</a></li> <!-- CHANGED FROM #visit -->
             <li class="dropdown">
                 <a href="{% url 'artists' %}">Artists</a>
                 <div class="dropdown-content">
                     <!-- Dynamic artist links -->
-                    <a href="{% url 'artist_detail' artist_id=1 %}">Amara Thompson</a>
-                    <a href="{% url 'artist_detail' artist_id=2 %}">Marcus Chen</a>
-                    <a href="{% url 'artist_detail' artist_id=3 %}">Sofia Rodriguez</a>
-                    <a href="{% url 'artist_detail' artist_id=4 %}">James Williams</a>
-                    <a href="{% url 'artist_detail' artist_id=5 %}">Zara Okafor</a>
-                    <a href="{% url 'artist_detail' artist_id=6 %}">Kai Nakamura</a>
+                    {% for artist in artists|slice:":6" %}  <!-- REUSED from context processor -->
+                    <a href="{% url 'artist_detail' artist.id %}">{{ artist.first_name }} {{ artist.last_name }}</a>
+                    {% endfor %}
                     <div class="dropdown-divider"></div>
                     <a href="{% url 'artists' %}">View All Artists</a>
                 </div>

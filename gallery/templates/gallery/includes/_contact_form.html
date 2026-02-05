@@ -6,29 +6,64 @@
     </div>
     
     <div class="contact-form-container">
-        <form class="contact-form" id="contactForm">
+        <form class="contact-form" method="POST" action="{% url 'contact' %}">
+            {% csrf_token %}
+            
             <div class="form-row grid-2 mb-md">
                 <div class="form-group">
-                    <label for="firstName" class="text-xsmall text-uppercase text-gray mb-xs">First Name</label>
-                    <input type="text" id="firstName" name="firstName" class="form-input" required>
+                    <label for="firstName" class="text-xsmall text-uppercase text-gray mb-xs">First Name *</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                    <div class="error-message">{{ form.first_name.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group">
-                    <label for="lastName" class="text-xsmall text-uppercase text-gray mb-xs">Last Name</label>
-                    <input type="text" id="lastName" name="lastName" class="form-input" required>
+                    <label for="lastName" class="text-xsmall text-uppercase text-gray mb-xs">Last Name *</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                    <div class="error-message">{{ form.last_name.errors }}</div>
+                    {% endif %}
                 </div>
             </div>
             
             <div class="form-group mb-md">
-                <label for="email" class="text-xsmall text-uppercase text-gray mb-xs">Email Address</label>
-                <input type="email" id="email" name="email" class="form-input" required>
+                <label for="email" class="text-xsmall text-uppercase text-gray mb-xs">Email Address *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group mb-md">
+                <label for="phone" class="text-xsmall text-uppercase text-gray mb-xs">Phone Number (Optional)</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                <div class="error-message">{{ form.phone.errors }}</div>
+                {% endif %}
             </div>
             
             <div class="form-group mb-lg">
-                <label for="message" class="text-xsmall text-uppercase text-gray mb-xs">Message</label>
-                <textarea id="message" name="message" class="form-textarea" required placeholder="Tell us more about your inquiry..."></textarea>
+                <label for="message" class="text-xsmall text-uppercase text-gray mb-xs">Message *</label>
+                {{ form.message }}
+                {% if form.message.errors %}
+                <div class="error-message">{{ form.message.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group mb-lg">
+                <label class="checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    {{ form.newsletter_subscription }}
+                    <span class="text-small text-gray">Keep me updated on new artworks, exhibitions, and gallery events</span>
+                </label>
             </div>
             
             <button type="submit" class="btn btn-primary btn-full">Send Message</button>
         </form>
+        
+        <div class="text-center mt-lg">
+            <p class="text-small text-gray">
+                <i class="fas fa-clock mr-xs"></i> We respond within 24 hours
+            </p>
+        </div>
     </div>
 </div>

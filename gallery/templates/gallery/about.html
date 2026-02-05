@@ -1,13 +1,42 @@
 {% extends 'gallery/base.html' %}
 
-{% block title %}About | Camps Bay Art Gallery{% endblock %}
+{% block title %}About Us | Camps Bay Art Gallery{% endblock %}
 
 {% block content %}
+<!-- Simple Hero Section -->
+<section class="contact-hero">
+    <h1 class="h1">Our Story</h1>
+    <p class="text-large text-dark">Between the mountain and the sea, where contemporary art finds its natural home.</p>
+</section>
+
+<!-- Simple Text Content - NO images, NO visit section -->
 <section class="section-light" style="padding: var(--space-xl) 0;">
     <div class="container">
-        <h1 class="h1 mb-lg">About Camps Bay Art Gallery</h1>
-        <p class="text-large mb-md">Coming soon...</p>
-        <a href="{% url 'home' %}" class="btn btn-primary">Return to Home</a>
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <h2 class="h2 mb-lg">Why Camps Bay</h2>
+            
+            <p class="text-large mb-md" style="line-height: 1.8;">
+                Founded in 2018, Camps Bay Art Gallery emerged from a simple belief: great art deserves an extraordinary setting. 
+                Nestled between the iconic Twelve Apostles and the Atlantic Ocean, our gallery is more than a space—it's an experience.
+            </p>
+            
+            <p class="text-large mb-md" style="line-height: 1.8;">
+                We champion contemporary artists who push boundaries while respecting tradition. Our collection represents diverse voices, 
+                mediums, and perspectives, united by exceptional craftsmanship and compelling narratives.
+            </p>
+            
+            <p class="text-large mb-lg" style="line-height: 1.8;">
+                Every artwork in our gallery is carefully curated, ensuring it resonates with both seasoned collectors and first-time buyers. 
+                We believe art should be accessible, engaging, and transformative.
+            </p>
+            
+            <h2 class="h2 mt-xl mb-lg">Our Mission</h2>
+            
+            <p class="text-large" style="line-height: 1.8;">
+                To create meaningful connections between artists, collectors, and communities through exceptional contemporary art 
+                in one of the world's most beautiful settings.
+            </p>
+        </div>
     </div>
 </section>
 {% endblock %}

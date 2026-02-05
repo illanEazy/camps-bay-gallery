@@ -19,7 +19,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from .forms import (
     CustomLoginForm, CustomSignupForm, OTPVerificationForm,
     CustomForgotPasswordForm, CustomResetPasswordForm, 
-    UserProfileForm, ArtworkForm, CheckoutForm
+    UserProfileForm, ArtworkForm, CheckoutForm, ContactForm
 )
 from .models import User, OTP, UserProfile, Artist, Artwork
 from django.contrib.auth.decorators import user_passes_test
@@ -78,6 +78,160 @@ def home(request):
 def about(request):
     """Render the about page"""
     return render(request, 'gallery/about.html')
+
+
+def contact(request):
+    """Handle contact form submissions with email notifications"""
+    if request.method == 'POST':
+        form = ContactForm(request.POST, user=request.user)
+        
+        if form.is_valid():
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data.get('phone', '')
+            message = form.cleaned_data['message']
+            newsletter = form.cleaned_data.get('newsletter_subscription', False)
+            
+            # Combine first and last name for email
+            full_name = f"{first_name} {last_name}"
+            
+            try:
+                # Build URLs
+                site_url = request.build_absolute_uri('/')[:-1]
+                
+                # 1. SEND EMAIL TO GALLERY (Admin notification)
+                gallery_subject = f'New Contact Form Submission from {full_name}'
+                
+                gallery_html_message = render_to_string('gallery/emails/contact_notification.html', {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'full_name': full_name,
+                    'email': email,
+                    'phone': phone,
+                    'message': message,
+                    'newsletter_subscription': newsletter,
+                    'submission_date': timezone.now().strftime('%B %d, %Y %H:%M'),
+                    'site_url': site_url,
+                    'user': request.user if request.user.is_authenticated else None,
+                })
+                
+                gallery_plain_message = f"""
+                NEW CONTACT FORM SUBMISSION - Camps Bay Gallery
+                ================================================
+                
+                From: {full_name}
+                Email: {email}
+                Phone: {phone if phone else 'Not provided'}
+                
+                Message:
+                {message}
+                
+                Subscription: {'✓ Subscribed to newsletter' if newsletter else 'Not subscribed'}
+                
+                Submission Date: {timezone.now().strftime('%B %d, %Y %H:%M')}
+                
+                {'User Account: YES' if request.user.is_authenticated else 'Guest Submission'}
+                
+                Please respond within 24 hours.
+                """
+                
+                send_mail(
+                    subject=gallery_subject,
+                    message=gallery_plain_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=['illaneazy@gmail.com'],  # Gallery email
+                    html_message=gallery_html_message,
+                    fail_silently=False,
+                )
+                
+                print(f"✅ Contact email sent to gallery from {email}")
+                
+                # 2. SEND CONFIRMATION EMAIL TO CUSTOMER
+                customer_subject = 'Thank You for Contacting Camps Bay Gallery'
+                
+                customer_html_message = render_to_string('gallery/emails/contact_confirmation.html', {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'full_name': full_name,
+                    'email': email,
+                    'message': message,
+                    'submission_date': timezone.now().strftime('%B %d, %Y %H:%M'),
+                    'site_url': site_url,
+                    'gallery_email': settings.DEFAULT_FROM_EMAIL,
+                    'gallery_phone': '+27 21 438 1000',
+                    'gallery_address': '57 Victoria Road, Camps Bay, Cape Town 8005',
+                })
+                
+                customer_plain_message = f"""
+                CONTACT FORM CONFIRMATION - Camps Bay Gallery
+                =============================================
+                
+                Dear {full_name},
+                
+                Thank you for reaching out to Camps Bay Art Gallery.
+                
+                We have received your message and will respond within 24 hours.
+                
+                Your Message:
+                {message}
+                
+                Submission Date: {timezone.now().strftime('%B %d, %Y %H:%M')}
+                
+                We'll contact you at: {email}
+                {f'Phone: {phone}' if phone else ''}
+                
+                Gallery Contact:
+                Email: {settings.DEFAULT_FROM_EMAIL}
+                Phone: +27 21 438 1000
+                Address: 57 Victoria Road, Camps Bay, Cape Town 8005
+                
+                Best regards,
+                The Camps Bay Gallery Team
+                """
+                
+                send_mail(
+                    subject=customer_subject,
+                    message=customer_plain_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    html_message=customer_html_message,
+                    fail_silently=False,
+                )
+                
+                print(f"✅ Confirmation email sent to {email}")
+                
+                messages.success(request, 'Your message has been sent! We\'ll get back to you within 24 hours. A confirmation email has been sent.')
+                
+                # Save to newsletter if opted in
+                if newsletter and email:
+                    try:
+                        # Update or create user profile newsletter subscription
+                        if request.user.is_authenticated:
+                            profile, created = UserProfile.objects.get_or_create(user=request.user)
+                            profile.newsletter_subscription = True
+                            profile.save()
+                    except Exception as e:
+                        print(f"Note: Could not update newsletter subscription: {e}")
+                
+                # Clear form after successful submission
+                form = ContactForm(user=request.user)
+                
+            except Exception as e:
+                print(f"❌ Error sending contact emails: {str(e)}")
+                messages.error(request, f'There was an error sending your message. Please try again. Error: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ContactForm(user=request.user)
+    
+    context = {
+        'form': form,
+        'page_title': 'Contact Us',
+        'page_subtitle': 'Get in touch with our gallery team'
+    }
+    
+    return render(request, 'gallery/contact.html', context)
 
 
 def artists(request):
@@ -219,9 +373,6 @@ def artworks(request):
     
     return render(request, 'gallery/artworks.html', context)
 
-def contact(request):
-    """Render the contact page"""
-    return render(request, 'gallery/contact.html')
 
 def google_login_redirect(request):
     """Redirect to Google OAuth login via allauth"""
